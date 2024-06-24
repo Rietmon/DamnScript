@@ -1,0 +1,5 @@
+region fasd
+{
+    %noawait% test(5 + 5 | 5, Get(), Get() + 4, 23 + 2, 4);
+    test();
+}
