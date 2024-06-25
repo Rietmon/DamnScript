@@ -2,6 +2,8 @@
 
 public unsafe struct VirtualMachineScheduler
 {
+    public bool HasThreads => threads.Count > 0;
+    
     public List<IntPtr> threads;
 
     public HashSet<IntPtr> asyncThreadsInUse;

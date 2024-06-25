@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using DamnScript.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
@@ -13,55 +15,39 @@ public unsafe struct ScriptAssembler
     public ScriptAssembler(int length)
     {
         byteCode = (byte*)Marshal.AllocHGlobal(length).ToPointer();
+        Unsafe.InitBlock(byteCode, 0, (uint)length);
     }
     
-    public ScriptAssembler PushToStack(ScriptValue value)
-    {
-        var pushToStack = new PushToStack(value.longValue);
-        Add(pushToStack);
-        return this;
-    }
+    public ScriptAssembler PushToStack(ScriptValue value) =>
+        Add(new PushToStack(value.longValue));
     
-    public ScriptAssembler NativeCall(string name, int argumentsCount)
-    {
-        var nativeCall = new NativeCall(name, argumentsCount);
-        Add(nativeCall);
-        return this;
-    }
+    public ScriptAssembler NativeCall(string name, int argumentsCount) =>
+        Add(new NativeCall(name, argumentsCount));
     
-    public ScriptAssembler ExpressionCall(ExpressionCall.ExpressionCallType type)
-    {
-        var expressionCall = new ExpressionCall(type);
-        Add(expressionCall);
-        return this;
-    }
+    public ScriptAssembler ExpressionCall(ExpressionCall.ExpressionCallType type) =>
+        Add(new ExpressionCall(type));
     
-    public ScriptAssembler SetSavePoint()
-    {
-        var setSavePoint = new SetSavePoint();
-        Add(setSavePoint);
-        return this;
-    }
+    public ScriptAssembler SetSavePoint() =>
+        Add(new SetSavePoint());
     
-    public ScriptAssembler JumpNotEquals(int jumpOffset)
-    {
-        var jumpNotEquals = new JumpNotEquals(jumpOffset);
-        Add(jumpNotEquals);
-        return this;
-    }
+    public ScriptAssembler JumpNotEquals(int jumpOffset) =>
+        Add(new JumpNotEquals(jumpOffset));
     
-    public ScriptAssembler SetThreadParameters(SetThreadParameters.ThreadParameters parameters)
-    {
-        var setThreadParameters = new SetThreadParameters(parameters);
-        Add(setThreadParameters);
-        return this;
-    }
+    public ScriptAssembler SetThreadParameters(SetThreadParameters.ThreadParameters parameters) =>
+        Add(new SetThreadParameters(parameters));
     
-    public void Add<T>(T value) where T : unmanaged
+    public ScriptAssembler Add<T>(T value) where T : unmanaged
     {
+        if (value is PushToStack a)
+            Console.WriteLine($"{typeof(T).Name} {a.value}");
+        if (value is ExpressionCall b)
+            Console.WriteLine($"{typeof(T).Name} {b.type}");
+        if (value is NativeCall c)
+            Console.WriteLine($"{typeof(T).Name} {new string(c.name)}");
         var ptr = byteCode + offset;
         *(T*)ptr = value;
         offset += sizeof(T);
+        return this;
     }
     
     public ByteCodeData Finish() => new(byteCode, offset);

@@ -7,7 +7,7 @@ public readonly struct PushToStack
 {
     public const int OpCode = 0x2;
     
-    public readonly int opCode = OpCode;
+    public readonly int opCode = 2;
     public readonly long value;
 
     public PushToStack(long value)

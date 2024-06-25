@@ -4,7 +4,7 @@ public unsafe struct ScriptData
 {
     public fixed char name[64];
 
-    public RegionData* regions;
+    public RegionData regions;
     
     public int regionsCount;
 }
