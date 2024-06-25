@@ -1,4 +1,4 @@
-﻿using DamnScript.Cores;
+﻿using DamnScript.Runtimes.Cores;
 
 namespace DamnScript.Runtimes.Metadatas;
 

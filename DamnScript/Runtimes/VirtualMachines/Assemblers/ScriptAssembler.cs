@@ -38,12 +38,6 @@ public unsafe struct ScriptAssembler
     
     public ScriptAssembler Add<T>(T value) where T : unmanaged
     {
-        if (value is PushToStack a)
-            Console.WriteLine($"{typeof(T).Name} {a.value}");
-        if (value is ExpressionCall b)
-            Console.WriteLine($"{typeof(T).Name} {b.type}");
-        if (value is NativeCall c)
-            Console.WriteLine($"{typeof(T).Name} {new string(c.name)}");
         var ptr = byteCode + offset;
         *(T*)ptr = value;
         offset += sizeof(T);

@@ -1,4 +1,4 @@
-﻿namespace DamnScript.Cores;
+﻿namespace DamnScript.Runtimes.Cores;
 
 public unsafe struct String32
 {
