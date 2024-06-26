@@ -38,7 +38,8 @@ public static unsafe class ScriptParser
         
         Parse(statement, &assembler);
 
-        var byteCode = assembler.Finish();
+        var byteCode = assembler.FinishAlloc();
+        assembler.Dispose();
         return new RegionData(String32.FromString(regionName), byteCode);
     }
     
@@ -58,6 +59,9 @@ public static unsafe class ScriptParser
             
             case DamnScriptParser.NumberExpressionContext expression:
                 AssemblyNumberExpression(expression, assembler);
+                break;
+            case DamnScriptParser.StringLiteralContext stringLiteral:
+                AssemblyStringLiteral(stringLiteral, assembler);
                 break;
             case DamnScriptParser.AdditiveOperatorContext operatorContext:
                 AssemblyAdditiveOperator(operatorContext, assembler);
@@ -134,6 +138,13 @@ public static unsafe class ScriptParser
     {
         var number = numberExpression.GetText();
         var value = long.Parse(number);
+        assembler->PushToStack(value);
+    }
+    
+    public static void AssemblyStringLiteral(DamnScriptParser.StringLiteralContext stringLiteral, ScriptAssembler* assembler)
+    {
+        var text = stringLiteral.GetText();
+        var value = String32.FromString(text);
         assembler->PushToStack(value);
     }
     

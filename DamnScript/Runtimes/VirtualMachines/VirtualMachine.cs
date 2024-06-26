@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Debugs;
+using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 
 namespace DamnScript.Runtimes.VirtualMachines;
@@ -8,6 +9,8 @@ namespace DamnScript.Runtimes.VirtualMachines;
 public static unsafe class VirtualMachine
 {
     public static Dictionary<string, NativeMethod> methods = new();
+    
+    public static ConstantsData constants;
     
     public static void RegisterNativeMethod(Delegate method)
     {

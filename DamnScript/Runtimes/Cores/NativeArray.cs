@@ -5,11 +5,19 @@ namespace DamnScript.Runtimes.Cores;
 
 public unsafe struct NativeArray<T> : IDisposable where T : unmanaged
 {
+    public int Length { get; private set; }
+    
     private T* _data;
     
     public NativeArray(int length)
     {
         _data = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
+    }
+    
+    public NativeArray(int length, T* data)
+    {
+        Length = length;
+        _data = data;
     }
     
     public T this[int index]

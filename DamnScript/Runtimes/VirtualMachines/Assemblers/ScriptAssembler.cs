@@ -14,12 +14,22 @@ public unsafe struct ScriptAssembler : IDisposable
     public byte* byteCode;
     public int size;
     public int offset;
+
+    public NativeList<UnsafeStringPtr> constantStrings;
     
     public ScriptAssembler()
     {
         byteCode = (byte*)UnsafeUtilities.Alloc(DefaultSize);
         Unsafe.InitBlock(byteCode, 0, DefaultSize);
         size = DefaultSize;
+        constantStrings = new NativeList<UnsafeStringPtr>(16);
+    }
+    
+    public ScriptAssembler AddConstantString(string value)
+    {
+        var str = UnsafeString.Alloc(value);
+        constantStrings.Add(str);
+        return this;
     }
     
     public ScriptAssembler PushToStack(ScriptValue value) =>
@@ -58,18 +68,19 @@ public unsafe struct ScriptAssembler : IDisposable
         return this;
     }
     
-    public ByteCodeData Finish() => new(byteCode, offset);
-    
     public ByteCodeData FinishAlloc()
     {
         var code = UnsafeUtilities.Alloc(offset);
         Unsafe.CopyBlock(code, byteCode, (uint)offset);
+        
+        
         return new ByteCodeData((byte*)code, offset);
     }
     
     public void Dispose()
     {
-        Marshal.FreeHGlobal((IntPtr)byteCode);
-        byteCode = null;
+        UnsafeUtilities.Free(byteCode);
+        constantStrings.Dispose();
+        this = default;
     }
 }

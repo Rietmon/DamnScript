@@ -4,6 +4,16 @@ using DamnScript.Runtimes.Natives;
 
 namespace DamnScript.Runtimes.Cores;
 
+public unsafe struct UnsafeStringPtr
+{
+    public readonly UnsafeString* value;
+    
+    public UnsafeStringPtr(UnsafeString* value) => this.value = value;
+
+    public static implicit operator UnsafeStringPtr(UnsafeString* value) => new(value);
+    public static implicit operator UnsafeString*(UnsafeStringPtr value) => value.value;
+}
+
 public unsafe struct UnsafeString : IDisposable
 {
     private static readonly string buffer = new(char.MinValue, 1024);
@@ -12,6 +22,8 @@ public unsafe struct UnsafeString : IDisposable
     public int length;
     
     public fixed char data[1];
+
+    public UnsafeString() => throw new Exception("UnsafeString cannot be created without allocation.");
 
     public static UnsafeString* Alloc(int length)
     {

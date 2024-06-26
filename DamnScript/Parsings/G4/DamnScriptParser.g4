@@ -34,12 +34,12 @@ factor
     : NUMBER                                          # NumberExpression
     | LEFT_PAREN expression RIGHT_PAREN              # ParenthesizedExpression
     | methodCall                                     # MethodCallExpression
-    | literal                                        # LiteralExpression
+    | stringLiteral                                        # LiteralExpression
     ;
 
 methodCall: identifier LEFT_PAREN args? RIGHT_PAREN;
 
-literal: NUMBER | STRING;
+stringLiteral: STRING;
 
 logicalOperator: (EQUAL | NOT_EQUAL | LESS | LESS_EQUAL | GREATER | GREATER_EQUAL | AND | OR);
 additiveOperator: (ADD | SUBTRACT);

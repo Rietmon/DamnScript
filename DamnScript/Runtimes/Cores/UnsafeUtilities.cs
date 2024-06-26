@@ -16,4 +16,14 @@ internal static unsafe class UnsafeUtilities
     public static void Memset(void* dest, byte value, int size) => Unsafe.InitBlock(dest, value, (uint)size);
     
     public static bool Memcmp<T>(T* ptr1, T* ptr2) where T : unmanaged => Unsafe.AreSame(ref *ptr1, ref *ptr2);
+
+    public static bool Memcmp(byte* ptr1, byte* ptr2, int size)
+    {
+        for (var i = 0; i < size; i++)
+        {
+            if (ptr1[i] != ptr2[i])
+                return false;
+        }
+        return true;
+    }
 }
