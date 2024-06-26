@@ -1,4 +1,4 @@
-﻿using DamnScript.Debugs;
+﻿using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;

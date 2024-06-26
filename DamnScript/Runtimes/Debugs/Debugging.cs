@@ -1,4 +1,4 @@
-﻿namespace DamnScript.Debugs;
+﻿namespace DamnScript.Runtimes.Debugs;
 
 public static class Debugging
 {

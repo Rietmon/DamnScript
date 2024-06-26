@@ -1,7 +1,8 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using DamnScript.Debugs;
 using DamnScript.Parsings.G4;
+using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.VirtualMachines.Assemblers;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
@@ -19,10 +20,11 @@ public static unsafe class ScriptParser
         var file = parser.file();
         
         var scriptData = new ScriptData();
+        var regions = new NativeList<RegionData>();
         for (var i = 0; i < file.ChildCount - 1; i++)
         {
             var region = ParseRegion(file.GetChild(i));
-            scriptData.regions = (region);
+            regions.Add(region);
         }
 
         return scriptData;
@@ -30,14 +32,14 @@ public static unsafe class ScriptParser
     
     public static RegionData ParseRegion(IParseTree region)
     {
-        var assembler = new ScriptAssembler(1024);
+        var assembler = new ScriptAssembler();
         var regionName = region.GetChild(1).GetText();
         var statement = region.GetChild(2);
         
         Parse(statement, &assembler);
 
         var byteCode = assembler.Finish();
-        return new RegionData(regionName, byteCode);
+        return new RegionData(String32.FromString(regionName), byteCode);
     }
     
     public static void Parse(IParseTree tree, ScriptAssembler* assembler)
@@ -108,7 +110,10 @@ public static unsafe class ScriptParser
         };
         
         if (threadParameter == SetThreadParameters.ThreadParameters.None)
+        {
             Debugging.LogError($"[{nameof(ScriptParser)}] ({AssemblyKeyword}) Unknown keyword: {text}!");
+            return;
+        }
         
         assembler->SetThreadParameters(threadParameter);
     }
@@ -165,7 +170,10 @@ public static unsafe class ScriptParser
             _ => ExpressionCall.ExpressionCallType.Invalid
         };
         if (operatorType == ExpressionCall.ExpressionCallType.Invalid)
+        {
             Debugging.LogError($"[{nameof(ScriptParser)}] ({AssemblyAdditiveOperator}) Unknown operator: {operatorText}!");
+            return;
+        }
         assembler->ExpressionCall(operatorType);
     }
 }

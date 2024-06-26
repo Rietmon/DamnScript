@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
-using DamnScript.Debugs;
+using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 
 namespace DamnScript.Runtimes.VirtualMachines;

@@ -1,21 +1,25 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using DamnScript.Debugs;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
 
 namespace DamnScript.Runtimes.VirtualMachines.Assemblers;
 
-public unsafe struct ScriptAssembler
+public unsafe struct ScriptAssembler : IDisposable
 {
-    public readonly byte* byteCode;
+    public const int DefaultSize = 1024;
+    
+    public byte* byteCode;
+    public int size;
     public int offset;
     
-    public ScriptAssembler(int length)
+    public ScriptAssembler()
     {
-        byteCode = (byte*)Marshal.AllocHGlobal(length).ToPointer();
-        Unsafe.InitBlock(byteCode, 0, (uint)length);
+        byteCode = (byte*)UnsafeUtilities.Alloc(DefaultSize);
+        Unsafe.InitBlock(byteCode, 0, DefaultSize);
+        size = DefaultSize;
     }
     
     public ScriptAssembler PushToStack(ScriptValue value) =>
@@ -38,11 +42,34 @@ public unsafe struct ScriptAssembler
     
     public ScriptAssembler Add<T>(T value) where T : unmanaged
     {
+        var length = sizeof(T);
+        if (offset + length > size)
+        {
+            size *= 2;
+            var newByteCode = (byte*)UnsafeUtilities.Realloc(byteCode, size);
+            if (newByteCode == null)
+                throw new OutOfMemoryException("Failed to reallocate memory for ScriptAssembler.");
+            byteCode = newByteCode;
+        }
+        
         var ptr = byteCode + offset;
         *(T*)ptr = value;
-        offset += sizeof(T);
+        offset += length;
         return this;
     }
     
     public ByteCodeData Finish() => new(byteCode, offset);
+    
+    public ByteCodeData FinishAlloc()
+    {
+        var code = UnsafeUtilities.Alloc(offset);
+        Unsafe.CopyBlock(code, byteCode, (uint)offset);
+        return new ByteCodeData((byte*)code, offset);
+    }
+    
+    public void Dispose()
+    {
+        Marshal.FreeHGlobal((IntPtr)byteCode);
+        byteCode = null;
+    }
 }
