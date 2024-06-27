@@ -2,9 +2,12 @@
 
 namespace DamnScript.Runtimes.Metadatas;
 
-public struct ConstantsData
+public readonly struct ConstantsData
 {
-    public NativeList<UnsafeStringPtr> strings = new(16);
+    public readonly NativeArray<UnsafeStringPair> strings;
     
-    public ConstantsData() { }
+    public ConstantsData(NativeArray<UnsafeStringPair> strings)
+    {
+        this.strings = strings;
+    }
 }

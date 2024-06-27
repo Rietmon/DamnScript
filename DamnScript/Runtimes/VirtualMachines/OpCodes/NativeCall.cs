@@ -6,7 +6,6 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes;
 public unsafe struct NativeCall
 {
     public const int OpCode = 0x1;
-    
     public readonly int opCode = OpCode;
     public fixed char name[32];
     public readonly int argumentsCount;

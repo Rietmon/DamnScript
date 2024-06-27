@@ -1,4 +1,4 @@
 region fasd
 {
-    Print(5 + 5 % 5 * 5 - 5 / 5);
+    Print("HELLO WORLD!");
 }

@@ -4,14 +4,16 @@ using DamnScript.Runtimes.Natives;
 
 namespace DamnScript.Runtimes.Cores;
 
-public unsafe struct UnsafeStringPtr
+public unsafe struct UnsafeStringPair
 {
+    public readonly int hash;
     public readonly UnsafeString* value;
     
-    public UnsafeStringPtr(UnsafeString* value) => this.value = value;
-
-    public static implicit operator UnsafeStringPtr(UnsafeString* value) => new(value);
-    public static implicit operator UnsafeString*(UnsafeStringPtr value) => value.value;
+    public UnsafeStringPair(int hash, UnsafeString* value)
+    {
+        this.hash = hash;
+        this.value = value;
+    }
 }
 
 public unsafe struct UnsafeString : IDisposable
@@ -53,6 +55,14 @@ public unsafe struct UnsafeString : IDisposable
         fixed (char* ptr = data)
             UnsafeUtilities.Memcpy(bufferPtr->data, ptr, length * sizeof(char));
         return buffer;
+    }
+    
+    public override int GetHashCode()
+    {
+        var hash = 0;
+        for (var i = 0; i < length; i++)
+            hash = 31 * hash + data[i];
+        return hash;
     }
     
     public void Dispose()

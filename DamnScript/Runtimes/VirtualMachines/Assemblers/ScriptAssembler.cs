@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
@@ -15,21 +16,14 @@ public unsafe struct ScriptAssembler : IDisposable
     public int size;
     public int offset;
 
-    public NativeList<UnsafeStringPtr> constantStrings;
+    public NativeList<UnsafeStringPair> constantStrings;
     
     public ScriptAssembler()
     {
         byteCode = (byte*)UnsafeUtilities.Alloc(DefaultSize);
         Unsafe.InitBlock(byteCode, 0, DefaultSize);
         size = DefaultSize;
-        constantStrings = new NativeList<UnsafeStringPtr>(16);
-    }
-    
-    public ScriptAssembler AddConstantString(string value)
-    {
-        var str = UnsafeString.Alloc(value);
-        constantStrings.Add(str);
-        return this;
+        constantStrings = new NativeList<UnsafeStringPair>(16);
     }
     
     public ScriptAssembler PushToStack(ScriptValue value) =>
@@ -50,6 +44,9 @@ public unsafe struct ScriptAssembler : IDisposable
     public ScriptAssembler SetThreadParameters(SetThreadParameters.ThreadParameters parameters) =>
         Add(new SetThreadParameters(parameters));
     
+    public ScriptAssembler PushStringToStack(int hash) =>
+        Add(new PushStringToStack(hash));
+    
     public ScriptAssembler Add<T>(T value) where T : unmanaged
     {
         var length = sizeof(T);
@@ -62,6 +59,10 @@ public unsafe struct ScriptAssembler : IDisposable
             byteCode = newByteCode;
         }
         
+#if DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG
+        Debugging.Log($"Add {typeof(T).Name} at {offset} with value {value}.");
+#endif
+        
         var ptr = byteCode + offset;
         *(T*)ptr = value;
         offset += length;
@@ -72,7 +73,6 @@ public unsafe struct ScriptAssembler : IDisposable
     {
         var code = UnsafeUtilities.Alloc(offset);
         Unsafe.CopyBlock(code, byteCode, (uint)offset);
-        
         
         return new ByteCodeData((byte*)code, offset);
     }

@@ -47,11 +47,7 @@ public unsafe struct ScriptValue
         return value;
     }
     
-    public UnsafeString* GetUnsafeString()
-    {
-        var index = longValue;
-        
-    }
+    public UnsafeString* GetUnsafeString() => (UnsafeString*)pointerValue;
     
     public static implicit operator ScriptValue(long value) => new(value);
 }

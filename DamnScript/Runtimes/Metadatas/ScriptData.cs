@@ -4,7 +4,9 @@ namespace DamnScript.Runtimes.Metadatas;
 
 public unsafe struct ScriptData
 {
-    public fixed char name[64];
+    public String32 name;
 
+    public ScriptMetadata metadata;
+    
     public NativeArray<RegionData> regions;
 }

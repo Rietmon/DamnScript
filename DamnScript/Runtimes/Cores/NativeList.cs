@@ -5,25 +5,18 @@ namespace DamnScript.Runtimes.Cores;
 
 public unsafe struct NativeList<T> where T : unmanaged
 {
-    public bool IsInitialized => _data != null;
+    public bool IsInitialized => Data != null;
     public int Count { get; private set; }
     public int Capacity { get; private set; }
-
-    public T this[int index]
-    {
-        get => _data[index];
-        set => _data[index] = value;
-    }  
-    
-    private T* _data;
+    public T* Data { get; private set; }
 
     public NativeList(int capacity)
     {
         if (capacity <= 0)
             throw new ArgumentOutOfRangeException("Capacity must be greater than zero.");
         
-        _data = (T*)UnsafeUtilities.Alloc(sizeof(T) * capacity);
-        if (_data == null)
+        Data = (T*)UnsafeUtilities.Alloc(sizeof(T) * capacity);
+        if (Data == null)
             throw new OutOfMemoryException("Failed to allocate memory for NativeList.");
         Count = 0;
         Capacity = capacity;
@@ -31,29 +24,29 @@ public unsafe struct NativeList<T> where T : unmanaged
 
     public void Add(T value)
     {
-        if (_data == null)
+        if (Data == null)
             throw new NullReferenceException("NativeList is not initialized.");
         
         if (Count == Capacity)
         {
             Capacity *= 2;
-            var newData = (T*)UnsafeUtilities.Realloc(_data, Capacity * sizeof(T));
+            var newData = (T*)UnsafeUtilities.Realloc(Data, Capacity * sizeof(T));
             if (newData == null)
                 throw new OutOfMemoryException("Failed to reallocate memory for NativeList.");
             
-            _data = newData;
+            Data = newData;
         }
-        _data[Count++] = value;
+        Data[Count++] = value;
     }
     
     public void Remove(T value)
     {
-        if (_data == null)
+        if (Data == null)
             throw new NullReferenceException("NativeList is not initialized.");
         
         for (var i = 0; i < Count; i++)
         {
-            if (!UnsafeUtilities.Memcmp(_data, &value))
+            if (!UnsafeUtilities.Memcmp(Data, &value))
                 continue;
             
             RemoveAt(i);
@@ -63,19 +56,19 @@ public unsafe struct NativeList<T> where T : unmanaged
     
     public void RemoveAt(int index)
     {
-        if (_data == null)
+        if (Data == null)
             throw new NullReferenceException("NativeList is not initialized.");
         
         if (index < 0 || index >= Count)
             throw new IndexOutOfRangeException("Index is out of range.");
         
-        UnsafeUtilities.Memcpy(_data + index, _data + index + 1, (Count - index - 1) * sizeof(T));
+        UnsafeUtilities.Memcpy(Data + index, Data + index + 1, (Count - index - 1) * sizeof(T));
         Count--;
     }
     
     public void Clear()
     {
-        if (_data == null)
+        if (Data == null)
             throw new NullReferenceException("NativeList is not initialized.");
         
         Count = 0;
@@ -83,22 +76,22 @@ public unsafe struct NativeList<T> where T : unmanaged
     
     public NativeArray<T> ToArrayAlloc()
     {
-        if (_data == null)
+        if (Data == null)
             throw new NullReferenceException("NativeList is not initialized.");
         
         var copiedData = (T*)UnsafeUtilities.Alloc(sizeof(T) * Count);
         if (copiedData == null)
             throw new OutOfMemoryException("Failed to allocate memory for NativeArray.");
-        UnsafeUtilities.Memcpy(copiedData, _data, Count * sizeof(T));
+        UnsafeUtilities.Memcpy(copiedData, Data, Count * sizeof(T));
         return new NativeArray<T>(Count, copiedData);
     }
     
     public void Dispose()
     {
-        if (_data == null)
+        if (Data == null)
             throw new NullReferenceException("NativeList is not initialized.");
         
-        UnsafeUtilities.Free(_data);
+        UnsafeUtilities.Free(Data);
         this = default;
     }
 }

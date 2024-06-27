@@ -1,4 +1,5 @@
-﻿using DamnScript.Runtimes.Debugs;
+﻿using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
@@ -9,19 +10,20 @@ public unsafe struct VirtualMachineThread
 {
     public const int StackSize = 256;
     
-    public byte* ByteCode => byteCodeData.start + offset;
-
-    public int offset;
+    public byte* ByteCode => regionData->byteCode.start + offset;
     
-    public ByteCodeData byteCodeData;
+    public readonly RegionData* regionData;
+    public readonly ScriptMetadata* metadata;
     
     public fixed byte stack[StackSize];
     public byte* stackPointer;
+    public int offset;
     public int savePoint;
 
-    public VirtualMachineThread(ByteCodeData byteCodeData)
+    public VirtualMachineThread(RegionData* regionData, ScriptMetadata* metadata)
     {
-        this.byteCodeData = byteCodeData;
+        this.regionData = regionData;
+        this.metadata = metadata;
         fixed (byte* pStack = stack)
             stackPointer = pStack;
     }
@@ -29,7 +31,7 @@ public unsafe struct VirtualMachineThread
     public bool ExecuteNext(out IAsyncResult result)
     {
         result = null;
-        if (!byteCodeData.IsInRange(offset))
+        if (!regionData->byteCode.IsInRange(offset))
             return false;
         
         var byteCode = ByteCode;
@@ -58,6 +60,10 @@ public unsafe struct VirtualMachineThread
                 break;
             case JumpIfEquals.OpCode:
                 ExecuteJumpIfEquals(*(JumpIfEquals*)byteCode);
+                offset += sizeof(JumpIfEquals);
+                break;
+            case PushStringToStack.OpCode:
+                ExecutePushStringToStack(*(PushStringToStack*)byteCode);
                 offset += sizeof(JumpIfEquals);
                 break;
             default:
@@ -171,6 +177,21 @@ public unsafe struct VirtualMachineThread
     {
         if (Pop() == Pop())
             offset += jumpIfEquals.jumpOffset;
+        return true;
+    }
+    
+    public bool ExecutePushStringToStack(PushStringToStack pushStringToStack)
+    {
+        var hash = pushStringToStack.hash;
+        var str = metadata->GetUnsafeString(hash);
+        if (str == null)
+        {
+            Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(ExecutePushStringToStack)}) " +
+                               $"String not found with hash: {hash}"!);
+            return false;
+        }
+        
+        Push(new ScriptValue(str).longValue);
         return true;
     }
     

@@ -3,15 +3,15 @@
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes;
 
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct PushToStack
+public readonly struct PushStringToStack
 {
-    public const int OpCode = 0x2;
+    public const int OpCode = 0x8;
     
     public readonly int opCode = OpCode;
-    public readonly long value;
+    public readonly int hash;
 
-    public PushToStack(long value)
+    public PushStringToStack(int hash)
     {
-        this.value = value;
+        this.hash = hash;
     }
 }
