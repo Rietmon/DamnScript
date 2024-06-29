@@ -2,36 +2,54 @@
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.VirtualMachines.Datas;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads;
 
-public unsafe struct VirtualMachineThread
+public readonly unsafe struct VirtualMachineThreadPtr
 {
-    public const int StackSize = 256;
+    public readonly VirtualMachineThread* value; 
     
-    public byte* ByteCode => regionData->byteCode.start + offset;
+    public VirtualMachineThreadPtr(VirtualMachineThread* value) => this.value = value;
+
+    public static implicit operator VirtualMachineThreadPtr(VirtualMachineThread* value) => new(value);
     
-    public readonly RegionData* regionData;
-    public readonly ScriptMetadata* metadata;
-    
-    public fixed byte stack[StackSize];
-    public byte* stackPointer;
-    public int offset;
-    public int savePoint;
+    public static implicit operator VirtualMachineThread*(VirtualMachineThreadPtr ptr) => ptr.value;
+}
+
+public unsafe struct VirtualMachineThread : IDisposable
+{
+    private const int StackSize = 256;
+
+    private byte* ByteCode => _regionData->byteCode.start + _offset;
+
+    public bool isDisposed;
+
+    private readonly RegionData* _regionData;
+    private readonly ScriptMetadata* _metadata;
+
+    private fixed byte _stack[StackSize];
+    private byte* _stackPointer;
+    private int _offset;
+    private int _savePoint;
 
     public VirtualMachineThread(RegionData* regionData, ScriptMetadata* metadata)
     {
-        this.regionData = regionData;
-        this.metadata = metadata;
-        fixed (byte* pStack = stack)
-            stackPointer = pStack;
+        _regionData = regionData;
+        _metadata = metadata;
+        fixed (byte* pStack = _stack)
+            _stackPointer = pStack;
     }
     
     public bool ExecuteNext(out IAsyncResult result)
     {
         result = null;
-        if (!regionData->byteCode.IsInRange(offset))
+        
+        if (isDisposed)
+            return false;
+        
+        if (!_regionData->byteCode.IsInRange(_offset))
             return false;
         
         var byteCode = ByteCode;
@@ -40,31 +58,31 @@ public unsafe struct VirtualMachineThread
         {
             case NativeCall.OpCode:
                 ExecuteNativeCall(*(NativeCall*)byteCode, out result);
-                offset += sizeof(NativeCall);
+                _offset += sizeof(NativeCall);
                 break;
             case PushToStack.OpCode:
                 ExecutePushToStack(*(PushToStack*)byteCode);
-                offset += sizeof(PushToStack);
+                _offset += sizeof(PushToStack);
                 break;
             case ExpressionCall.OpCode:
                 ExecuteExpressionCall(*(ExpressionCall*)byteCode);
-                offset += sizeof(ExpressionCall);
+                _offset += sizeof(ExpressionCall);
                 break;
             case SetSavePoint.OpCode:
                 ExecuteSetSavePoint();
-                offset += sizeof(SetSavePoint);
+                _offset += sizeof(SetSavePoint);
                 break;
             case JumpNotEquals.OpCode:
                 ExecuteJumpNotEquals(*(JumpNotEquals*)byteCode);
-                offset += sizeof(JumpNotEquals);
+                _offset += sizeof(JumpNotEquals);
                 break;
             case JumpIfEquals.OpCode:
                 ExecuteJumpIfEquals(*(JumpIfEquals*)byteCode);
-                offset += sizeof(JumpIfEquals);
+                _offset += sizeof(JumpIfEquals);
                 break;
             case PushStringToStack.OpCode:
                 ExecutePushStringToStack(*(PushStringToStack*)byteCode);
-                offset += sizeof(JumpIfEquals);
+                _offset += sizeof(JumpIfEquals);
                 break;
             default:
                 Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(ExecuteNext)}) " +
@@ -79,7 +97,7 @@ public unsafe struct VirtualMachineThread
     {
         result = null;
         var methodName = new string(nativeCall.name);
-        if (!VirtualMachine.TryGetNativeMethod(methodName, out var method))
+        if (!VirtualMachineData.TryGetNativeMethod(methodName, out var method))
             return false;
         
         var methodPointer = method.methodPointer;
@@ -162,28 +180,28 @@ public unsafe struct VirtualMachineThread
 
     public bool ExecuteSetSavePoint()
     {
-        savePoint = offset;
+        _savePoint = _offset;
         return true;
     }
     
     public bool ExecuteJumpNotEquals(JumpNotEquals jumpNotEquals)
     {
         if (Pop() != Pop())
-            offset += jumpNotEquals.jumpOffset;
+            _offset += jumpNotEquals.jumpOffset;
         return true;
     }
     
     public bool ExecuteJumpIfEquals(JumpIfEquals jumpIfEquals)
     {
         if (Pop() == Pop())
-            offset += jumpIfEquals.jumpOffset;
+            _offset += jumpIfEquals.jumpOffset;
         return true;
     }
     
     public bool ExecutePushStringToStack(PushStringToStack pushStringToStack)
     {
         var hash = pushStringToStack.hash;
-        var str = metadata->GetUnsafeString(hash);
+        var str = _metadata->GetUnsafeString(hash);
         if (str == null)
         {
             Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(ExecutePushStringToStack)}) " +
@@ -197,31 +215,36 @@ public unsafe struct VirtualMachineThread
     
     public void Push(long value)
     {
-        fixed (byte* pStack = stack)
+        fixed (byte* pStack = _stack)
         {
-            if (stackPointer == pStack + StackSize)
+            if (_stackPointer == pStack + StackSize)
             {
                 Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(Push)}) " +
                                    $"Stack is full!");
                 return;
             }
         }
-        *(long*)stackPointer = value;
-        stackPointer += sizeof(long);
+        *(long*)_stackPointer = value;
+        _stackPointer += sizeof(long);
     }
     
     public long Pop()
     {
-        fixed (byte* pStack = stack)
+        fixed (byte* pStack = _stack)
         {
-            if (stackPointer == pStack)
+            if (_stackPointer == pStack)
             {
                 Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(Pop)}) " +
                                    $"Stack is empty!");
                 return 0;
             }
         }
-        stackPointer -= sizeof(long);
-        return *(long*)stackPointer;
+        _stackPointer -= sizeof(long);
+        return *(long*)_stackPointer;
+    }
+
+    public void Dispose()
+    {
+        isDisposed = true;
     }
 }

@@ -17,13 +17,19 @@ internal static unsafe class UnsafeUtilities
     
     public static bool Memcmp<T>(T* ptr1, T* ptr2) where T : unmanaged => Unsafe.AreSame(ref *ptr1, ref *ptr2);
 
-    public static bool Memcmp(byte* ptr1, byte* ptr2, int size)
+    public static bool Memcmp(void* ptr1, void* ptr2, int size)
     {
+        var ptr1Byte = (byte*)ptr1;
+        var ptr2Byte = (byte*)ptr2;
         for (var i = 0; i < size; i++)
         {
-            if (ptr1[i] != ptr2[i])
+            if (ptr1Byte[i] != ptr2Byte[i])
                 return false;
         }
         return true;
     }
+
+    public static void* ReferenceToPointer<T>(T value) where T : class => *(void**)Unsafe.AsPointer(ref value);
+
+    public static T PointerToReference<T>(void* ptr) where T : class => Unsafe.AsRef<T>(&ptr);
 }

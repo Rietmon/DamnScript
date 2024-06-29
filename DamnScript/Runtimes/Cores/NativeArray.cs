@@ -9,6 +9,12 @@ public unsafe struct NativeArray<T> : IDisposable where T : unmanaged
     
     public T* Data { get; private set; }
     
+    public T* Begin => Data;
+    
+    public T* End => Data + Length;
+
+    public bool IsValid => Data != null;
+    
     public NativeArray(int length)
     {
         Data = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
@@ -19,10 +25,6 @@ public unsafe struct NativeArray<T> : IDisposable where T : unmanaged
         Length = length;
         Data = data;
     }
-    
-    public T* Begin => Data;
-    
-    public T* End => Data + Length;
     
     public void Dispose()
     {

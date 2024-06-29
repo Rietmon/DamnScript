@@ -23,6 +23,6 @@ public readonly unsafe struct ByteCodeData
         this.length = length;
     }
     
-    [MethodImpl(MethodImplOptions.NoOptimization)]
+    [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
     public bool IsInRange(int offset) => offset < length;
 }

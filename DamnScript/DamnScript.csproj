@@ -25,11 +25,4 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-        <Antlr4 Update="DiscountsParser.g4">
-            <DefaultCustomToolNamespace>$([MSBuild]::ValueOrDefault('$(RootNamespace).%(DefaultCustomToolNamespace)', '').TrimEnd('.'))</DefaultCustomToolNamespace>
-            <CustomToolNamespace>$([MSBuild]::ValueOrDefault(%(CustomToolNamespace), %(DefaultCustomToolNamespace)))</CustomToolNamespace>
-        </Antlr4>
-    </ItemGroup>
-
 </Project>

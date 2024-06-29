@@ -20,24 +20,16 @@ public unsafe struct ScriptValue
     public ScriptValue(long value) => longValue = value;
     public ScriptValue(void* value) => pointerValue = value;
 
-    public static ScriptValue FromReference<T>(T value) where T : class
-    {
-        var ptr = (void**)Unsafe.AsPointer(ref value);
-        return new ScriptValue(*ptr);
-    }
+    public static ScriptValue FromReference<T>(T value) where T : class => new(UnsafeUtilities.ReferenceToPointer(value));
     
-    public static ScriptValue FromStruct<T>(T value) where T : unmanaged
+    public static ScriptValue FromStructAlloc<T>(T value) where T : unmanaged
     {
         var allocate = UnsafeUtilities.Alloc(sizeof(T));
         UnsafeUtilities.Memcpy(allocate, Unsafe.AsPointer(ref value), sizeof(T));
         return new ScriptValue(allocate);
     }
 
-    public T GetReference<T>() where T : class
-    {
-        var ptr = pointerValue;
-        return Unsafe.AsRef<T>(&ptr);
-    }
+    public T GetReference<T>() where T : class => UnsafeUtilities.PointerToReference<T>(pointerValue);
     
     public T GetStruct<T>(bool freeAfterReturn = true) where T : unmanaged
     {

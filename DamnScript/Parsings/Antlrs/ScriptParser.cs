@@ -7,11 +7,11 @@ using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.VirtualMachines.Assemblers;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
 
-namespace DamnScript.Parsings;
+namespace DamnScript.Parsings.Antlrs;
 
-public static unsafe class ScriptParser
+internal static unsafe class ScriptParser
 {
-    public static ScriptData ParseScript(string scriptCode)
+    public static void ParseScript(string scriptCode, string scriptName, ScriptData* scriptData)
     {
         var charStream = new AntlrInputStream(scriptCode);
         var lexer = new DamnScriptLexer(charStream);
@@ -19,7 +19,8 @@ public static unsafe class ScriptParser
         var parser = new DamnScriptParser(tokenStream);
         var file = parser.file();
         
-        var scriptData = new ScriptData();
+        scriptData->name = new String32(scriptName);
+
         var regions = new NativeList<RegionData>(16);
         
         var strings = new NativeList<UnsafeStringPair>(16);
@@ -36,27 +37,34 @@ public static unsafe class ScriptParser
             context.assembler->Dispose();
         }
         
-        scriptData.regions = regions.ToArrayAlloc();
+        if (context.isError)
+        {
+            scriptData->Dispose();
+            *scriptData = default; 
+            regions.Dispose();
+            strings.Dispose();
+            return;
+        }
+        
+        scriptData->regions = regions.ToArrayAlloc();
         regions.Dispose();
         
-        scriptData.metadata = new ScriptMetadata(new ConstantsData(strings.ToArrayAlloc()));
+        scriptData->metadata = new ScriptMetadata(new ConstantsData(strings.ToArrayAlloc()));
         strings.Dispose();
-        
-        return scriptData;
     }
-    
-    public static RegionData ParseRegion(IParseTree region, ScriptParserContext context)
+
+    private static RegionData ParseRegion(IParseTree region, ScriptParserContext context)
     {
         var regionName = region.GetChild(1).GetText();
         var statement = region.GetChild(2);
         
-        Parse(statement, context);
+        ParseNode(statement, context);
 
         var byteCode = context.assembler->FinishAlloc();
-        return new RegionData(String32.FromString(regionName), byteCode);
+        return new RegionData(new String32(regionName), byteCode);
     }
-    
-    public static void Parse(IParseTree tree, ScriptParserContext context)
+
+    private static void ParseNode(IParseTree tree, ScriptParserContext context)
     {
         switch (tree)
         {
@@ -82,16 +90,25 @@ public static unsafe class ScriptParser
             case DamnScriptParser.MultiplicativeOperatorContext operatorContext:
                 AssemblyMultiplicativeOperator(operatorContext, context);
                 break;
+            
+            case ErrorNodeImpl errorNode:
+                context.isError = true;
+                Debugging.LogError($"[{nameof(ScriptParser)}] ({nameof(ParseNode)}) Error node: \"{errorNode.GetText()}\"!" +
+                                   $" Token number: {errorNode.SourceInterval.a}");
+                return;
         }
+        
+        if (context.isError)
+            return;
         
         for (var i = 0; i < tree.ChildCount; i++)
         {
             var child = tree.GetChild(i);
-            Parse(child, context);
+            ParseNode(child, context);
         }
     }
 
-    public static void ParseCallStatementBody(IParseTree callStatement, ScriptParserContext context)
+    private static void ParseCallStatementBody(IParseTree callStatement, ScriptParserContext context)
     {
         var start = callStatement.GetChild(0);
         var keyword = start as DamnScriptParser.KeywordContext;
@@ -108,16 +125,16 @@ public static unsafe class ScriptParser
         {
             var child = operatorContext.GetChild(i);
             if (child is DamnScriptParser.AdditiveOperatorContext)
-                Parse(operatorContext.GetChild(++i), context);
-            Parse(child, context);
+                ParseNode(operatorContext.GetChild(++i), context);
+            ParseNode(child, context);
         }
     }
-    
-    public static void ParseIfStatementBody(DamnScriptParser.IfStatementContext ifStatement, ScriptParserContext context)
+
+    private static void ParseIfStatementBody(DamnScriptParser.IfStatementContext ifStatement, ScriptParserContext context)
     {
     }
-    
-    public static void AssemblyKeyword(DamnScriptParser.KeywordContext keyword, ScriptParserContext context)
+
+    private static void AssemblyKeyword(DamnScriptParser.KeywordContext keyword, ScriptParserContext context)
     {
         var text = keyword.GetText();
         var threadParameter = text switch
@@ -134,27 +151,27 @@ public static unsafe class ScriptParser
         
         context.assembler->SetThreadParameters(threadParameter);
     }
-    
-    public static void AssemblyMethodCall(DamnScriptParser.MethodCallContext methodCall, ScriptParserContext context)
+
+    private static void AssemblyMethodCall(DamnScriptParser.MethodCallContext methodCall, ScriptParserContext context)
     {
         var identifier = methodCall.GetChild(0);
         for (var i = 0; i < methodCall.ChildCount; i++)
         {
             var child = methodCall.GetChild(i);
-            Parse(child, context);
+            ParseNode(child, context);
         }
         
         context.assembler->NativeCall(identifier.GetText(), methodCall.ChildCount);
     }
-    
-    public static void AssemblyNumberExpression(DamnScriptParser.NumberExpressionContext numberExpression, ScriptParserContext context)
+
+    private static void AssemblyNumberExpression(DamnScriptParser.NumberExpressionContext numberExpression, ScriptParserContext context)
     {
         var number = numberExpression.GetText();
         var value = long.Parse(number);
         context.assembler->PushToStack(value);
     }
-    
-    public static void AssemblyStringLiteral(DamnScriptParser.StringLiteralContext stringLiteral, ScriptParserContext context)
+
+    private static void AssemblyStringLiteral(DamnScriptParser.StringLiteralContext stringLiteral, ScriptParserContext context)
     {
         var text = stringLiteral.GetText();
         var value = UnsafeString.Alloc(text);
@@ -162,20 +179,20 @@ public static unsafe class ScriptParser
         context.strings->Add(new UnsafeStringPair(hash, value));
         context.assembler->PushStringToStack(hash);
     }
-    
-    public static void AssemblyMultiplicativeOperator(DamnScriptParser.MultiplicativeOperatorContext multiplicativeOperator, ScriptParserContext context)
+
+    private static void AssemblyMultiplicativeOperator(DamnScriptParser.MultiplicativeOperatorContext multiplicativeOperator, ScriptParserContext context)
     {
         var operatorText = multiplicativeOperator.GetText();
         AssemblyOperator(operatorText, context);
     }
-    
-    public static void AssemblyAdditiveOperator(DamnScriptParser.AdditiveOperatorContext additiveOperator, ScriptParserContext context)
+
+    private static void AssemblyAdditiveOperator(DamnScriptParser.AdditiveOperatorContext additiveOperator, ScriptParserContext context)
     {
         var operatorText = additiveOperator.GetText();
         AssemblyOperator(operatorText, context);
     }
 
-    public static void AssemblyOperator(string operatorText, ScriptParserContext context)
+    private static void AssemblyOperator(string operatorText, ScriptParserContext context)
     {
         var operatorType = operatorText switch
         {

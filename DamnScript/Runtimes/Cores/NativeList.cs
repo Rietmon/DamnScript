@@ -9,6 +9,12 @@ public unsafe struct NativeList<T> where T : unmanaged
     public int Count { get; private set; }
     public int Capacity { get; private set; }
     public T* Data { get; private set; }
+    
+    public T* Begin => Data;
+    
+    public T* End => Data + Count;
+
+    public bool IsValid => Data != null;
 
     public NativeList(int capacity)
     {

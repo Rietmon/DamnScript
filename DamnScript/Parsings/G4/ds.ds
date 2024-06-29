@@ -1,4 +1,0 @@
-region fasd
-{
-    Print("HELLO WORLD!");
-}

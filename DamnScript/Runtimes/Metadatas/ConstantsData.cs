@@ -2,12 +2,17 @@
 
 namespace DamnScript.Runtimes.Metadatas;
 
-public readonly struct ConstantsData
+public struct ConstantsData : IDisposable
 {
-    public readonly NativeArray<UnsafeStringPair> strings;
+    public NativeArray<UnsafeStringPair> strings;
     
     public ConstantsData(NativeArray<UnsafeStringPair> strings)
     {
         this.strings = strings;
+    }
+
+    public void Dispose()
+    {
+        strings.Dispose();
     }
 }

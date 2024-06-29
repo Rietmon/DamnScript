@@ -2,9 +2,9 @@
 
 namespace DamnScript.Runtimes.Metadatas;
 
-public readonly unsafe struct ScriptMetadata
+public unsafe struct ScriptMetadata : IDisposable
 {
-    private readonly ConstantsData _constants;
+    private ConstantsData _constants;
     
     public ScriptMetadata(ConstantsData constants)
     {
@@ -25,5 +25,10 @@ public readonly unsafe struct ScriptMetadata
         }
         
         return null;
+    }
+
+    public void Dispose()
+    {
+        _constants.Dispose();
     }
 }

@@ -12,15 +12,24 @@ public unsafe struct String32
         set => this.value[index] = value;
     }
     
-    public static String32 FromString(string value)
+    public String32(char* value, int length)
     {
-        var str = new String32();
-        fixed (char* ptr = value)
+        fixed (char* ptr = this.value)
+            UnsafeUtilities.Memcpy(ptr, value, length * sizeof(char));
+    }
+    
+    public String32(string value)
+    {
+        if (value.Length > 32)
+            throw new ArgumentException("String length must be less than or equal to 32.");
+        
+        fixed (char* strPtr = this.value)
         {
-            UnsafeUtilities.Memcpy(str.value, ptr, value.Length * sizeof(char));
-            str[value.Length] = '\0';
+            fixed (char* valuePtr = value)
+            {
+                UnsafeUtilities.Memcpy(valuePtr, strPtr, value.Length * sizeof(char));
+            }
         }
-        return str;
     }
 
     public override string ToString()

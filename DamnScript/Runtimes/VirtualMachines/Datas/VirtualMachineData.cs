@@ -1,24 +1,21 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 
-namespace DamnScript.Runtimes.VirtualMachines;
+namespace DamnScript.Runtimes.VirtualMachines.Datas;
 
-public static unsafe class VirtualMachine
+public static unsafe class VirtualMachineData
 {
-    public static Dictionary<string, NativeMethod> methods = new();
+    private static readonly Dictionary<string, NativeMethod> methods = new();
     
-    public static ConstantsData constants;
-    
-    public static void RegisterNativeMethod(Delegate method)
+    public static void RegisterNativeMethod(Delegate d)
     {
-        var methodName = method.Method.Name;
-        var methodPointer = method.Method.MethodHandle.GetFunctionPointer().ToPointer();
-        var argumentsCount = method.Method.GetParameters().Length;
-        var isAsync = IsAsyncMethod(method.Method, typeof(AsyncStateMachineAttribute));
-        var isStatic = method.Method.IsStatic;
+        var methodName = d.Method.Name;
+        var methodPointer = d.Method.MethodHandle.GetFunctionPointer().ToPointer();
+        var argumentsCount = d.Method.GetParameters().Length;
+        var isAsync = d.Method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
+        var isStatic = d.Method.IsStatic;
         var nativeMethod = new NativeMethod(methodPointer, argumentsCount, isAsync, isStatic);
         methods.Add(methodName, nativeMethod);
     }
@@ -27,7 +24,7 @@ public static unsafe class VirtualMachine
     {
         var methodName = method.Name;
         var methodPointer = method.MethodHandle.GetFunctionPointer().ToPointer();
-        var isAsync = IsAsyncMethod(method, typeof(AsyncStateMachineAttribute));
+        var isAsync = method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
         var argumentsCount = method.GetParameters().Length;
         var isStatic = method.IsStatic;
         var nativeMethod = new NativeMethod(methodPointer, argumentsCount, isAsync, isStatic);
@@ -39,10 +36,8 @@ public static unsafe class VirtualMachine
         if (methods.TryGetValue(methodName, out method)) 
             return true;
         
-        Debugging.LogError($"[{nameof(VirtualMachine)}] ({nameof(TryGetNativeMethod)}) " +
+        Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(TryGetNativeMethod)}) " +
                            $"Method not found: {methodName}");
         return false;
     }
-    
-    private static bool IsAsyncMethod(MethodInfo method, Type attType) => method.GetCustomAttribute(attType) != null;
 }
