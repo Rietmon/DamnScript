@@ -1,4 +1,5 @@
-﻿using DamnScript.Runtimes.Cores;
+﻿using System.Runtime.InteropServices;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Natives;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads;
@@ -67,8 +68,11 @@ public unsafe struct VirtualMachineScheduler
         return HasThreads || HasThreadsAwaiting;
     }
 
-    public void AddToAwait(IAsyncResult result, VirtualMachineThreadPtr pointer) =>
-        _threadsAreAwait.Add(((IntPtr)UnsafeUtilities.ReferenceToPointer(result), pointer));
+    public void AddToAwait(IAsyncResult result, VirtualMachineThreadPtr pointer)
+    {
+        var gcHandle = GCHandle.Alloc(result);
+        _threadsAreAwait.Add((gcHandle.AddrOfPinnedObject(), pointer));
+    }
 
     public void RemoveFromAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
     {
@@ -79,6 +83,8 @@ public unsafe struct VirtualMachineScheduler
         {
             if (begin->pointer.value == virtualMachineThreadPointer.value)
             {
+                var gcHandle = GCHandle.FromIntPtr(begin->result);
+                gcHandle.Free();
                 _threadsAreAwait.RemoveAt(i);
                 return;
             }

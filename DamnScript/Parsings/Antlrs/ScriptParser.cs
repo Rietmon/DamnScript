@@ -183,11 +183,10 @@ internal static unsafe class ScriptParser
             if (child is DamnScriptParser.StatementContext)
                 ParseNode(child, context);
         }
-        context.assembler->PushToStack(new ScriptValue(1));
         
         var offset = context.assembler->offset;
         context.assembler->offset = jumpOffset;
-        context.assembler->JumpNotEquals(offset);
+        context.assembler->JumpNotEquals(offset + sizeof(Jump));
         context.assembler->offset = offset;
     }
 
@@ -231,7 +230,7 @@ internal static unsafe class ScriptParser
     private static void AssemblyStringLiteral(DamnScriptParser.StringLiteralContext stringLiteral, ScriptParserContext context)
     {
         var text = stringLiteral.GetText();
-        var value = UnsafeString.Alloc(text);
+        var value = UnsafeString.Alloc(text, 1, text.Length - 2);
         var hash = value->GetHashCode();
         context.strings->Add(new UnsafeStringPair(hash, value));
         context.assembler->PushStringToStack(hash);

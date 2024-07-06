@@ -46,6 +46,14 @@ public unsafe struct UnsafeString : IDisposable
         return str;
     }
     
+    public static UnsafeString* Alloc(string value, int start, int length)
+    {
+        var str = Alloc(length);
+        fixed (char* ptr = value)
+            UnsafeUtilities.Memcpy(str->data, ptr + start, length * sizeof(char));
+        return str;
+    }
+    
     public override string ToString()
     {
         fixed (char* ptr = data)

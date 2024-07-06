@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Debugs;
@@ -36,8 +37,6 @@ public unsafe struct VirtualMachineThread : IDisposable
     private int _offset;
     private int _savePoint;
 
-    private IntPtr sb;
-
     public VirtualMachineThread(RegionData* regionData, ScriptMetadata* metadata)
     {
         _regionData = regionData;
@@ -51,20 +50,11 @@ public unsafe struct VirtualMachineThread : IDisposable
         
         if (isDisposed)
             return false;
-
-        StringBuilder sb;
-        if (this.sb == IntPtr.Zero)
-            this.sb = (IntPtr)UnsafeUtilities.ReferenceToPointer((sb = new StringBuilder()));
-        else
-            sb = UnsafeUtilities.PointerToReference<StringBuilder>(this.sb.ToPointer());
         
         if (!_regionData->byteCode.IsInRange(_offset))
-        {
-            Debugging.Log(sb.ToString());
             return false;
-        }
         
-        sb.AppendLine(_offset.ToString());
+        Debugging.Log(_offset.ToString());
         var byteCode = ByteCode;
         var opCode = *(int*)byteCode;
         switch (opCode)
@@ -86,16 +76,16 @@ public unsafe struct VirtualMachineThread : IDisposable
                 _offset += sizeof(SetSavePoint);
                 break;
             case JumpNotEquals.OpCode:
-                ExecuteJumpNotEquals(*(JumpNotEquals*)byteCode);
-                _offset += sizeof(JumpNotEquals);
+                if (ExecuteJumpNotEquals(*(JumpNotEquals*)byteCode))
+                    _offset += sizeof(JumpNotEquals);
                 break;
             case JumpIfEquals.OpCode:
-                ExecuteJumpIfEquals(*(JumpIfEquals*)byteCode);
-                _offset += sizeof(JumpIfEquals);
+                if (ExecuteJumpIfEquals(*(JumpIfEquals*)byteCode))
+                    _offset += sizeof(JumpIfEquals);
                 break;
             case Jump.OpCode:
-                ExecuteJump(*(Jump*)byteCode);
-                _offset += sizeof(Jump);
+                if (ExecuteJump(*(Jump*)byteCode))
+                    _offset += sizeof(Jump);
                 break;
             case PushStringToStack.OpCode:
                 ExecutePushStringToStack(*(PushStringToStack*)byteCode);
@@ -108,6 +98,7 @@ public unsafe struct VirtualMachineThread : IDisposable
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecuteNativeCall(NativeCall nativeCall, out IAsyncResult result)
     {
         result = null;
@@ -137,21 +128,21 @@ public unsafe struct VirtualMachineThread : IDisposable
         }
         else
         {
-            switch (argumentsCount)
+            result = argumentsCount switch
             {
-                case 0: result = ((delegate*<IAsyncResult>)methodPointer)(); break;
-                case 1: result = ((delegate*<ScriptValue, IAsyncResult>)methodPointer)(new ScriptValue(Pop())); break;
-                case 2: result = ((delegate*<ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop()); break;
-                case 3: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop()); break;
-                case 4: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop()); break;
-                case 5: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 6: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 7: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 8: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 9: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 10: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                default: throw new Exception("Invalid arguments count! It must be between 0 and 10.");
-            }
+                0 => ((delegate*<IAsyncResult>)methodPointer)(),
+                1 => ((delegate*<ScriptValue, IAsyncResult>)methodPointer)(new ScriptValue(Pop())),
+                2 => ((delegate*<ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop()),
+                3 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop()),
+                4 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop()),
+                5 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop()),
+                6 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
+                7 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
+                8 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
+                9 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
+                10 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
+                _ => throw new Exception("Invalid arguments count! It must be between 0 and 10.")
+            };
 
             return false;
         }
@@ -159,12 +150,14 @@ public unsafe struct VirtualMachineThread : IDisposable
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecutePushToStack(PushToStack pushToStack)
     {
         Push(pushToStack.value);
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecuteExpressionCall(ExpressionCall expressionCall)
     {
         switch (expressionCall.type)
@@ -191,48 +184,58 @@ public unsafe struct VirtualMachineThread : IDisposable
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecuteSetSavePoint()
     {
         _savePoint = _offset;
         return true;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecuteJumpNotEquals(JumpNotEquals jumpNotEquals)
     {
         if (Pop() != Pop())
+        {
             _offset = jumpNotEquals.jumpOffset;
+            return false;
+        }
         return true;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecuteJumpIfEquals(JumpIfEquals jumpIfEquals)
     {
         if (Pop() == Pop())
+        {
             _offset = jumpIfEquals.jumpOffset;
+            return false;
+        }
         return true;
     }
 
-    private void ExecuteJump(Jump jump)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool ExecuteJump(Jump jump)
     {
         _offset = jump.jumpOffset;
+        return false;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecutePushStringToStack(PushStringToStack pushStringToStack)
     {
         var hash = pushStringToStack.hash;
         var str = _metadata->GetUnsafeString(hash);
         if (str == null)
-        {
-            Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(ExecutePushStringToStack)}) " +
-                               $"String not found with hash: {hash}"!);
-            return false;
-        }
+            throw new Exception($"String not found with hash: {hash}");
         
         Push(new ScriptValue(str).longValue);
         return true;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Push(long value) => _stack.Push(value);
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public long Pop() => _stack.Pop();
 
     public void Dispose()

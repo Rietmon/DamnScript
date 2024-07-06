@@ -18,17 +18,17 @@ public static unsafe class Disassembler
             {
                 case NativeCall.OpCode:
                     var nativeCall = *(NativeCall*)byteCode;
-                    sb.AppendLine($"{offset.ToString()}: CALL {new string(nativeCall.name)} {nativeCall.argumentsCount}");
+                    sb.AppendLine($"{offset.ToString()}: CALL {new string(nativeCall.name)} {nativeCall.argumentsCount.ToString()}");
                     offset += sizeof(NativeCall);
                     break;
                 case PushToStack.OpCode:
                     var pushToStack = *(PushToStack*)byteCode;
-                    sb.AppendLine($"{offset.ToString()}: PUSH {pushToStack.value}");
+                    sb.AppendLine($"{offset.ToString()}: PUSH {pushToStack.value.ToString()}");
                     offset += sizeof(PushToStack);
                     break;
                 case ExpressionCall.OpCode:
                     var expressionCall = *(ExpressionCall*)byteCode;
-                    sb.AppendLine($"{offset.ToString()}: CALL {expressionCall.type}");
+                    sb.AppendLine($"{offset.ToString()}: EXPCALL {expressionCall.type.ToString()}");
                     offset += sizeof(ExpressionCall);
                     break;
                 case SetSavePoint.OpCode:
@@ -37,23 +37,23 @@ public static unsafe class Disassembler
                     break;
                 case JumpNotEquals.OpCode:
                     var jumpNotEquals = *(JumpNotEquals*)byteCode;
-                    sb.AppendLine($"{offset.ToString()}: JNE {jumpNotEquals.jumpOffset}");
+                    sb.AppendLine($"{offset.ToString()}: JNE {jumpNotEquals.jumpOffset.ToString()}");
                     offset += sizeof(JumpNotEquals);
                     break;
                 case JumpIfEquals.OpCode:
                     var jumpIfEquals = *(JumpIfEquals*)byteCode;
-                    sb.AppendLine($"{offset.ToString()}: JEQ {jumpIfEquals.jumpOffset}");
+                    sb.AppendLine($"{offset.ToString()}: JEQ {jumpIfEquals.jumpOffset.ToString()}");
                     offset += sizeof(JumpIfEquals);
                     break;
                 case Jump.OpCode:
                     var jump = *(Jump*)byteCode;
-                    sb.AppendLine($"{offset.ToString()}: JMP {jump.jumpOffset}");
+                    sb.AppendLine($"{offset.ToString()}: JMP {jump.jumpOffset.ToString()}");
                     offset += sizeof(Jump);
                     break;
                 case PushStringToStack.OpCode:
                     var pushStringToStack = *(PushStringToStack*)byteCode;
                     var str = metadata.GetUnsafeString(pushStringToStack.hash);
-                    sb.AppendLine($"{offset.ToString()}: PUSHSTR {new string(str->data)} ({pushStringToStack.hash})");
+                    sb.AppendLine($"{offset.ToString()}: PUSHSTR {str->ToString()} ({pushStringToStack.hash.ToString()})");
                     offset += sizeof(JumpIfEquals);
                     break;
                 default:
