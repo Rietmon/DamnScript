@@ -7,8 +7,6 @@ namespace DamnScript.Parsings.Compilings;
 
 public static unsafe class CompiledScriptParser
 {
-    public const int Version = 1;
-    
     public static void ParseCompiledScript(byte* scriptCode, int length, string scriptName, ScriptData* scriptData)
     {
         scriptData->name = new String32(scriptName);
@@ -18,7 +16,7 @@ public static unsafe class CompiledScriptParser
         var stream = new SerializationStream(scriptCode, length);
 
         var version = stream.Read<int>();
-        if (version != Version)
+        if (version != ScriptCompiler.Version)
         {
             Debugging.LogError($"[{nameof(CompiledScriptParser)}] ({nameof(ParseCompiledScript)}) " +
                                $"Invalid script version: {version}");
@@ -28,9 +26,7 @@ public static unsafe class CompiledScriptParser
         var regionsCount = stream.Read<int>();
         for (var i = 0; i < regionsCount; i++)
         {
-            var regionNameLength = stream.Read<int>();
-            var regionName = new String32();
-            stream.CustomRead(&regionName, regionNameLength);
+            var regionName = stream.Read<String32>();
             
             var byteCode = stream.Read<ByteCodeData>();
             regions.Add(new RegionData(regionName, byteCode));

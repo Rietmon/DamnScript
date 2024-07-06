@@ -9,16 +9,8 @@ public static unsafe class VirtualMachineData
 {
     private static readonly Dictionary<string, NativeMethod> methods = new();
     
-    public static void RegisterNativeMethod(Delegate d)
-    {
-        var methodName = d.Method.Name;
-        var methodPointer = d.Method.MethodHandle.GetFunctionPointer().ToPointer();
-        var argumentsCount = d.Method.GetParameters().Length;
-        var isAsync = d.Method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
-        var isStatic = d.Method.IsStatic;
-        var nativeMethod = new NativeMethod(methodPointer, argumentsCount, isAsync, isStatic);
-        methods.Add(methodName, nativeMethod);
-    }
+    public static void RegisterNativeMethod(Delegate d) => 
+        RegisterNativeMethod(d.Method);
     
     public static void RegisterNativeMethod(MethodInfo method)
     {

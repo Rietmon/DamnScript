@@ -1,4 +1,6 @@
-﻿using DamnScript.Runtimes.Cores;
+﻿using System.Diagnostics;
+using System.Text;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
@@ -29,17 +31,18 @@ public unsafe struct VirtualMachineThread : IDisposable
     private readonly RegionData* _regionData;
     private readonly ScriptMetadata* _metadata;
 
-    private fixed byte _stack[StackSize];
-    private byte* _stackPointer;
+    private VirtualMachineThreadStack _stack;
+    
     private int _offset;
     private int _savePoint;
+
+    private IntPtr sb;
 
     public VirtualMachineThread(RegionData* regionData, ScriptMetadata* metadata)
     {
         _regionData = regionData;
         _metadata = metadata;
-        fixed (byte* pStack = _stack)
-            _stackPointer = pStack;
+        _stack = new VirtualMachineThreadStack();
     }
     
     public bool ExecuteNext(out IAsyncResult result)
@@ -48,10 +51,20 @@ public unsafe struct VirtualMachineThread : IDisposable
         
         if (isDisposed)
             return false;
+
+        StringBuilder sb;
+        if (this.sb == IntPtr.Zero)
+            this.sb = (IntPtr)UnsafeUtilities.ReferenceToPointer((sb = new StringBuilder()));
+        else
+            sb = UnsafeUtilities.PointerToReference<StringBuilder>(this.sb.ToPointer());
         
         if (!_regionData->byteCode.IsInRange(_offset))
+        {
+            Debugging.Log(sb.ToString());
             return false;
+        }
         
+        sb.AppendLine(_offset.ToString());
         var byteCode = ByteCode;
         var opCode = *(int*)byteCode;
         switch (opCode)
@@ -80,19 +93,21 @@ public unsafe struct VirtualMachineThread : IDisposable
                 ExecuteJumpIfEquals(*(JumpIfEquals*)byteCode);
                 _offset += sizeof(JumpIfEquals);
                 break;
+            case Jump.OpCode:
+                ExecuteJump(*(Jump*)byteCode);
+                _offset += sizeof(Jump);
+                break;
             case PushStringToStack.OpCode:
                 ExecutePushStringToStack(*(PushStringToStack*)byteCode);
                 _offset += sizeof(JumpIfEquals);
                 break;
             default:
-                Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(ExecuteNext)}) " +
-                                   $"Invalid OpCode: {opCode}");
-                return false;
+                throw new Exception($"Invalid OpCode: {opCode}");
         }
 
         return true;
     }
-    
+
     public bool ExecuteNativeCall(NativeCall nativeCall, out IAsyncResult result)
     {
         result = null;
@@ -117,8 +132,7 @@ public unsafe struct VirtualMachineThread : IDisposable
                 case 8: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
                 case 9: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
                 case 10: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                default: Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(ExecuteNativeCall)}) " +
-                                            $"Invalid arguments count: {argumentsCount}"); break;
+                default: throw new Exception("Invalid arguments count! It must be between 0 and 10.");
             }
         }
         else
@@ -136,8 +150,7 @@ public unsafe struct VirtualMachineThread : IDisposable
                 case 8: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
                 case 9: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
                 case 10: result = ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                default: Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(ExecuteNativeCall)}) " +
-                                            $"Invalid arguments count: {argumentsCount}"); break;
+                default: throw new Exception("Invalid arguments count! It must be between 0 and 10.");
             }
 
             return false;
@@ -172,7 +185,7 @@ public unsafe struct VirtualMachineThread : IDisposable
             case ExpressionCall.ExpressionCallType.And: Push(Pop() != 0 && Pop() != 0 ? 1 : 0); break;
             case ExpressionCall.ExpressionCallType.Or: Push(Pop() != 0 || Pop() != 0 ? 1 : 0); break;
             case ExpressionCall.ExpressionCallType.Not: Push(Pop() == 0 ? 1 : 0); break;
-            default: throw new ArgumentOutOfRangeException();
+            default: throw new ArgumentOutOfRangeException(nameof(expressionCall));
         }
 
         return true;
@@ -187,15 +200,20 @@ public unsafe struct VirtualMachineThread : IDisposable
     public bool ExecuteJumpNotEquals(JumpNotEquals jumpNotEquals)
     {
         if (Pop() != Pop())
-            _offset += jumpNotEquals.jumpOffset;
+            _offset = jumpNotEquals.jumpOffset;
         return true;
     }
     
     public bool ExecuteJumpIfEquals(JumpIfEquals jumpIfEquals)
     {
         if (Pop() == Pop())
-            _offset += jumpIfEquals.jumpOffset;
+            _offset = jumpIfEquals.jumpOffset;
         return true;
+    }
+
+    private void ExecuteJump(Jump jump)
+    {
+        _offset = jump.jumpOffset;
     }
     
     public bool ExecutePushStringToStack(PushStringToStack pushStringToStack)
@@ -213,35 +231,9 @@ public unsafe struct VirtualMachineThread : IDisposable
         return true;
     }
     
-    public void Push(long value)
-    {
-        fixed (byte* pStack = _stack)
-        {
-            if (_stackPointer == pStack + StackSize)
-            {
-                Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(Push)}) " +
-                                   $"Stack is full!");
-                return;
-            }
-        }
-        *(long*)_stackPointer = value;
-        _stackPointer += sizeof(long);
-    }
+    public void Push(long value) => _stack.Push(value);
     
-    public long Pop()
-    {
-        fixed (byte* pStack = _stack)
-        {
-            if (_stackPointer == pStack)
-            {
-                Debugging.LogError($"[{nameof(VirtualMachineThread)}] ({nameof(Pop)}) " +
-                                   $"Stack is empty!");
-                return 0;
-            }
-        }
-        _stackPointer -= sizeof(long);
-        return *(long*)_stackPointer;
-    }
+    public long Pop() => _stack.Pop();
 
     public void Dispose()
     {

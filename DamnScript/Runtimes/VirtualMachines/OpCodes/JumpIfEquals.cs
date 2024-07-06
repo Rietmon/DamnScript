@@ -7,7 +7,7 @@ public struct JumpIfEquals
 {
     public const int OpCode = 0x6;
     public readonly int opCode = OpCode;
-    public int jumpOffset;
+    public readonly int jumpOffset;
     
     public JumpIfEquals(int jumpOffset)
     {

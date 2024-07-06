@@ -4,6 +4,7 @@ using DamnScript.Parsings.G4;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
+using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Assemblers;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
 
@@ -75,7 +76,11 @@ internal static unsafe class ScriptParser
                 ParseAdditiveExpression(operatorContext, context);
                 return;
             case DamnScriptParser.IfStatementContext ifStatement:
-                ParseIfStatementBody(ifStatement, context);
+                ParseIfStatement(ifStatement, context);
+                return;
+            
+            case DamnScriptParser.LogicalStatementContext logicalExpression:
+                AssemblyLogicalExpression(logicalExpression, context);
                 return;
             
             case DamnScriptParser.NumberExpressionContext expression:
@@ -108,6 +113,35 @@ internal static unsafe class ScriptParser
         }
     }
 
+    private static void ParseIfStatement(DamnScriptParser.IfStatementContext ifStatement, ScriptParserContext context)
+    {
+        var jumps = stackalloc int[16];
+        var jumpsCount = 0;
+        for (var i = 0; i < ifStatement.ChildCount; i++)
+        {
+            var child = ifStatement.GetChild(i);
+            if (child is TerminalNodeImpl)
+                continue;
+            
+            ParseNode(child, context);
+            
+            if (i >= ifStatement.ChildCount - 1)
+                continue;
+            
+            jumps[jumpsCount++] = context.assembler->offset;
+            context.assembler->Jump(-1);
+        }
+        
+        var targetOffset = context.assembler->offset;
+        for (var i = 0; i < jumpsCount; i++)
+        {
+            var offset = jumps[i];
+            context.assembler->offset = offset;
+            context.assembler->Jump(targetOffset);
+        }
+        context.assembler->offset = targetOffset;
+    }
+
     private static void ParseCallStatementBody(IParseTree callStatement, ScriptParserContext context)
     {
         var start = callStatement.GetChild(0);
@@ -129,9 +163,32 @@ internal static unsafe class ScriptParser
             ParseNode(child, context);
         }
     }
-
-    private static void ParseIfStatementBody(DamnScriptParser.IfStatementContext ifStatement, ScriptParserContext context)
+    
+    private static void AssemblyLogicalExpression(DamnScriptParser.LogicalStatementContext logicalExpression, ScriptParserContext context)
     {
+        for (var i = 0; i < logicalExpression.ChildCount; i++)
+        {
+            var child = logicalExpression.GetChild(i);
+            if (child is DamnScriptParser.ExpressionContext)
+                ParseNode(child, context);
+        }
+
+        context.assembler->PushToStack(new ScriptValue(1));
+        var jumpOffset = context.assembler->offset;
+        context.assembler->JumpNotEquals(-1);
+        
+        for (var i = 0; i < logicalExpression.ChildCount; i++)
+        {
+            var child = logicalExpression.GetChild(i);
+            if (child is DamnScriptParser.StatementContext)
+                ParseNode(child, context);
+        }
+        context.assembler->PushToStack(new ScriptValue(1));
+        
+        var offset = context.assembler->offset;
+        context.assembler->offset = jumpOffset;
+        context.assembler->JumpNotEquals(offset);
+        context.assembler->offset = offset;
     }
 
     private static void AssemblyKeyword(DamnScriptParser.KeywordContext keyword, ScriptParserContext context)

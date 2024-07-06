@@ -28,8 +28,21 @@ internal static unsafe class UnsafeUtilities
         }
         return true;
     }
+    
+    public static void Strcpy(char* dest, char* src)
+    {
+        var i = 0;
+        while (src[i] != '\0')
+        {
+            dest[i] = src[i];
+            i++;
+        }
+        dest[i] = '\0';
+    }
 
     public static void* ReferenceToPointer<T>(T value) where T : class => *(void**)Unsafe.AsPointer(ref value);
 
     public static T PointerToReference<T>(void* ptr) where T : class => Unsafe.AsRef<T>(&ptr);
+    
+    public static T* FixedBufferToPtr<T>(ref T value) where T : unmanaged => (T*)Unsafe.AsPointer(ref value);
 }

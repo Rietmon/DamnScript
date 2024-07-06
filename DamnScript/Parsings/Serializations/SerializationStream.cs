@@ -9,6 +9,13 @@ internal unsafe struct SerializationStream
 
     private int _offset;
     
+    public SerializationStream(int length)
+    {
+        _start = (byte*)UnsafeUtilities.Alloc(length);
+        _length = length;
+        _offset = 0;
+    }
+    
     public SerializationStream(byte* start, int length)
     {
         _start = start;

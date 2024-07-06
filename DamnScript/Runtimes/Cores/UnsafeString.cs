@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Natives;
 
@@ -16,6 +17,7 @@ public unsafe struct UnsafeStringPair
     }
 }
 
+[DebuggerDisplay("{ToString()}")]
 public unsafe struct UnsafeString : IDisposable
 {
     private static readonly string buffer = new(char.MinValue, 1024);
@@ -31,6 +33,7 @@ public unsafe struct UnsafeString : IDisposable
     {
         var str = (UnsafeString*)UnsafeUtilities.Alloc((length + 1) * sizeof(char) + sizeof(int));
         str->length = length;
+        str->data[length - 1] = '\0';
         return str;
     }
     

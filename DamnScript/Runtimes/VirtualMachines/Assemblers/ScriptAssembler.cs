@@ -14,6 +14,7 @@ public unsafe struct ScriptAssembler : IDisposable
     
     public byte* byteCode;
     public int size;
+    public int previousOffset;
     public int offset;
 
     public NativeList<UnsafeStringPair> constantStrings;
@@ -41,13 +42,19 @@ public unsafe struct ScriptAssembler : IDisposable
     public ScriptAssembler JumpNotEquals(int jumpOffset) =>
         Add(new JumpNotEquals(jumpOffset));
     
+    public ScriptAssembler JumpIfEquals(int jumpOffset) =>
+        Add(new JumpIfEquals(jumpOffset));
+    
+    public ScriptAssembler Jump(int jumpOffset) =>
+        Add(new Jump(jumpOffset));
+    
     public ScriptAssembler SetThreadParameters(SetThreadParameters.ThreadParameters parameters) =>
         Add(new SetThreadParameters(parameters));
     
     public ScriptAssembler PushStringToStack(int hash) =>
         Add(new PushStringToStack(hash));
-    
-    public ScriptAssembler Add<T>(T value) where T : unmanaged
+
+    private ScriptAssembler Add<T>(T value) where T : unmanaged
     {
         var length = sizeof(T);
         if (offset + length > size)
@@ -60,11 +67,12 @@ public unsafe struct ScriptAssembler : IDisposable
         }
         
 #if DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG
-        Debugging.Log($"Add {typeof(T).Name} at {offset} with value {value}.");
+        Debugging.Log($"Add {typeof(T).Name} at {offset} with value {value} (length: {length})");
 #endif
         
         var ptr = byteCode + offset;
         *(T*)ptr = value;
+        previousOffset = offset;
         offset += length;
         return this;
     }

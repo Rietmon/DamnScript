@@ -6,14 +6,11 @@ public unsafe struct String32
 {
     public fixed char value[32];
     
-    public char this[int index]
-    {
-        get => value[index];
-        set => this.value[index] = value;
-    }
-    
     public String32(char* value, int length)
     {
+        if (length > 32)
+            throw new ArgumentException("String length must be less than or equal to 32.");
+        
         fixed (char* ptr = this.value)
             UnsafeUtilities.Memcpy(ptr, value, length * sizeof(char));
     }
