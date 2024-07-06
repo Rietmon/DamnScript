@@ -6,10 +6,9 @@ public static unsafe class ScriptCompiler
 {
     public const int Version = 1;
 
-    public static void Compile(string name, Stream input, Stream output)
+    public static void Compile(Stream input, string name, Stream output)
     {
-        var scriptCode = File.ReadAllText(input);
-        var scriptData = ScriptsDataManager.LoadScriptFromCode(scriptCode, name);
+        var scriptData = ScriptsDataManager.LoadScript(input, name);
         
         var stream = new SerializationStream(1024);
         
@@ -26,5 +25,9 @@ public static unsafe class ScriptCompiler
                 begin++;
             }
         }
+
+        var span = (ReadOnlySpan<byte>)stackalloc byte[stream.Length];
+        output.Write(span);
+        stream.Dispose();
     }
 }

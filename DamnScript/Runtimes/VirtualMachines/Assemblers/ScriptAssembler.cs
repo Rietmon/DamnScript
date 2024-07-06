@@ -60,7 +60,7 @@ public unsafe struct ScriptAssembler : IDisposable
         if (offset + length > size)
         {
             size *= 2;
-            var newByteCode = (byte*)UnsafeUtilities.Realloc(byteCode, size);
+            var newByteCode = (byte*)UnsafeUtilities.ReAlloc(byteCode, size);
             if (newByteCode == null)
                 throw new OutOfMemoryException("Failed to reallocate memory for ScriptAssembler.");
             byteCode = newByteCode;

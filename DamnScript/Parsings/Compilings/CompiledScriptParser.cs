@@ -7,9 +7,9 @@ namespace DamnScript.Parsings.Compilings;
 
 public static unsafe class CompiledScriptParser
 {
-    public static void ParseCompiledScript(byte* scriptCode, int length, string scriptName, ScriptData* scriptData)
+    public static void ParseCompiledScript(byte* scriptCode, int length, SafeString scriptName, ScriptData* scriptData)
     {
-        scriptData->name = new String32(scriptName);
+        scriptData->name = scriptName.ToString32();
         
         var regions = new NativeList<RegionData>(16);
 
@@ -40,7 +40,7 @@ public static unsafe class CompiledScriptParser
             var constantString = UnsafeString.Alloc(constantStringLength);
             stream.CustomRead(constantString, constantStringLength);
             var hash = constantString->GetHashCode();
-            constantStrings.Data[i] = new UnsafeStringPair(hash, constantString);
+            constantStrings.Begin[i] = new UnsafeStringPair(hash, constantString);
         }
         
         scriptData->regions = regions.ToArrayAlloc();

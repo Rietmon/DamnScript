@@ -20,11 +20,13 @@ public unsafe struct UnsafeStringPair
 [DebuggerDisplay("{ToString()}")]
 public unsafe struct UnsafeString : IDisposable
 {
-    private static readonly string buffer = new(char.MinValue, 1024);
-    private static readonly UnmanagedString* bufferPtr = (UnmanagedString*)ScriptValue.FromReference(buffer).pointerValue;
+    private static string _buffer;
+    private static GCHandle _gcHandleBuffer;
+    private static UnmanagedString* _bufferPtr;
+
+    public ref char this[int index] => ref data[index];
 
     public int length;
-    
     public fixed char data[1];
 
     public UnsafeString() => throw new Exception("UnsafeString cannot be created without allocation.");
@@ -62,12 +64,20 @@ public unsafe struct UnsafeString : IDisposable
 
     public string ToTempStringNonAlloc()
     {
-        bufferPtr->length = length;
+        if (_bufferPtr == null)
+        {
+            _buffer = new string('\0', 1024);
+            _gcHandleBuffer = GCHandle.Alloc(_buffer, GCHandleType.Pinned);
+            _bufferPtr = (UnmanagedString*)_gcHandleBuffer.AddrOfPinnedObject();
+        }
+        
+        _bufferPtr->length = length;
         fixed (char* ptr = data)
-            UnsafeUtilities.Memcpy(bufferPtr->data, ptr, length * sizeof(char));
-        return buffer;
+            UnsafeUtilities.Memcpy(_bufferPtr->data, ptr, length * sizeof(char));
+        return _buffer;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode()
     {
         var hash = 0;
@@ -82,6 +92,13 @@ public unsafe struct UnsafeString : IDisposable
             UnsafeUtilities.Free(ptr);
         
         this = default;
+    }
+
+    public static void ReleaseTempStringNonAlloc()
+    {
+        _bufferPtr = null;
+        _gcHandleBuffer.Free();
+        _bufferPtr = null;
     }
 
     private struct UnmanagedString

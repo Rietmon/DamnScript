@@ -1,8 +1,7 @@
 ﻿using DamnScript.Runtimes;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
-using DamnScript.Runtimes.VirtualMachines;
-using DamnScript.Runtimes.VirtualMachines.Threads;
 
 namespace DamnScriptTest;
 
@@ -11,8 +10,8 @@ public static unsafe class Program
     public static void Main()
     {
         ScriptEngine.RegisterNativeMethod(Print);
-        var file = File.ReadAllText(@"C:\Projects\DamnScript\_Binaries\Debug\net7.0\script.ds");
-        var script = ScriptEngine.LoadScriptFromCode(file, "script");
+        var file = File.Open(@"C:\Projects\DamnScript\_Binaries\Debug\net7.0\script.ds", FileMode.Open);
+        var script = ScriptEngine.LoadScript(file, "script");
         var str = Disassembler.DisassembleToString(script.value->regions.Begin->byteCode, script.value->metadata);
         Console.WriteLine(str);
         var thread = ScriptEngine.CreateThread(script, "Main");

@@ -11,14 +11,15 @@ namespace DamnScript.Runtimes;
 public static unsafe class ScriptEngine
 {
     private static VirtualMachineScheduler _mainScheduler = new(16);
-    
+
     public static bool ExecuteScheduler() =>
         _mainScheduler.ExecuteNext();
     
-    public static ScriptDataPtr LoadScriptFromCode(string scriptCode, string scriptName) => 
-        ScriptsDataManager.LoadScriptFromCode(scriptCode, scriptName);
-    public static ScriptDataPtr LoadScriptFromCompiledCode(byte[] bytes, string scriptName) =>
-        ScriptsDataManager.LoadScriptFromCompiledCode(bytes, scriptName);
+    public static ScriptDataPtr LoadScript(Stream input, SafeString name) => 
+        ScriptsDataManager.LoadScript(input, name);
+    
+    public static ScriptDataPtr LoadCompiledScript(Stream input, SafeString name) => 
+        ScriptsDataManager.LoadCompiledScript(input, name);
 
     public static VirtualMachineThreadPtr CreateThread(ScriptDataPtr scriptData, string regionName)
     {

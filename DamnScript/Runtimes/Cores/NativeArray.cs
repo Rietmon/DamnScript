@@ -5,30 +5,37 @@ namespace DamnScript.Runtimes.Cores;
 
 public unsafe struct NativeArray<T> : IDisposable where T : unmanaged
 {
-    public int Length { get; private set; }
+    public int Length { get; }
     
-    public T* Data { get; private set; }
+    public T* Begin { get; }
     
-    public T* Begin => Data;
-    
-    public T* End => Data + Length;
+    public T* End => Begin + Length;
 
-    public bool IsValid => Data != null;
+    public bool IsValid => Begin != null;
+
+    public ref T this[int index] => ref Begin[index];
     
     public NativeArray(int length)
     {
-        Data = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
+        Begin = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
     }
     
-    public NativeArray(int length, T* data)
+    public NativeArray(int length, T* begin)
     {
         Length = length;
-        Data = data;
+        Begin = begin;
+    }
+    
+    public NativeList<T> ToListAlloc()
+    {
+        var list = new NativeList<T>(Length);
+        list.AddRange(Begin, Length);
+        return list;
     }
     
     public void Dispose()
     {
-        UnsafeUtilities.Free(Data);
+        UnsafeUtilities.Free(Begin);
         this = default;
     }
 }

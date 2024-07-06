@@ -3,20 +3,30 @@ using System.Runtime.InteropServices;
 
 namespace DamnScript.Runtimes.Cores;
 
-internal static unsafe class UnsafeUtilities
+public static unsafe class UnsafeUtilities
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void* Alloc(int size) => Marshal.AllocHGlobal(size).ToPointer();
     
-    public static void* Realloc(void* ptr, int size) => Marshal.ReAllocHGlobal(new IntPtr(ptr), new IntPtr(size)).ToPointer();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T* Alloc<T>() where T : unmanaged => (T*)Alloc(sizeof(T));
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void* ReAlloc(void* ptr, int size) => Marshal.ReAllocHGlobal(new IntPtr(ptr), new IntPtr(size)).ToPointer();
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Free(void* ptr) => Marshal.FreeHGlobal(new IntPtr(ptr));
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Memcpy(void* dest, void* src, int size) => Unsafe.CopyBlock(dest, src, (uint)size);
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Memset(void* dest, byte value, int size) => Unsafe.InitBlock(dest, value, (uint)size);
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Memcmp<T>(T* ptr1, T* ptr2) where T : unmanaged => Unsafe.AreSame(ref *ptr1, ref *ptr2);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Memcmp(void* ptr1, void* ptr2, int size)
     {
         var ptr1Byte = (byte*)ptr1;
@@ -29,20 +39,18 @@ internal static unsafe class UnsafeUtilities
         return true;
     }
     
-    public static void Strcpy(char* dest, char* src)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int Strlen(char* str)
     {
-        var i = 0;
-        while (src[i] != '\0')
-        {
-            dest[i] = src[i];
-            i++;
-        }
-        dest[i] = '\0';
+        var length = 0;
+        while (*str++ != '\0')
+            length++;
+        return length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void* ReferenceToPointer<T>(T value) where T : class => *(void**)Unsafe.AsPointer(ref value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T PointerToReference<T>(void* ptr) where T : class => Unsafe.AsRef<T>(&ptr);
-    
-    public static T* FixedBufferToPtr<T>(ref T value) where T : unmanaged => (T*)Unsafe.AsPointer(ref value);
 }
