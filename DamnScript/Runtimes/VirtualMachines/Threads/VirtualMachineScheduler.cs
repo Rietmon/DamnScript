@@ -8,6 +8,8 @@ public readonly unsafe struct VirtualMachineSchedulerPtr
 {
     public readonly VirtualMachineScheduler* value;
     
+    public ref VirtualMachineScheduler RefValue => ref *value;
+    
     public VirtualMachineSchedulerPtr(VirtualMachineScheduler* value) => this.value = value;
 
     public static implicit operator VirtualMachineSchedulerPtr(VirtualMachineScheduler* value) => new(value);
@@ -31,41 +33,47 @@ public unsafe struct VirtualMachineScheduler
     
     public bool ExecuteNext()
     {
-        {
-            var begin = _threadsAreAwait.Begin;
-            var end = _threadsAreAwait.End;
-            while (begin < end)
-            {
-                var result = UnsafeUtilities.PointerToReference<IAsyncResult>(begin->result.ToPointer());
-                if (result.IsCompleted)
-                    RemoveFromAwait(begin->pointer);
-                
-                begin++;
-            }
-        }
-        {
-            var begin = _threads.Begin;
-            var end = _threads.End;
-            while (begin < end)
-            {
-                IAsyncResult result;
-                while (begin->ExecuteNext(out result))
-                {
-                    if (result == null)
-                        continue;
-
-                    AddToAwait(result, begin);
-                    break;
-                }
-
-                if (result == null)
-                    Unregister(*begin);
-                
-                begin++;
-            }
-        }
+        ExecuteAwaitsThreads();
+        ExecuteThreads();
         
         return HasThreads || HasThreadsAwaiting;
+    }
+    
+    private void ExecuteAwaitsThreads()
+    {
+        var begin = _threadsAreAwait.Begin;
+        var end = _threadsAreAwait.End;
+        while (begin < end)
+        {
+            var result = UnsafeUtilities.PointerToReference<IAsyncResult>(begin->result.ToPointer());
+            if (result.IsCompleted)
+                RemoveFromAwait(begin->pointer);
+            
+            begin++;
+        }
+    }
+    
+    private void ExecuteThreads()
+    {
+        var begin = _threads.Begin;
+        var end = _threads.End;
+        while (begin < end)
+        {
+            IAsyncResult result;
+            while (begin->ExecuteNext(out result))
+            {
+                if (result == null)
+                    continue;
+
+                AddToAwait(result, begin);
+                break;
+            }
+
+            if (result == null)
+                Unregister(*begin);
+            
+            begin++;
+        }
     }
 
     public void AddToAwait(IAsyncResult result, VirtualMachineThreadPtr pointer)

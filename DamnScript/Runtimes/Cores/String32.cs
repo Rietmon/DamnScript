@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace DamnScript.Runtimes.Cores;
@@ -62,4 +63,15 @@ public unsafe struct String32
     }
 
     public static bool operator !=(String32 left, String32 right) => !(left == right);
+    
+    
+    public bool Equals(String32 other) => this == other;
+
+    public override bool Equals(object obj) => obj is String32 other && Equals(other);
+
+    public override int GetHashCode()
+    {
+        fixed (char* ptr = data)
+            return UnsafeUtilities.HashString(ptr, Length);
+    }
 }

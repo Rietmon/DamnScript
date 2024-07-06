@@ -31,10 +31,10 @@ public unsafe struct ScriptValue
 
     public T GetReference<T>() where T : class => UnsafeUtilities.PointerToReference<T>(pointerValue);
     
-    public T GetStruct<T>(bool freeAfterReturn = true) where T : unmanaged
+    public T GetStruct<T>(bool freeBeforeReturn = true) where T : unmanaged
     {
         var value = *(T*)pointerValue;
-        if (freeAfterReturn)
+        if (freeBeforeReturn)
             UnsafeUtilities.Free(pointerValue);
         return value;
     }

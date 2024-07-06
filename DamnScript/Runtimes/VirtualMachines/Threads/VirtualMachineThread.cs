@@ -14,6 +14,8 @@ public readonly unsafe struct VirtualMachineThreadPtr
 {
     public readonly VirtualMachineThread* value; 
     
+    public ref VirtualMachineThread RefValue => ref *value;
+    
     public VirtualMachineThreadPtr(VirtualMachineThread* value) => this.value = value;
 
     public static implicit operator VirtualMachineThreadPtr(VirtualMachineThread* value) => new(value);
@@ -27,8 +29,6 @@ public unsafe struct VirtualMachineThread : IDisposable
 
     private byte* ByteCode => _regionData->byteCode.start + _offset;
 
-    public bool isDisposed;
-
     private readonly RegionData* _regionData;
     private readonly ScriptMetadata* _metadata;
 
@@ -36,6 +36,10 @@ public unsafe struct VirtualMachineThread : IDisposable
     
     private int _offset;
     private int _savePoint;
+    
+    private SetThreadParameters.ThreadParameters _threadParameters;
+
+    private bool _isDisposed;
 
     public VirtualMachineThread(RegionData* regionData, ScriptMetadata* metadata)
     {
@@ -48,13 +52,12 @@ public unsafe struct VirtualMachineThread : IDisposable
     {
         result = null;
         
-        if (isDisposed)
+        if (_isDisposed)
             return false;
         
         if (!_regionData->byteCode.IsInRange(_offset))
             return false;
         
-        Debugging.Log(_offset.ToString());
         var byteCode = ByteCode;
         var opCode = *(int*)byteCode;
         switch (opCode)
@@ -91,6 +94,10 @@ public unsafe struct VirtualMachineThread : IDisposable
                 ExecutePushStringToStack(*(PushStringToStack*)byteCode);
                 _offset += sizeof(JumpIfEquals);
                 break;
+            case SetThreadParameters.OpCode:
+                ExecuteSetThreadParameters(*(SetThreadParameters*)byteCode);
+                _offset += sizeof(SetThreadParameters);
+                break;
             default:
                 throw new Exception($"Invalid OpCode: {opCode}");
         }
@@ -108,6 +115,10 @@ public unsafe struct VirtualMachineThread : IDisposable
         
         var methodPointer = method.methodPointer;
         var argumentsCount = method.argumentsCount;
+        var noAwait = _threadParameters & SetThreadParameters.ThreadParameters.NoAwait;
+        if (noAwait != 0)
+            _threadParameters ^= SetThreadParameters.ThreadParameters.NoAwait;
+        
         if (!method.isAsync)
         {
             switch (argumentsCount)
@@ -194,23 +205,21 @@ public unsafe struct VirtualMachineThread : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecuteJumpNotEquals(JumpNotEquals jumpNotEquals)
     {
-        if (Pop() != Pop())
-        {
-            _offset = jumpNotEquals.jumpOffset;
-            return false;
-        }
-        return true;
+        if (Pop() == Pop()) 
+            return true;
+        
+        _offset = jumpNotEquals.jumpOffset;
+        return false;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecuteJumpIfEquals(JumpIfEquals jumpIfEquals)
     {
-        if (Pop() == Pop())
-        {
-            _offset = jumpIfEquals.jumpOffset;
-            return false;
-        }
-        return true;
+        if (Pop() != Pop())
+            return true;
+        
+        _offset = jumpIfEquals.jumpOffset;
+        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -231,6 +240,13 @@ public unsafe struct VirtualMachineThread : IDisposable
         Push(new ScriptValue(str).longValue);
         return true;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ExecuteSetThreadParameters(SetThreadParameters setThreadParameters)
+    {
+        _threadParameters = setThreadParameters.parameters;
+        return true;
+    }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Push(long value) => _stack.Push(value);
@@ -240,6 +256,6 @@ public unsafe struct VirtualMachineThread : IDisposable
 
     public void Dispose()
     {
-        isDisposed = true;
+        _isDisposed = true;
     }
 }

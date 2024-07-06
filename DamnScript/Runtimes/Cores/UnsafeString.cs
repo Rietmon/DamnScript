@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Natives;
@@ -17,7 +18,6 @@ public unsafe struct UnsafeStringPair
     }
 }
 
-[DebuggerDisplay("{ToString()}")]
 public unsafe struct UnsafeString : IDisposable
 {
     private static string _buffer;
@@ -109,5 +109,13 @@ public unsafe struct UnsafeString : IDisposable
 #endif
         public int length;
         public fixed char data[1];
+
+        public UnmanagedString(void* methodVTable, int length, char* data)
+        {
+            this.methodVTable = methodVTable;
+            this.length = length;
+            fixed (char* ptr = this.data)
+                UnsafeUtilities.Memcpy(ptr, data, length * sizeof(char));
+        }
     }
 }

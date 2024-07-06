@@ -53,4 +53,18 @@ public static unsafe class UnsafeUtilities
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T PointerToReference<T>(void* ptr) where T : class => Unsafe.AsRef<T>(&ptr);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int HashString(char* value, int length)
+    {
+        var hash = 0;
+        var begin = value;
+        var end = value + length;
+        while (begin < end)
+        {
+            hash = (hash << 5) + hash + *begin;
+            begin++;
+        }
+        return hash;
+    }
 }

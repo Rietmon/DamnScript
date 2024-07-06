@@ -1,5 +1,4 @@
 ﻿using DamnScript.Runtimes;
-using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 
@@ -16,7 +15,7 @@ public static unsafe class Program
         Console.WriteLine(str);
         var thread = ScriptEngine.CreateThread(script, "Main");
         ScriptEngine.ExecuteScheduler();
-        Console.ReadKey();
+        thread.RefValue.Dispose();
     }
 
     public static void Print(ScriptValue value)

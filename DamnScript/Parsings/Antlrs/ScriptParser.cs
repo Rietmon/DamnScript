@@ -189,6 +189,8 @@ internal static unsafe class ScriptParser
         context.assembler->offset = offset;
     }
 
+    // Rietmon: TODO: That's not implemented for now.
+    // Also move %noawait% const to lexer.
     private static void AssemblyKeyword(DamnScriptParser.KeywordContext keyword, ScriptParserContext context)
     {
         var text = keyword.GetText();

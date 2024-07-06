@@ -12,7 +12,9 @@ public static unsafe class VirtualMachineData
     public static void RegisterNativeMethod(Delegate d) => 
         RegisterNativeMethod(d.Method);
     
-    public static void RegisterNativeMethod(MethodInfo method)
+    public static void RegisterNativeMethod(MethodInfo method) => RegisterNativeMethod(method, method.Name);
+    
+    public static void RegisterNativeMethod(MethodInfo method, string name)
     {
         var methodName = method.Name;
         var methodPointer = method.MethodHandle.GetFunctionPointer().ToPointer();

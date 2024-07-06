@@ -6,6 +6,8 @@ public readonly unsafe struct ScriptDataPtr
 {
     public readonly ScriptData* value; 
     
+    public ref ScriptData RefValue => ref *value;
+    
     public ScriptDataPtr(ScriptData* value) => this.value = value;
 
     public static implicit operator ScriptDataPtr(ScriptData* value) => new(value);

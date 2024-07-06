@@ -10,7 +10,7 @@ public unsafe struct VirtualMachineThreadStack
     {
         const int sizeofLong = sizeof(long);
         if (_stackOffset + sizeofLong > StackSize)
-            throw new InvalidOperationException("VirtualThreadStack overflow!");
+            throw new InvalidOperationException("VirtualMachineThreadStack overflow!");
 
         fixed (byte* pStack = _stack)
         {
@@ -23,7 +23,7 @@ public unsafe struct VirtualMachineThreadStack
     {
         const int sizeofLong = sizeof(long);
         if (_stackOffset - sizeofLong < 0)
-            throw new InvalidOperationException("VirtualThreadStack underflow!");
+            throw new InvalidOperationException("VirtualMachineThreadStack underflow!");
         
         fixed (byte* pStack = _stack)
         {
