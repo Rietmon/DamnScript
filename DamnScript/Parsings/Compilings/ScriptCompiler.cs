@@ -6,11 +6,10 @@ public static unsafe class ScriptCompiler
 {
     public const int Version = 1;
 
-    public static void CompileScriptToFile(string input, string output)
+    public static void Compile(string name, Stream input, Stream output)
     {
-        var fileName = Path.GetFileNameWithoutExtension(output);
         var scriptCode = File.ReadAllText(input);
-        var scriptData = ScriptsDataManager.LoadScriptFromCode(scriptCode, fileName);
+        var scriptData = ScriptsDataManager.LoadScriptFromCode(scriptCode, name);
         
         var stream = new SerializationStream(1024);
         

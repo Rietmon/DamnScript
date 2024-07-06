@@ -26,7 +26,7 @@ public static unsafe class ScriptEngine
         if (regionData == null)
         {
             Debugging.LogError($"[{nameof(ScriptEngine)}] ({CreateThread}) " +
-                               $"Region '{regionName}' not found in script '{scriptData.value->name}'");
+                               $"Region \"{regionName}\" not found in script \"{scriptData.value->name}\"");
             return default;
         }
         var thread = new VirtualMachineThread(regionData, &scriptData.value->metadata);

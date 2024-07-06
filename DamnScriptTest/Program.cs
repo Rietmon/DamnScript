@@ -17,6 +17,7 @@ public static unsafe class Program
         Console.WriteLine(str);
         var thread = ScriptEngine.CreateThread(script, "Main");
         ScriptEngine.ExecuteScheduler();
+        Console.ReadKey();
     }
 
     public static void Print(ScriptValue value)

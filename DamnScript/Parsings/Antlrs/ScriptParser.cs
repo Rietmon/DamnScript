@@ -1,6 +1,5 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using DamnScript.Parsings.G4;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
