@@ -56,7 +56,7 @@ public unsafe struct NativeList<T> where T : unmanaged
             
             Begin = newData;
         }
-        UnsafeUtilities.Memcpy(Begin + Count, values, length * sizeof(T));
+        UnsafeUtilities.Memcpy(values, Begin + Count, length * sizeof(T));
         Count += length;
     }
     
@@ -88,7 +88,7 @@ public unsafe struct NativeList<T> where T : unmanaged
         if (index < 0 || index >= Count)
             throw new IndexOutOfRangeException("Index is out of range.");
         
-        UnsafeUtilities.Memcpy(Begin + index, Begin + index + 1, (Count - index - 1) * sizeof(T));
+        UnsafeUtilities.Memcpy(Begin + index + 1, Begin + index, (Count - index - 1) * sizeof(T));
         Count--;
     }
     
@@ -108,7 +108,7 @@ public unsafe struct NativeList<T> where T : unmanaged
         var copiedData = (T*)UnsafeUtilities.Alloc(sizeof(T) * Count);
         if (copiedData == null)
             throw new OutOfMemoryException("Failed to allocate memory for NativeArray.");
-        UnsafeUtilities.Memcpy(copiedData, Begin, Count * sizeof(T));
+        UnsafeUtilities.Memcpy(Begin, copiedData, Count * sizeof(T));
         return new NativeArray<T>(Count, copiedData);
     }
     

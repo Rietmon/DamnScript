@@ -26,7 +26,7 @@ public static unsafe class ScriptEngine
         var regionData = scriptData.value->GetRegionData(new String32(regionName));
         if (regionData == null)
         {
-            Debugging.LogError($"[{nameof(ScriptEngine)}] ({CreateThread}) " +
+            Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(CreateThread)}) " +
                                $"Region \"{regionName}\" not found in script \"{scriptData.value->name}\"");
             return default;
         }

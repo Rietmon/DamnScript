@@ -44,7 +44,7 @@ public unsafe struct UnsafeString : IDisposable
         var length = value.Length;
         var str = Alloc(length);
         fixed (char* ptr = value)
-            UnsafeUtilities.Memcpy(str->data, ptr, length * sizeof(char));
+            UnsafeUtilities.Memcpy(ptr, str->data, length * sizeof(char));
         return str;
     }
     
@@ -52,7 +52,7 @@ public unsafe struct UnsafeString : IDisposable
     {
         var str = Alloc(length);
         fixed (char* ptr = value)
-            UnsafeUtilities.Memcpy(str->data, ptr + start, length * sizeof(char));
+            UnsafeUtilities.Memcpy(ptr + start, str->data, length * sizeof(char));
         return str;
     }
     
@@ -73,7 +73,7 @@ public unsafe struct UnsafeString : IDisposable
         
         _bufferPtr->length = length;
         fixed (char* ptr = data)
-            UnsafeUtilities.Memcpy(_bufferPtr->data, ptr, length * sizeof(char));
+            UnsafeUtilities.Memcpy(ptr, _bufferPtr->data, length * sizeof(char));
         return _buffer;
     }
     
@@ -115,7 +115,7 @@ public unsafe struct UnsafeString : IDisposable
             this.methodVTable = methodVTable;
             this.length = length;
             fixed (char* ptr = this.data)
-                UnsafeUtilities.Memcpy(ptr, data, length * sizeof(char));
+                UnsafeUtilities.Memcpy(data, ptr, length * sizeof(char));
         }
     }
 }

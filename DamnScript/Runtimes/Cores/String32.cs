@@ -12,13 +12,13 @@ public unsafe struct String32
     
     public fixed char data[Length + 1];
     
-    public String32(char* value, int length)
+    public String32(char* source, int length)
     {
         if (length > 32)
             throw new ArgumentException("String length must be less than or equal to 32.");
         
-        fixed (char* ptr = data)
-            UnsafeUtilities.Memcpy(ptr, value, length * sizeof(char));
+        fixed (char* dest = data)
+            UnsafeUtilities.Memcpy(source, dest, length * sizeof(char));
         
         data[length] = '\0';
     }

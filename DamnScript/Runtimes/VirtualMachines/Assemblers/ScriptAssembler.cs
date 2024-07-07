@@ -80,7 +80,7 @@ public unsafe struct ScriptAssembler : IDisposable
     public ByteCodeData FinishAlloc()
     {
         var code = UnsafeUtilities.Alloc(offset);
-        UnsafeUtilities.Memcpy(code, byteCode, offset);
+        UnsafeUtilities.Memcpy(byteCode, code, offset);
         
         return new ByteCodeData((byte*)code, offset);
     }

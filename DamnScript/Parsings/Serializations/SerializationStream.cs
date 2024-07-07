@@ -50,7 +50,7 @@ internal unsafe struct SerializationStream : IDisposable
             _start = newPtr;
         }
         
-        UnsafeUtilities.Memcpy(_start + _length, bytes, count);
+        UnsafeUtilities.Memcpy(bytes, _start + _length, count);
         _length += count;
     }
     
@@ -64,7 +64,7 @@ internal unsafe struct SerializationStream : IDisposable
             _start = newPtr;
         }
         
-        UnsafeUtilities.Memcpy(_start + _length, ptr, count);
+        UnsafeUtilities.Memcpy(ptr, _start + _length, count);
         _length += count;
     }
     
@@ -94,7 +94,7 @@ internal unsafe struct SerializationStream : IDisposable
         if (_length + count > _capacity)
             return;
         
-        UnsafeUtilities.Memcpy(ptr, _start + _length, count);
+        UnsafeUtilities.Memcpy(_start + _length, ptr, count);
         _length += count;
     }
 

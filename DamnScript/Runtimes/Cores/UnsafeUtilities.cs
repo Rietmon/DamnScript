@@ -19,7 +19,7 @@ public static unsafe class UnsafeUtilities
     public static void Free(void* ptr) => Marshal.FreeHGlobal(new IntPtr(ptr));
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Memcpy(void* dest, void* src, int size) => Unsafe.CopyBlock(dest, src, (uint)size);
+    public static void Memcpy(void* src, void* dest, int size) => Unsafe.CopyBlock(dest, src, (uint)size);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Memset(void* dest, byte value, int size) => Unsafe.InitBlock(dest, value, (uint)size);

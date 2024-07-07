@@ -73,7 +73,7 @@ public unsafe struct ScriptValue
     public static ScriptValue FromStructAlloc<T>(T value) where T : unmanaged
     {
         var allocate = UnsafeUtilities.Alloc(sizeof(T));
-        UnsafeUtilities.Memcpy(allocate, Unsafe.AsPointer(ref value), sizeof(T));
+        UnsafeUtilities.Memcpy(Unsafe.AsPointer(ref value), allocate, sizeof(T));
         return new ScriptValue(allocate);
     }
 
