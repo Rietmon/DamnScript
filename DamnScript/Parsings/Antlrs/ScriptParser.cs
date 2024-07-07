@@ -85,6 +85,9 @@ internal static unsafe class ScriptParser
             case DamnScriptParser.NumberExpressionContext expression:
                 AssemblyNumberExpression(expression, context);
                 break;
+            case DamnScriptParser.MethodCallContext methodCall:
+                AssemblyMethodCall(methodCall, context);
+                break;
             case DamnScriptParser.StringLiteralContext stringLiteral:
                 AssemblyStringLiteral(stringLiteral, context);
                 break;

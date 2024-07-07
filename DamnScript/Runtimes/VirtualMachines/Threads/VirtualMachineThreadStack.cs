@@ -1,34 +1,36 @@
-﻿namespace DamnScript.Runtimes.VirtualMachines.Threads;
+﻿using DamnScript.Runtimes.Natives;
+
+namespace DamnScript.Runtimes.VirtualMachines.Threads;
 
 public unsafe struct VirtualMachineThreadStack
 {
+    private static readonly int sizeOfScriptValue = sizeof(ScriptValue);
+    
     private const int StackSize = 128;
     private fixed byte _stack[StackSize];
     private int _stackOffset;
     
-    public void Push(long value)
+    public void Push(ScriptValue value)
     {
-        const int sizeofLong = sizeof(long);
-        if (_stackOffset + sizeofLong > StackSize)
+        if (_stackOffset + sizeOfScriptValue > StackSize)
             throw new InvalidOperationException("VirtualMachineThreadStack overflow!");
 
         fixed (byte* pStack = _stack)
         {
-            *(long*)(pStack + _stackOffset) = value;
-            _stackOffset += sizeofLong;
+            *(ScriptValue*)(pStack + _stackOffset) = value;
+            _stackOffset += sizeOfScriptValue;
         }
     }
     
-    public long Pop()
+    public ScriptValue Pop()
     {
-        const int sizeofLong = sizeof(long);
-        if (_stackOffset - sizeofLong < 0)
+        if (_stackOffset - sizeOfScriptValue < 0)
             throw new InvalidOperationException("VirtualMachineThreadStack underflow!");
         
         fixed (byte* pStack = _stack)
         {
-            _stackOffset -= sizeofLong;
-            return *(long*)(pStack + _stackOffset);
+            _stackOffset -= sizeOfScriptValue;
+            return *(ScriptValue*)(pStack + _stackOffset);
         }
     }
 }

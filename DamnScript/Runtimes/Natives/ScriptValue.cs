@@ -4,30 +4,40 @@ using DamnScript.Runtimes.Cores;
 
 namespace DamnScript.Runtimes.Natives;
 
-[StructLayout(LayoutKind.Explicit)]
+[StructLayout(LayoutKind.Explicit, Size = 12)]
 public unsafe struct ScriptValue
 {
-    [FieldOffset(0)] public bool boolValue;
-    [FieldOffset(0)] public byte byteValue;
-    [FieldOffset(0)] public short shortValue;
-    [FieldOffset(0)] public int intValue;
-    [FieldOffset(0)] public long longValue;
-    [FieldOffset(0)] public float floatValue;
-    [FieldOffset(0)] public double doubleValue;
-    [FieldOffset(0)] public char charValue;
-    [FieldOffset(0)] public void* pointerValue;
-    [FieldOffset(0)] public GCHandle safeValue;
+    [FieldOffset(0)] public ValueType type;
+    [FieldOffset(4)] public bool boolValue;
+    [FieldOffset(4)] public byte byteValue;
+    [FieldOffset(4)] public short shortValue;
+    [FieldOffset(4)] public int intValue;
+    [FieldOffset(4)] public long longValue;
+    [FieldOffset(4)] public float floatValue;
+    [FieldOffset(4)] public double doubleValue;
+    [FieldOffset(4)] public char charValue;
+    [FieldOffset(4)] public void* pointerValue;
+    [FieldOffset(4)] public GCHandle safeValue;
     
-    public ScriptValue(bool value) => boolValue = value;
-    public ScriptValue(byte value) => byteValue = value;
-    public ScriptValue(short value) => shortValue = value;
-    public ScriptValue(int value) => intValue = value;
-    public ScriptValue(long value) => longValue = value;
-    public ScriptValue(float value) => floatValue = value;
-    public ScriptValue(double value) => doubleValue = value;
-    public ScriptValue(char value) => charValue = value;
-    public ScriptValue(void* value) => pointerValue = value;
-    public ScriptValue(GCHandle value) => safeValue = value;
+    public ScriptValue(ValueType type, long value)
+    {
+        this.type = type;
+        longValue = value;
+    }
+    public ScriptValue(bool value) => (type, boolValue) = (ValueType.Primitive, value);
+    public ScriptValue(byte value) => (type, byteValue) = (ValueType.Primitive, value);
+    public ScriptValue(short value) => (type, shortValue) = (ValueType.Primitive, value);
+    public ScriptValue(int value) => (type, intValue) = (ValueType.Primitive, value);
+    public ScriptValue(long value) => (type, longValue) = (ValueType.Primitive, value);
+    public ScriptValue(float value) => (type, floatValue) = (ValueType.Primitive, value);
+    public ScriptValue(double value) => (type, doubleValue) = (ValueType.Primitive, value);
+    public ScriptValue(char value) => (type, charValue) = (ValueType.Primitive, value);
+    public ScriptValue(void* value)
+    {
+        type = ValueType.Pointer;
+        pointerValue = value;
+    }
+    public ScriptValue(GCHandle value) => (type, safeValue) = (ValueType.Safe, value);
 
     public static ScriptValue FromReferencePin<T>(T value) where T : class => new(GCHandle.Alloc(value, GCHandleType.Pinned));
     
@@ -58,9 +68,60 @@ public unsafe struct ScriptValue
         return value;
     }
     
-    public UnsafeString* GetUnsafeString() => (UnsafeString*)pointerValue;
+    public SafeString GetSafeString()
+    {
+        switch (type)
+        {
+            case ValueType.Pointer:
+            {
+                var value = (UnsafeString*)pointerValue;
+                return value;
+            }
+            case ValueType.ReferencePointer:
+            {
+                var value = UnsafeUtilities.PointerToReference<string>(pointerValue);
+                return value;
+            }
+            case ValueType.Safe:
+            {
+                var value = (string)safeValue.Target;
+                safeValue.Free();
+                return value;
+            }
+            default:
+                throw new Exception("Invalid type for SafeString! Expected Pointer or Safe!");
+        }
+    }
     
-    public SafeString GetSafeString() => new(GetUnsafeString()->ToString());
+    public static bool operator ==(ScriptValue left, ScriptValue right) => 
+        left.type == right.type && left.longValue == right.longValue;
+    
+    public static bool operator !=(ScriptValue left, ScriptValue right) => 
+        left.type != right.type || left.longValue != right.longValue;
+    
+    public static bool operator >(ScriptValue left, ScriptValue right) => left.longValue > right.longValue;
+    public static bool operator <(ScriptValue left, ScriptValue right) => left.longValue < right.longValue;
+    
+    public static bool operator >=(ScriptValue left, ScriptValue right) => left.longValue >= right.longValue;
+    public static bool operator <=(ScriptValue left, ScriptValue right) => left.longValue <= right.longValue;
+    
+    public static ScriptValue operator +(ScriptValue left, ScriptValue right) => new(left.type, left.longValue + right.longValue);
+    public static ScriptValue operator -(ScriptValue left, ScriptValue right) => new(left.type, left.longValue - right.longValue);
+    public static ScriptValue operator *(ScriptValue left, ScriptValue right) => new(left.type, left.longValue * right.longValue);
+    public static ScriptValue operator /(ScriptValue left, ScriptValue right) => new(left.type, left.longValue / right.longValue);
+    public static ScriptValue operator %(ScriptValue left, ScriptValue right) => new(left.type, left.longValue % right.longValue);
+    
+    public static ScriptValue operator &(ScriptValue left, ScriptValue right) => new(left.type, left.longValue & right.longValue);
+    public static ScriptValue operator |(ScriptValue left, ScriptValue right) => new(left.type, left.longValue | right.longValue);
+    public static ScriptValue operator ^(ScriptValue left, ScriptValue right) => new(left.type, left.longValue ^ right.longValue);
+    
+    public static ScriptValue operator <<(ScriptValue left, int right) => new(left.type, left.longValue << right);
+    public static ScriptValue operator >>(ScriptValue left, int right) => new(left.type, left.longValue >> right);
+    
+    public static ScriptValue operator ++(ScriptValue value) => new(value.type, value.longValue + 1);
+    public static ScriptValue operator --(ScriptValue value) => new(value.type, value.longValue - 1);
+    public static ScriptValue operator -(ScriptValue value) => new(value.type, -value.longValue);
+    public static ScriptValue operator +(ScriptValue value) => new(value.type, +value.longValue);
     
     public static implicit operator ScriptValue(bool value) => new(value);
     public static implicit operator ScriptValue(byte value) => new(value);
@@ -72,4 +133,13 @@ public unsafe struct ScriptValue
     public static implicit operator ScriptValue(char value) => new(value);
     public static implicit operator ScriptValue(void* value) => new(value);
     public static implicit operator ScriptValue(GCHandle value) => new(value);
+    
+    public enum ValueType
+    {
+        Invalid,
+        Primitive,
+        Pointer,
+        ReferencePointer,
+        Safe
+    }
 }

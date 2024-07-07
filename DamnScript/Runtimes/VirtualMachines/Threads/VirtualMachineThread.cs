@@ -119,7 +119,7 @@ public unsafe struct VirtualMachineThread : IDisposable
         
         var returnValue = VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out result);
         if (method.hasReturnValue)
-            Push(returnValue.longValue);
+            Push(returnValue);
         
         return true;
     }
@@ -212,10 +212,10 @@ public unsafe struct VirtualMachineThread : IDisposable
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Push(long value) => _stack.Push(value);
+    public void Push(ScriptValue value) => _stack.Push(value);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public long Pop() => _stack.Pop();
+    public ScriptValue Pop() => _stack.Pop();
 
     public void Dispose()
     {
