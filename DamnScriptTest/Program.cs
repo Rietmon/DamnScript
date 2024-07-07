@@ -1,27 +1,43 @@
 ﻿using DamnScript.Runtimes;
-using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 
 namespace DamnScriptTest;
 
-public static unsafe class Program
+public static class Program
 {
+    public static void Print(ScriptValue value)
+    {
+        var str = value.GetSafeString();
+        var safeStr = str.ToString();
+        Console.WriteLine($"DAMN SCRIPT: {safeStr}");
+    }
+    
     public static void Main()
     {
         ScriptEngine.RegisterNativeMethod(Print);
-        var file = File.Open(@"C:\Projects\DamnScript\_Binaries\Debug\net7.0\script.ds", FileMode.Open);
-        var script = ScriptEngine.LoadScript(file, "script");
-        var str = Disassembler.DisassembleToString(script.value->regions.Begin->byteCode, script.value->metadata);
-        Console.WriteLine(str);
-        var thread = ScriptEngine.CreateThread(script, "Main");
-        ScriptEngine.ExecuteScheduler();
-        thread.RefValue.Dispose();
+
+        Begin();
     }
 
-    public static void Print(ScriptValue value)
+    public static void Begin()
     {
-        var str = value.GetUnsafeString();
-        var safeStr = str->ToString();
-        Console.WriteLine(safeStr);
+        while (true)
+        {
+            Console.WriteLine("---------------------------------");
+            Console.WriteLine("Hello! Choose a test:");
+            Console.WriteLine("1: Print string from DamnScript");
+            Console.WriteLine("2: Print dynamic value from DamnScript");
+            Console.WriteLine("Q: Exit");
+            Console.WriteLine("---------------------------------");
+            
+            var input = Console.ReadLine();
+
+            switch (input)
+            {
+                case "1": Test1.Run(); break;
+                case "2": Test2.Run(); break;
+                case "Q": return;
+            }
+        }
     }
 }

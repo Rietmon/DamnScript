@@ -9,7 +9,7 @@ public unsafe struct SafeString : IDisposable
     [FieldOffset(0)] public GCHandle safeValue;
     [FieldOffset(0)] public UnsafeString* unsafeValue;
 
-    public SafeString(string value) => safeValue = GCHandle.Alloc(value);
+    public SafeString(string value) => safeValue = UnsafeUtilities.Pin(value);
     
     public SafeString(UnsafeString* value) => unsafeValue = value;
     

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using static System.Runtime.InteropServices.GCHandle;
 
 namespace DamnScript.Runtimes.Cores;
 
@@ -53,6 +54,17 @@ public static unsafe class UnsafeUtilities
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T PointerToReference<T>(void* ptr) where T : class => Unsafe.AsRef<T>(&ptr);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static GCHandle Pin<T>(T value) where T : class => GCHandle.Alloc(value, GCHandleType.Pinned);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T Unpin<T>(GCHandle handle) where T : class
+    {
+        var value = (T)handle.Target;
+        handle.Free();
+        return value;
+    }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int HashString(char* value, int length)

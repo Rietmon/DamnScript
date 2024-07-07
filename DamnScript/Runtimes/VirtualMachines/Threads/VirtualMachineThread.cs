@@ -48,7 +48,7 @@ public unsafe struct VirtualMachineThread : IDisposable
         _stack = new VirtualMachineThreadStack();
     }
     
-    public bool ExecuteNext(out IAsyncResult result)
+    public bool ExecuteNext(out Task result)
     {
         result = null;
         
@@ -106,58 +106,21 @@ public unsafe struct VirtualMachineThread : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ExecuteNativeCall(NativeCall nativeCall, out IAsyncResult result)
+    public bool ExecuteNativeCall(NativeCall nativeCall, out Task result)
     {
         result = null;
         var methodName = new string(nativeCall.name);
         if (!VirtualMachineData.TryGetNativeMethod(methodName, out var method))
             return false;
         
-        var methodPointer = method.methodPointer;
-        var argumentsCount = method.argumentsCount;
-        var noAwait = _threadParameters & SetThreadParameters.ThreadParameters.NoAwait;
-        if (noAwait != 0)
-            _threadParameters ^= SetThreadParameters.ThreadParameters.NoAwait;
+        var argumentsStack = stackalloc ScriptValue[method.argumentsCount];
+        for (var i = 0; i < method.argumentsCount; i++)
+            argumentsStack[i] = Pop();
         
-        if (!method.isAsync)
-        {
-            switch (argumentsCount)
-            {
-                case 0: ((delegate*<void>)methodPointer)(); break;
-                case 1: ((delegate*<ScriptValue, void>)methodPointer)(new ScriptValue(Pop())); break;
-                case 2: ((delegate*<ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop()); break;
-                case 3: ((delegate*<ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop()); break;
-                case 4: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop()); break;
-                case 5: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 6: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 7: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 8: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 9: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                case 10: ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, void>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()); break;
-                default: throw new Exception("Invalid arguments count! It must be between 0 and 10.");
-            }
-        }
-        else
-        {
-            result = argumentsCount switch
-            {
-                0 => ((delegate*<IAsyncResult>)methodPointer)(),
-                1 => ((delegate*<ScriptValue, IAsyncResult>)methodPointer)(new ScriptValue(Pop())),
-                2 => ((delegate*<ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop()),
-                3 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop()),
-                4 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop()),
-                5 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop()),
-                6 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
-                7 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
-                8 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
-                9 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
-                10 => ((delegate*<ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, ScriptValue, IAsyncResult>)methodPointer)(Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop(), Pop()),
-                _ => throw new Exception("Invalid arguments count! It must be between 0 and 10.")
-            };
-
-            return false;
-        }
-
+        var returnValue = VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out result);
+        if (method.hasReturnValue)
+            Push(returnValue.longValue);
+        
         return true;
     }
 

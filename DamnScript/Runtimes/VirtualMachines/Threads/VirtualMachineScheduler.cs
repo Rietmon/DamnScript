@@ -47,7 +47,11 @@ public unsafe struct VirtualMachineScheduler
         {
             var result = UnsafeUtilities.PointerToReference<IAsyncResult>(begin->result.ToPointer());
             if (result.IsCompleted)
+            {
                 RemoveFromAwait(begin->pointer);
+                if (result is Task<ScriptValue> task)
+                    begin->pointer.value->Push(task.Result.longValue);
+            }
             
             begin++;
         }
@@ -59,27 +63,45 @@ public unsafe struct VirtualMachineScheduler
         var end = _threads.End;
         while (begin < end)
         {
-            IAsyncResult result;
-            while (begin->ExecuteNext(out result))
+            if (!IsInAwait(begin))
             {
+                Task result;
+                while (begin->ExecuteNext(out result))
+                {
+                    if (result == null)
+                        continue;
+
+                    AddToAwait(result, begin);
+                    break;
+                }
+
                 if (result == null)
-                    continue;
-
-                AddToAwait(result, begin);
-                break;
+                    Unregister(*begin);
             }
-
-            if (result == null)
-                Unregister(*begin);
             
             begin++;
         }
     }
 
-    public void AddToAwait(IAsyncResult result, VirtualMachineThreadPtr pointer)
+    public void AddToAwait(Task result, VirtualMachineThreadPtr pointer)
     {
-        var gcHandle = GCHandle.Alloc(result);
+        var gcHandle = UnsafeUtilities.Pin(result);
         _threadsAreAwait.Add((gcHandle.AddrOfPinnedObject(), pointer));
+    }
+    
+    public bool IsInAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
+    {
+        var begin = _threadsAreAwait.Begin;
+        var end = _threadsAreAwait.End;
+        while (begin < end)
+        {
+            if (begin->pointer.value == virtualMachineThreadPointer.value)
+                return true;
+            
+            begin++;
+        }
+
+        return false;
     }
 
     public void RemoveFromAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
@@ -108,7 +130,7 @@ public unsafe struct VirtualMachineScheduler
         var ptr = _threads.End - 1;
         return new VirtualMachineThreadPtr(ptr);
     }
-    
-    public void Unregister(VirtualMachineThread pointer) => 
-        _threads.Remove(pointer);
+
+    public void Unregister(VirtualMachineThread thread) => 
+        _threads.Remove(thread);
 }
