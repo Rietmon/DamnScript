@@ -39,7 +39,7 @@ internal static unsafe class ScriptParser
         
         if (context.isError)
         {
-            scriptData->Dispose();
+            scriptData->Internal_Dispose();
             *scriptData = default; 
             regions.Dispose();
             strings.Dispose();

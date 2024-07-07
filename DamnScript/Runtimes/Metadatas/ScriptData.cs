@@ -15,7 +15,7 @@ public readonly unsafe struct ScriptDataPtr
     public static implicit operator ScriptData*(ScriptDataPtr ptr) => ptr.value;
 }
 
-public unsafe struct ScriptData
+public unsafe struct ScriptData : IDisposable
 {
     public String32 name;
 
@@ -30,7 +30,7 @@ public unsafe struct ScriptData
         
         while (begin < end)
         {
-            if (UnsafeUtilities.Memcmp(&regionName, &begin->name, sizeof(String32)))
+            if (UnsafeUtilities.Memcmp(&regionName, &begin->name))
                 return begin;
             
             begin++;
@@ -39,7 +39,13 @@ public unsafe struct ScriptData
         return null;
     }
 
-    internal void Dispose()
+    void IDisposable.Dispose()
+    {
+        metadata.Dispose();
+        regions.Dispose();
+    }
+
+    internal void Internal_Dispose()
     {
         metadata.Dispose();
         regions.Dispose();

@@ -108,7 +108,7 @@ public static unsafe class ScriptsDataManager
     public static void UnloadScript(ScriptDataPtr scriptDataPtr)
     {
         _scripts.Remove(scriptDataPtr);
-        scriptDataPtr.value->Dispose();
+        scriptDataPtr.value->Internal_Dispose();
         UnsafeUtilities.Free(scriptDataPtr.value);
     }
 }
