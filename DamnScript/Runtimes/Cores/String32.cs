@@ -29,11 +29,11 @@ public unsafe struct String32
         if (length > 32)
             throw new ArgumentException("String length must be less than or equal to 32.");
         
-        fixed (char* strPtr = data)
+        fixed (char* dest = data)
         {
-            fixed (char* valuePtr = value)
+            fixed (char* src = value)
             {
-                UnsafeUtilities.Memcpy(valuePtr, strPtr, length * sizeof(char));
+                UnsafeUtilities.Memcpy(src, dest, length * sizeof(char));
             }
         }
         

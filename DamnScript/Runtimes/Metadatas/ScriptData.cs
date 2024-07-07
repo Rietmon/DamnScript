@@ -15,7 +15,7 @@ public readonly unsafe struct ScriptDataPtr
     public static implicit operator ScriptData*(ScriptDataPtr ptr) => ptr.value;
 }
 
-public unsafe struct ScriptData : IDisposable
+public unsafe struct ScriptData
 {
     public String32 name;
 
@@ -39,7 +39,7 @@ public unsafe struct ScriptData : IDisposable
         return null;
     }
 
-    public void Dispose()
+    internal void Dispose()
     {
         metadata.Dispose();
         regions.Dispose();

@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.Cores;
 
 namespace DamnScriptTest;
 
@@ -18,8 +17,14 @@ public static class Test1
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
         var scriptData = ScriptEngine.LoadScript(memoryStream, "Test1");
         var thread = ScriptEngine.CreateThread(scriptData, "Main");
-        ScriptEngine.ExecuteScheduler();
         
-        scriptData.RefValue.Dispose();
+        Console.Write("\n");
+        ScriptEngine.ExecuteScheduler();
+        Console.Write("\n");
+        
+        //ScriptEngine.UnloadScript(scriptData);
+        
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadKey();
     }
 }

@@ -45,7 +45,6 @@ public static unsafe class ScriptsDataManager
         var scriptDataPtr = new ScriptDataPtr(scriptData);
         _scripts.Add(scriptDataPtr);
         
-        name.Dispose();
         return scriptDataPtr;
     }
     
@@ -84,7 +83,6 @@ public static unsafe class ScriptsDataManager
         var scriptDataPtr = new ScriptDataPtr(scriptData);
         _scripts.Add(scriptDataPtr);
         
-        name.Dispose();
         return scriptDataPtr;
     }
     
@@ -104,7 +102,6 @@ public static unsafe class ScriptsDataManager
         var scriptDataPtr = new ScriptDataPtr(scriptData);
         _scripts.Add(scriptDataPtr);
         
-        name.Dispose();
         return scriptDataPtr;
     }
     

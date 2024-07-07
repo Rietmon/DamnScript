@@ -7,29 +7,40 @@ using DamnScript.Runtimes.VirtualMachines.Datas;
 
 namespace DamnScriptTest;
 
-public static class Test2
+public static class Test3
 {
     private const string Code = @"
         region Main
         {
-            Print(GetString());
+            Print(""Now should be a print with the delay..."");
+            PrintWithDelay(GetInt() + 5 * 2));
+            Print(""Print has done!"");
         }
 ";
 
-    public static ScriptValue GetString()
+    public static async Task PrintWithDelay(ScriptValue value)
     {
-        return ScriptValue.FromReferencePin("Hello from C#!");
+        await Task.Delay(1000);
+        Console.WriteLine(value.longValue);
+    }
+    
+    public static ScriptValue GetInt()
+    {
+        return 5;
     }
     
     public static void Run()
     {
-        VirtualMachineData.RegisterNativeMethod(GetString);
+        VirtualMachineData.RegisterNativeMethod(PrintWithDelay);
+        VirtualMachineData.RegisterNativeMethod(GetInt);
+        
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-        var scriptData = ScriptEngine.LoadScript(memoryStream, "Test2");
+        var scriptData = ScriptEngine.LoadScript(memoryStream, "Test3");
         var thread = ScriptEngine.CreateThread(scriptData, "Main");
         
         Console.Write("\n");
-        ScriptEngine.ExecuteScheduler();
+        while (ScriptEngine.ExecuteScheduler())
+            Thread.Sleep(15);
         Console.Write("\n");
         
         //ScriptEngine.UnloadScript(scriptData);

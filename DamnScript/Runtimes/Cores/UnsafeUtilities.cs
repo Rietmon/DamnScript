@@ -25,7 +25,7 @@ public static unsafe class UnsafeUtilities
     public static void Memset(void* dest, byte value, int size) => Unsafe.InitBlock(dest, value, (uint)size);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool Memcmp<T>(T* ptr1, T* ptr2) where T : unmanaged => Unsafe.AreSame(ref *ptr1, ref *ptr2);
+    public static bool Memcmp<T>(T* ptr1, T* ptr2) where T : unmanaged => Memcmp(ptr1, ptr2, sizeof(T));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Memcmp(void* ptr1, void* ptr2, int size)
@@ -74,7 +74,11 @@ public static unsafe class UnsafeUtilities
         var end = value + length;
         while (begin < end)
         {
-            hash = (hash << 5) + hash + *begin;
+            var c = *begin;
+            if (c == '\0')
+                break;
+            
+            hash = (hash << 5) + hash + c;
             begin++;
         }
         return hash;

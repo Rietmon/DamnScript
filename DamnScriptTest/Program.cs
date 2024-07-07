@@ -27,6 +27,7 @@ public static class Program
             Console.WriteLine("Hello! Choose a test:");
             Console.WriteLine("1: Print string from DamnScript");
             Console.WriteLine("2: Print dynamic value from DamnScript");
+            Console.WriteLine("3: Print with delay from DamnScript + async/await + difficulty expression");
             Console.WriteLine("Q: Exit");
             Console.WriteLine("---------------------------------");
             
@@ -36,6 +37,7 @@ public static class Program
             {
                 case "1": Test1.Run(); break;
                 case "2": Test2.Run(); break;
+                case "3": Test3.Run(); break;
                 case "Q": return;
             }
         }

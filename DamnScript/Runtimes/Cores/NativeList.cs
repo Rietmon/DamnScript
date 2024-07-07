@@ -65,13 +65,18 @@ public unsafe struct NativeList<T> where T : unmanaged
         if (Begin == null)
             throw new NullReferenceException("NativeList is not initialized.");
         
-        for (var i = 0; i < Count; i++)
+        var begin = Begin;
+        var end = End;
+        var i = 0;
+        while (begin < end)
         {
-            if (!UnsafeUtilities.Memcmp(Begin, &value))
-                continue;
-            
-            RemoveAt(i);
-            return;
+            if (UnsafeUtilities.Memcmp(begin, &value))
+            {
+                RemoveAt(i);
+                return;
+            }
+            begin++;
+            i++;
         }
     }
     

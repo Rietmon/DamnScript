@@ -34,6 +34,9 @@ public static unsafe class ScriptEngine
         var ptr = _mainScheduler.Register(thread);
         return ptr;
     }
+    
+    public static void UnloadScript(ScriptDataPtr scriptData) => 
+        ScriptsDataManager.UnloadScript(scriptData);
         
     public static void RegisterNativeMethod(Delegate d) => 
         VirtualMachineData.RegisterNativeMethod(d);

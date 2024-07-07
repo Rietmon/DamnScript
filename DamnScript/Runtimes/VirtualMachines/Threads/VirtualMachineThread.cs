@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Text;
-using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Debugs;
+﻿using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
@@ -25,8 +21,6 @@ public readonly unsafe struct VirtualMachineThreadPtr
 
 public unsafe struct VirtualMachineThread : IDisposable
 {
-    private const int StackSize = 256;
-
     private byte* ByteCode => _regionData->byteCode.start + _offset;
 
     private readonly RegionData* _regionData;
@@ -105,6 +99,7 @@ public unsafe struct VirtualMachineThread : IDisposable
         return true;
     }
 
+    // Rietmon: TODO: Remove String and use StringHash
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ExecuteNativeCall(NativeCall nativeCall, out Task result)
     {
@@ -200,7 +195,7 @@ public unsafe struct VirtualMachineThread : IDisposable
         if (str == null)
             throw new Exception($"String not found with hash: {hash}");
         
-        Push(new ScriptValue(str).longValue);
+        Push(new ScriptValue(str));
         return true;
     }
 

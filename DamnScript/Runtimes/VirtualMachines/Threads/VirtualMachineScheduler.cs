@@ -83,11 +83,8 @@ public unsafe struct VirtualMachineScheduler
         }
     }
 
-    public void AddToAwait(Task result, VirtualMachineThreadPtr pointer)
-    {
-        var gcHandle = UnsafeUtilities.Pin(result);
-        _threadsAreAwait.Add((gcHandle.AddrOfPinnedObject(), pointer));
-    }
+    public void AddToAwait(Task result, VirtualMachineThreadPtr pointer) => 
+        _threadsAreAwait.Add(((IntPtr)UnsafeUtilities.ReferenceToPointer(result), pointer));
     
     public bool IsInAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
     {
@@ -113,8 +110,6 @@ public unsafe struct VirtualMachineScheduler
         {
             if (begin->pointer.value == virtualMachineThreadPointer.value)
             {
-                var gcHandle = GCHandle.FromIntPtr(begin->result);
-                gcHandle.Free();
                 _threadsAreAwait.RemoveAt(i);
                 return;
             }
