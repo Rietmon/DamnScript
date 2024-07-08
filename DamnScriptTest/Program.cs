@@ -38,6 +38,7 @@ public static class Program
                 case "1": Test1.Run(); break;
                 case "2": Test2.Run(); break;
                 case "3": Test3.Run(); break;
+                case "4": Test4.Run(); break;
                 case "Q": return;
             }
         }

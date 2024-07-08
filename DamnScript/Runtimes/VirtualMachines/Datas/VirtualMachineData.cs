@@ -21,6 +21,24 @@ public static unsafe class VirtualMachineData
             return;
         }
         
+        foreach (var parameter in method.GetParameters())
+        {
+            if (parameter.ParameterType == typeof(ScriptValue)) 
+                continue;
+            
+            Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
+                               $"Method \"{name}\" has invalid parameter type: {parameter.ParameterType}");
+            return;
+        }
+        
+        if (!(method.ReturnType == typeof(void) || method.ReturnType == typeof(ScriptValue) ||
+             method.ReturnType == typeof(Task) || method.ReturnType == typeof(Task<ScriptValue>)))
+        {
+            Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
+                               $"Method \"{name}\" has invalid return type: {method.ReturnType}");
+            return;
+        }
+        
         var methodPointer = method.MethodHandle.GetFunctionPointer().ToPointer();
         var isAsync = method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
         var argumentsCount = method.GetParameters().Length;

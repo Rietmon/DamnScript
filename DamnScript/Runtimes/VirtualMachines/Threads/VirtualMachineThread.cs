@@ -109,7 +109,7 @@ public unsafe struct VirtualMachineThread : IDisposable
             return false;
         
         var argumentsStack = stackalloc ScriptValue[method.argumentsCount];
-        for (var i = 0; i < method.argumentsCount; i++)
+        for (var i = method.argumentsCount - 1; i >= 0; i--)
             argumentsStack[i] = Pop();
         
         var returnValue = VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out result);

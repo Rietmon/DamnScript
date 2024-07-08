@@ -87,7 +87,7 @@ internal static unsafe class ScriptParser
                 break;
             case DamnScriptParser.MethodCallContext methodCall:
                 AssemblyMethodCall(methodCall, context);
-                break;
+                return;
             case DamnScriptParser.StringLiteralContext stringLiteral:
                 AssemblyStringLiteral(stringLiteral, context);
                 break;
