@@ -10,9 +10,8 @@ public static unsafe class VirtualMachineData
     private static readonly Dictionary<string, NativeMethod> methods = new();
     
     public static void RegisterNativeMethod(Delegate d) => RegisterNativeMethod(d.Method);
-    
+    public static void RegisterNativeMethod(Delegate d, string name) => RegisterNativeMethod(d.Method, name);
     public static void RegisterNativeMethod(MethodInfo method) => RegisterNativeMethod(method, method.Name);
-    
     public static void RegisterNativeMethod(MethodInfo method, string name)
     {
         if (methods.ContainsKey(name))

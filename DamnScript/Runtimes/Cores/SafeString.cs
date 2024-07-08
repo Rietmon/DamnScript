@@ -6,21 +6,21 @@ namespace DamnScript.Runtimes.Cores;
 [StructLayout(LayoutKind.Explicit, Size = 12)]
 public unsafe struct SafeString : IDisposable
 {
-    public bool IsSafe => safeStringType == SafeStringType.Safe;
+    public bool IsSafe => type == SafeStringType.Safe;
     
-    [FieldOffset(0)] public SafeStringType safeStringType;
+    [FieldOffset(0)] public SafeStringType type;
     [FieldOffset(4)] public GCHandle safeValue;
     [FieldOffset(4)] public UnsafeString* unsafeValue;
 
     public SafeString(string value)
     {
-        safeStringType = SafeStringType.Safe;
+        type = SafeStringType.Safe;
         safeValue = UnsafeUtilities.Pin(value);
     }
 
     public SafeString(UnsafeString* value)
     {
-        safeStringType = SafeStringType.Unsafe;
+        type = SafeStringType.Unsafe;
         unsafeValue = value;
     }
     

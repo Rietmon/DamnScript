@@ -1,7 +1,5 @@
 ﻿using System.Text;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
 
@@ -36,14 +34,14 @@ public static class Test3
         
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
         var scriptData = ScriptEngine.LoadScript(memoryStream, "Test3");
-        var thread = ScriptEngine.CreateThread(scriptData, "Main");
+        var thread = ScriptEngine.RunThread(scriptData, "Main");
         
         Console.Write("\n");
         while (ScriptEngine.ExecuteScheduler())
             Thread.Sleep(15);
         Console.Write("\n");
         
-        //ScriptEngine.UnloadScript(scriptData);
+        ScriptEngine.UnloadScript(scriptData);
         
         Console.WriteLine("Press any key to continue...");
         Console.ReadKey();

@@ -15,7 +15,7 @@ public static unsafe class ScriptsDataManager
     private static byte* _buffer;
     private static int _bufferSize;
     
-    public static ScriptDataPtr GetScriptDataPtr(SafeString name)
+    public static ScriptDataPtr GetScriptData(SafeString name)
     {
         if (_scripts.Count == 0)
             return default;
@@ -36,7 +36,7 @@ public static unsafe class ScriptsDataManager
     
     public static ScriptDataPtr LoadScript(Stream input, SafeString name)
     {
-        var loaded = GetScriptDataPtr(name);
+        var loaded = GetScriptData(name);
         if (loaded.value != null)
             return loaded;
         
@@ -50,7 +50,7 @@ public static unsafe class ScriptsDataManager
     
     public static ScriptDataPtr LoadCompiledScript(Stream input, SafeString name)
     {
-        var loaded = GetScriptDataPtr(name);
+        var loaded = GetScriptData(name);
         if (loaded.value != null)
             return loaded;
 
@@ -58,25 +58,19 @@ public static unsafe class ScriptsDataManager
         switch (length)
         {
             case > int.MaxValue:
-                Debugging.LogError($"[{nameof(ScriptsDataManager)}] ({nameof(LoadCompiledScript)}) " +
-                                   $"Input stream is large than 32bit value!");
-                return default;
+                throw new NotSupportedException("Input stream is large than 32bit value!");
+            
             case <= MaxStackBufferSize:
                 return LoadCompiledScriptWithStackAlloc(input, name);
         }
 
         if (_buffer == null || _bufferSize < length)
         {
-            if (_buffer != null)
-            {
-                _buffer = (byte*)UnsafeUtilities.ReAlloc(_buffer, (int)length);
-                UnsafeUtilities.Free(_buffer);
-            }
-            else
-            {
-                _buffer = (byte*)UnsafeUtilities.Alloc((int)length);
-            }
             _bufferSize = (int)length;
+            if (_buffer != null)
+                _buffer = (byte*)UnsafeUtilities.ReAlloc(_buffer, _bufferSize);
+            else
+                _buffer = (byte*)UnsafeUtilities.Alloc(_bufferSize);
         }
         var scriptData = UnsafeUtilities.Alloc<ScriptData>();
         CompiledScriptParser.ParseCompiledScript(_buffer, _bufferSize, name, scriptData);
@@ -86,15 +80,11 @@ public static unsafe class ScriptsDataManager
         return scriptDataPtr;
     }
     
-    private static ScriptDataPtr LoadCompiledScriptWithStackAlloc(Stream input, SafeString name)
+    public static ScriptDataPtr LoadCompiledScriptWithStackAlloc(Stream input, SafeString name)
     {
         var length = (int)input.Length;
         if (length > MaxStackBufferSize)
-        {
-            Debugging.LogError($"[{nameof(ScriptsDataManager)}] ({nameof(LoadCompiledScriptWithStackAlloc)}) " +
-                               $"Input length is too big for stack: {input.Length}!");
-            return default;
-        }
+            throw new NotSupportedException($"Input length is too big for stack: {input.Length}!");
         
         var scriptData = UnsafeUtilities.Alloc<ScriptData>();
         var buffer = stackalloc byte[length];
@@ -107,8 +97,14 @@ public static unsafe class ScriptsDataManager
     
     public static void UnloadScript(ScriptDataPtr scriptDataPtr)
     {
-        _scripts.Remove(scriptDataPtr);
-        scriptDataPtr.value->Internal_Dispose();
+        if (!_scripts.Remove(scriptDataPtr))
+        {
+            Debugging.LogError($"[{nameof(ScriptsDataManager)}] ({nameof(UnloadScript)}) " +
+                               $"Attempt to unload script which is not present in cache! Name: {scriptDataPtr.value->name.ToString()}");
+            return;
+        }
+        
+        scriptDataPtr.value->Dispose();
         UnsafeUtilities.Free(scriptDataPtr.value);
     }
 }

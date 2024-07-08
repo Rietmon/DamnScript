@@ -60,7 +60,7 @@ public unsafe struct NativeList<T> where T : unmanaged
         Count += length;
     }
     
-    public void Remove(T value)
+    public bool Remove(T value)
     {
         if (Begin == null)
             throw new NullReferenceException("NativeList is not initialized.");
@@ -73,11 +73,13 @@ public unsafe struct NativeList<T> where T : unmanaged
             if (UnsafeUtilities.Memcmp(begin, &value))
             {
                 RemoveAt(i);
-                return;
+                return true;
             }
             begin++;
             i++;
         }
+        
+        return false;
     }
     
     public void RemoveAt(int index)

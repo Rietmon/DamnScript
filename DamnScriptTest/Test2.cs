@@ -26,13 +26,13 @@ public static class Test2
         VirtualMachineData.RegisterNativeMethod(GetString);
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
         var scriptData = ScriptEngine.LoadScript(memoryStream, "Test2");
-        var thread = ScriptEngine.CreateThread(scriptData, "Main");
+        var thread = ScriptEngine.RunThread(scriptData, "Main");
         
         Console.Write("\n");
         ScriptEngine.ExecuteScheduler();
         Console.Write("\n");
         
-        //ScriptEngine.UnloadScript(scriptData);
+        ScriptEngine.UnloadScript(scriptData);
         
         Console.WriteLine("Press any key to continue...");
         Console.ReadKey();

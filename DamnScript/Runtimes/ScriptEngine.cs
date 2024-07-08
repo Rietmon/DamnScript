@@ -10,23 +10,87 @@ namespace DamnScript.Runtimes;
 
 public static unsafe class ScriptEngine
 {
-    private static VirtualMachineScheduler _mainScheduler = new(16);
-
-    public static bool ExecuteScheduler() =>
-        _mainScheduler.ExecuteNext();
+    public const string DefaultRegionName = "Main";
     
+    private static VirtualMachineScheduler _mainScheduler = new(16);
+        
+    /// <summary>
+    /// Will register native method in the virtual machine.
+    /// It supports methods with return value and async methods.
+    /// Also, you can use OOP methods but in this case, you should pass an instance of the object as the first argument.
+    /// </summary>
+    /// <param name="d">Delegate to method</param>
+    public static void RegisterNativeMethod(Delegate d) => 
+        VirtualMachineData.RegisterNativeMethod(d);
+
+    /// <summary>
+    /// Will register native method in the virtual machine.
+    /// It supports methods with return value and async methods.
+    /// Also, you can use OOP methods but in this case, you should pass an instance of the object as the first argument.
+    /// </summary>
+    /// <param name="d">Delegate to method</param>
+    /// <param name="name">Override method name</param>
+    public static void RegisterNativeMethod(Delegate d, string name) => 
+        VirtualMachineData.RegisterNativeMethod(d, name);
+
+    /// <summary>
+    /// Will register native method in the virtual machine.
+    /// It supports methods with return value and async methods.
+    /// Also, you can use OOP methods but in this case, you should pass an instance of the object as the first argument.
+    /// </summary>
+    /// <param name="method">Method info</param>
+    public static void RegisterNativeMethod(MethodInfo method) => 
+        VirtualMachineData.RegisterNativeMethod(method);
+
+    /// <summary>
+    /// Will register native method in the virtual machine.
+    /// It supports methods with return value and async methods.
+    /// Also, you can use OOP methods but in this case, you should pass an instance of the object as the first argument.
+    /// </summary>
+    /// <param name="method">Method info</param>
+    /// <param name="name">Override method name</param>
+    public static void RegisterNativeMethod(MethodInfo method, string name) => 
+        VirtualMachineData.RegisterNativeMethod(method, name);
+    
+    /// <summary>
+    /// Load script from provided stream.
+    /// Every single script SHOULD have a unique name because every script is loaded will be pushed into cache.
+    /// It will be present in the dictionary until it will be implicitly unloaded.
+    /// </summary>
+    /// <param name="input">Stream with script code. Should be a text code!</param>
+    /// <param name="name">Name of the script. Should be unique!</param>
+    /// <returns>Pointer to script data</returns>
     public static ScriptDataPtr LoadScript(Stream input, SafeString name) => 
         ScriptsDataManager.LoadScript(input, name);
     
+    /// <summary>
+    /// Load compiled script from provided stream.
+    /// Every single script SHOULD have a unique name because every script is loaded will be pushed into cache.
+    /// It will be present in the dictionary until it will be implicitly unloaded.
+    /// </summary>
+    /// <param name="input">Stream with compiled script code. Should be a byte code!</param>
+    /// <param name="name">Name of the script. Should be unique!</param>
+    /// <returns>Pointer to script data</returns>
     public static ScriptDataPtr LoadCompiledScript(Stream input, SafeString name) => 
         ScriptsDataManager.LoadCompiledScript(input, name);
 
-    public static VirtualMachineThreadPtr CreateThread(ScriptDataPtr scriptData, string regionName)
+    /// <summary>
+    /// Run thread with provided region name from script data.
+    /// It automatically will be registered in main scheduler.
+    /// End of thread guarantee that thread will be removed from scheduler, but not be unloaded from the cache.
+    /// </summary>
+    /// <param name="scriptData">Pointer to script data</param>
+    /// <param name="regionName">Region which should be run. By default, it's "Main" region</param>
+    /// <returns>Pointer to thread</returns>
+    public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, SafeString regionName = default)
     {
-        var regionData = scriptData.value->GetRegionData(new String32(regionName));
+        if (regionName.type == SafeString.SafeStringType.Invalid)
+            regionName = DefaultRegionName;
+        
+        var regionData = scriptData.value->GetRegionData(regionName.ToString32());
         if (regionData == null)
         {
-            Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(CreateThread)}) " +
+            Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RunThread)}) " +
                                $"Region \"{regionName}\" not found in script \"{scriptData.value->name}\"");
             return default;
         }
@@ -34,12 +98,30 @@ public static unsafe class ScriptEngine
         var ptr = _mainScheduler.Register(thread);
         return ptr;
     }
+
+    /// <summary>
+    /// Execute all threads which are present in main scheduler.
+    /// Each call of this method will start executing code until it catch an async method.
+    /// Because of it this method should be called in application life cycle loop.
+    /// </summary>
+    /// <returns>Does scheduler have other threads</returns>
+    public static bool ExecuteScheduler() =>
+        _mainScheduler.ExecuteNext();
     
+    /// <summary>
+    /// Return script data from cache by provided name if it's present.
+    /// If it's not present, it will return default.
+    /// </summary>
+    /// <param name="scriptName">Name of the script</param>
+    /// <returns>Pointer to script data</returns>
+    public static ScriptDataPtr GetScriptDataFromCache(SafeString scriptName) => 
+        ScriptsDataManager.GetScriptData(scriptName);
+    
+    /// <summary>
+    /// Unload script from cache by provided pointer.
+    /// If script is not present in cache, it will log an error. And do nothing.
+    /// </summary>
+    /// <param name="scriptData">Name of the script</param>
     public static void UnloadScript(ScriptDataPtr scriptData) => 
         ScriptsDataManager.UnloadScript(scriptData);
-        
-    public static void RegisterNativeMethod(Delegate d) => 
-        VirtualMachineData.RegisterNativeMethod(d);
-    public static void RegisterNativeMethod(MethodInfo method) => 
-        VirtualMachineData.RegisterNativeMethod(method);
 }
