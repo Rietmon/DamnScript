@@ -1,131 +1,134 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Natives;
 
-namespace DamnScript.Runtimes.VirtualMachines.Threads;
-
-public readonly unsafe struct VirtualMachineSchedulerPtr
+namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
-    public readonly VirtualMachineScheduler* value;
-    
-    public ref VirtualMachineScheduler RefValue => ref *value;
-    
-    public VirtualMachineSchedulerPtr(VirtualMachineScheduler* value) => this.value = value;
-
-    public static implicit operator VirtualMachineSchedulerPtr(VirtualMachineScheduler* value) => new(value);
-    
-    public static implicit operator VirtualMachineScheduler*(VirtualMachineSchedulerPtr ptr) => ptr.value;
-}
-
-public unsafe struct VirtualMachineScheduler
-{
-    public bool HasThreads => _threads.Count > 0;
-    public bool HasThreadsAwaiting => _threadsAreAwait.Count > 0;
-
-    private NativeList<VirtualMachineThread> _threads;
-    private NativeList<(IntPtr result, VirtualMachineThreadPtr pointer)> _threadsAreAwait;
-
-    public VirtualMachineScheduler(int capacity)
+    public readonly unsafe struct VirtualMachineSchedulerPtr
     {
-        _threads = new NativeList<VirtualMachineThread>(capacity);
-        _threadsAreAwait = new NativeList<(IntPtr, VirtualMachineThreadPtr)>(capacity);
+        public readonly VirtualMachineScheduler* value;
+    
+        public ref VirtualMachineScheduler RefValue => ref *value;
+    
+        public VirtualMachineSchedulerPtr(VirtualMachineScheduler* value) => this.value = value;
+
+        public static implicit operator VirtualMachineSchedulerPtr(VirtualMachineScheduler* value) => new(value);
+    
+        public static implicit operator VirtualMachineScheduler*(VirtualMachineSchedulerPtr ptr) => ptr.value;
     }
-    
-    public bool ExecuteNext()
+
+    public unsafe struct VirtualMachineScheduler
     {
-        ExecuteAwaitsThreads();
-        ExecuteThreads();
+        public bool HasThreads => _threads.Count > 0;
+        public bool HasThreadsAwaiting => _threadsAreAwait.Count > 0;
+
+        private NativeList<VirtualMachineThread> _threads;
+        private NativeList<(IntPtr result, VirtualMachineThreadPtr pointer)> _threadsAreAwait;
+
+        public VirtualMachineScheduler(int capacity)
+        {
+            _threads = new NativeList<VirtualMachineThread>(capacity);
+            _threadsAreAwait = new NativeList<(IntPtr, VirtualMachineThreadPtr)>(capacity);
+        }
+    
+        public bool ExecuteNext()
+        {
+            ExecuteAwaitsThreads();
+            ExecuteThreads();
         
-        return HasThreads || HasThreadsAwaiting;
-    }
-    
-    private void ExecuteAwaitsThreads()
-    {
-        var begin = _threadsAreAwait.Begin;
-        var end = _threadsAreAwait.End;
-        while (begin < end)
-        {
-            var result = UnsafeUtilities.PointerToReference<IAsyncResult>(begin->result.ToPointer());
-            if (result.IsCompleted)
-            {
-                RemoveFromAwait(begin->pointer);
-                if (result is Task<ScriptValue> task)
-                    begin->pointer.value->Push(task.Result.longValue);
-            }
-            
-            begin++;
+            return HasThreads || HasThreadsAwaiting;
         }
-    }
     
-    private void ExecuteThreads()
-    {
-        var begin = _threads.Begin;
-        var end = _threads.End;
-        while (begin < end)
+        private void ExecuteAwaitsThreads()
         {
-            if (!IsInAwait(begin))
+            var begin = _threadsAreAwait.Begin;
+            var end = _threadsAreAwait.End;
+            while (begin < end)
             {
-                Task result;
-                while (begin->ExecuteNext(out result))
+                var result = UnsafeUtilities.PointerToReference<IAsyncResult>(begin->result.ToPointer());
+                if (result.IsCompleted)
                 {
-                    if (result == null)
-                        continue;
-
-                    AddToAwait(result, begin);
-                    break;
+                    RemoveFromAwait(begin->pointer);
+                    if (result is Task<ScriptValue> task)
+                        begin->pointer.value->Push(task.Result.longValue);
                 }
-
-                if (result == null)
-                    Unregister(*begin);
-            }
             
-            begin++;
+                begin++;
+            }
         }
-    }
-
-    public void AddToAwait(Task result, VirtualMachineThreadPtr pointer) => 
-        _threadsAreAwait.Add(((IntPtr)UnsafeUtilities.ReferenceToPointer(result), pointer));
     
-    public bool IsInAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
-    {
-        var begin = _threadsAreAwait.Begin;
-        var end = _threadsAreAwait.End;
-        while (begin < end)
+        private void ExecuteThreads()
         {
-            if (begin->pointer.value == virtualMachineThreadPointer.value)
-                return true;
-            
-            begin++;
-        }
-
-        return false;
-    }
-
-    public void RemoveFromAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
-    {
-        var begin = _threadsAreAwait.Begin;
-        var end = _threadsAreAwait.End;
-        var i = 0;
-        while (begin < end)
-        {
-            if (begin->pointer.value == virtualMachineThreadPointer.value)
+            var begin = _threads.Begin;
+            var end = _threads.End;
+            while (begin < end)
             {
-                _threadsAreAwait.RemoveAt(i);
-                return;
-            }
+                if (!IsInAwait(begin))
+                {
+                    Task result;
+                    while (begin->ExecuteNext(out result))
+                    {
+                        if (result == null)
+                            continue;
+
+                        AddToAwait(result, begin);
+                        break;
+                    }
+
+                    if (result == null)
+                        Unregister(*begin);
+                }
             
-            begin++;
-            i++;
+                begin++;
+            }
         }
-    }
 
-    public VirtualMachineThreadPtr Register(VirtualMachineThread thread)
-    {
-        _threads.Add(thread);
-        var ptr = _threads.End - 1;
-        return new VirtualMachineThreadPtr(ptr);
-    }
+        public void AddToAwait(Task result, VirtualMachineThreadPtr pointer) => 
+            _threadsAreAwait.Add(((IntPtr)UnsafeUtilities.ReferenceToPointer(result), pointer));
+    
+        public bool IsInAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
+        {
+            var begin = _threadsAreAwait.Begin;
+            var end = _threadsAreAwait.End;
+            while (begin < end)
+            {
+                if (begin->pointer.value == virtualMachineThreadPointer.value)
+                    return true;
+            
+                begin++;
+            }
 
-    public void Unregister(VirtualMachineThread thread) => 
-        _threads.Remove(thread);
+            return false;
+        }
+
+        public void RemoveFromAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
+        {
+            var begin = _threadsAreAwait.Begin;
+            var end = _threadsAreAwait.End;
+            var i = 0;
+            while (begin < end)
+            {
+                if (begin->pointer.value == virtualMachineThreadPointer.value)
+                {
+                    _threadsAreAwait.RemoveAt(i);
+                    return;
+                }
+            
+                begin++;
+                i++;
+            }
+        }
+
+        public VirtualMachineThreadPtr Register(VirtualMachineThread thread)
+        {
+            _threads.Add(thread);
+            var ptr = _threads.End - 1;
+            return new VirtualMachineThreadPtr(ptr);
+        }
+
+        public void Unregister(VirtualMachineThread thread) => 
+            _threads.Remove(thread);
+    }
 }

@@ -3,11 +3,11 @@ using DamnScript.Runtimes;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
 
-namespace DamnScriptTest;
-
-public static class Test3
+namespace DamnScriptTest
 {
-    private const string Code = @"
+    public static class Test3
+    {
+        private const string Code = @"
         region Main
         {
             Print(""Now should be a print with the delay..."");
@@ -16,34 +16,35 @@ public static class Test3
         }
 ";
 
-    public static async Task PrintWithDelay(ScriptValue value)
-    {
-        await Task.Delay(1000);
-        Console.WriteLine(value.longValue);
-    }
+        public static async Task PrintWithDelay(ScriptValue value)
+        {
+            await Task.Delay(1000);
+            Console.WriteLine(value.longValue);
+        }
     
-    public static ScriptValue GetInt()
-    {
-        return 5;
-    }
+        public static ScriptValue GetInt()
+        {
+            return 5;
+        }
     
-    public static void Run()
-    {
-        VirtualMachineData.RegisterNativeMethod(PrintWithDelay);
-        VirtualMachineData.RegisterNativeMethod(GetInt);
+        public static void Run()
+        {
+            ScriptEngine.RegisterNativeMethod(PrintWithDelay);
+            ScriptEngine.RegisterNativeMethod(GetInt);
         
-        var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-        var scriptData = ScriptEngine.LoadScript(memoryStream, "Test3");
-        var thread = ScriptEngine.RunThread(scriptData, "Main");
+            var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
+            var scriptData = ScriptEngine.LoadScript(memoryStream, "Test3");
+            var thread = ScriptEngine.RunThread(scriptData, "Main");
         
-        Console.Write("\n");
-        while (ScriptEngine.ExecuteScheduler())
-            Thread.Sleep(15);
-        Console.Write("\n");
+            Console.Write("\n");
+            while (ScriptEngine.ExecuteScheduler())
+                Thread.Sleep(15);
+            Console.Write("\n");
         
-        ScriptEngine.UnloadScript(scriptData);
+            ScriptEngine.UnloadScript(scriptData);
         
-        Console.WriteLine("Press any key to continue...");
-        Console.ReadKey();
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
     }
 }

@@ -1,45 +1,46 @@
 ﻿using DamnScript.Runtimes;
 using DamnScript.Runtimes.Natives;
 
-namespace DamnScriptTest;
-
-public static class Program
+namespace DamnScriptTest
 {
-    public static void Print(ScriptValue value)
+    public static class Program
     {
-        var str = value.GetSafeString();
-        var safeStr = str.ToString();
-        Console.WriteLine($"DAMN SCRIPT: {safeStr}");
-    }
-    
-    public static void Main()
-    {
-        ScriptEngine.RegisterNativeMethod(Print);
-
-        Begin();
-    }
-
-    public static void Begin()
-    {
-        while (true)
+        public static void Print(ScriptValue value)
         {
-            Console.WriteLine("---------------------------------");
-            Console.WriteLine("Hello! Choose a test:");
-            Console.WriteLine("1: Print string from DamnScript");
-            Console.WriteLine("2: Print dynamic value from DamnScript");
-            Console.WriteLine("3: Print with delay from DamnScript + async/await + difficulty expression");
-            Console.WriteLine("Q: Exit");
-            Console.WriteLine("---------------------------------");
-            
-            var input = Console.ReadLine();
+            var str = value.GetSafeString();
+            var safeStr = str.ToString();
+            Console.WriteLine($"DAMN SCRIPT: {safeStr}");
+        }
+    
+        public static void Main()
+        {
+            ScriptEngine.RegisterNativeMethod(Print);
 
-            switch (input)
+            Begin();
+        }
+
+        public static void Begin()
+        {
+            while (true)
             {
-                case "1": Test1.Run(); break;
-                case "2": Test2.Run(); break;
-                case "3": Test3.Run(); break;
-                case "4": Test4.Run(); break;
-                case "Q": return;
+                Console.WriteLine("---------------------------------");
+                Console.WriteLine("Hello! Choose a test:");
+                Console.WriteLine("1: Print string from DamnScript");
+                Console.WriteLine("2: Print dynamic value from DamnScript");
+                Console.WriteLine("3: Print with delay from DamnScript + async/await + difficulty expression");
+                Console.WriteLine("Q: Exit");
+                Console.WriteLine("---------------------------------");
+            
+                var input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "1": Test1.Run(); break;
+                    case "2": Test2.Run(); break;
+                    case "3": Test3.Run(); break;
+                    case "4": Test4.Run(); break;
+                    case "Q": return;
+                }
             }
         }
     }

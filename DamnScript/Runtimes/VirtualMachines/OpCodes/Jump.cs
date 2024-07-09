@@ -1,16 +1,17 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace DamnScript.Runtimes.VirtualMachines.OpCodes;
-
-[StructLayout(LayoutKind.Sequential)]
-public struct Jump
+namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
-    public const int OpCode = 0x9;
-    public readonly int opCode = OpCode;
-    public readonly int jumpOffset;
-    
-    public Jump(int jumpOffset)
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Jump
     {
-        this.jumpOffset = jumpOffset;
+        public const int OpCode = 0x9;
+        public readonly int opCode = OpCode;
+        public readonly int jumpOffset;
+    
+        public Jump(int jumpOffset)
+        {
+            this.jumpOffset = jumpOffset;
+        }
     }
 }

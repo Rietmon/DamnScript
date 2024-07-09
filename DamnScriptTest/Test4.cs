@@ -1,76 +1,77 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 using DamnScript.Runtimes;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
 
-namespace DamnScriptTest;
-
-public static class Test4
+namespace DamnScriptTest
 {
-    private const string Code = @"
+    public static class Test4
+    {
+        private const string Code = @"
         region Main
         {
-            TestOopPrint(GetObject(Test(0)));
-            TestOopPrint(GetObject(Test(1)));
+            TestOopPrint(GetObject(0));
+            TestOopPrint(GetObject(1));
         }
 ";
 
-    public class TestOop
-    {
-        public string name = "test name";
-        public int age = 20;
-    }
-
-    public static TestOop[] objects = new TestOop[2];
-    
-    public static ScriptValue GetObject(ScriptValue index)
-    {
-        return ScriptValue.FromReference(objects[index.longValue]);
-    }
-    
-    public static ScriptValue Test(ScriptValue value)
-    {
-        return value;
-    }
-        
-    public static void TestOopPrint(ScriptValue value)
-    {
-        var obj = value.GetReference<TestOop>();
-        Console.WriteLine($"Hello! I'm {obj.name}, {obj.age} y.o.");
-    }
-    
-    public static void Run()
-    {
-        VirtualMachineData.RegisterNativeMethod(GetObject);
-        VirtualMachineData.RegisterNativeMethod(TestOopPrint);
-        VirtualMachineData.RegisterNativeMethod(Test);
-
-        objects[0] = new TestOop
+        public class TestOop
         {
-            name = "John",
-            age = 25
-        };
-        objects[1] = new TestOop
+            public string name = "test name";
+            public int age = 20;
+            [MarshalAs(UnmanagedType.SysInt)]
+            public TestOop parent;
+        }
+
+        public static TestOop[] objects = new TestOop[2];
+    
+        public static ScriptValue GetObject(ScriptValue index)
         {
-            name = "Jane",
-            age = 22
-        };
+            return ScriptValue.FromReferencePin(objects[index.longValue]);
+        }
         
-        var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-        var scriptData = ScriptEngine.LoadScript(memoryStream, "Test4");
-        var disassembler = Disassembler.DisassembleToString(scriptData.RefValue.regions[0].byteCode, scriptData.RefValue.metadata);
-        Console.WriteLine(disassembler);
-        var thread = ScriptEngine.RunThread(scriptData, "Main");
+        public static void TestManagedPrint(ScriptValue value)
+        {
+            var obj = value.GetReferencePin<TestOop>();
+            Console.WriteLine($"Hello! I'm {obj.name}, {obj.age} y.o.");
+            if (obj.parent != null)
+                Console.WriteLine($"My parent is {obj.parent.name}");
+        }
+    
+        public static void Run()
+        {
+            ScriptEngine.RegisterNativeMethod(GetObject);
+            ScriptEngine.RegisterNativeMethod(TestManagedPrint);
+
+            objects[0] = new TestOop
+            {
+                name = "John",
+                age = 25
+            };
+            objects[1] = new TestOop
+            {
+                name = "Jane",
+                age = 22,
+                parent = objects[0]
+            };
         
-        Console.Write("\n");
-        while (ScriptEngine.ExecuteScheduler())
-            Thread.Sleep(15);
-        Console.Write("\n");
+            var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
+            var scriptData = ScriptEngine.LoadScript(memoryStream, "Test4");
+            var disassembler = Disassembler.DisassembleToString(scriptData.RefValue.regions[0].byteCode, scriptData.RefValue.metadata);
+            Console.WriteLine(disassembler);
+            var thread = ScriptEngine.RunThread(scriptData, "Main");
         
-        ScriptEngine.UnloadScript(scriptData);
+            Console.Write("\n");
+            while (ScriptEngine.ExecuteScheduler())
+                Thread.Sleep(15);
+            Console.Write("\n");
         
-        Console.WriteLine("Press any key to continue...");
-        Console.ReadKey();
+            ScriptEngine.UnloadScript(scriptData);
+        
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
     }
 }

@@ -1,16 +1,17 @@
 ﻿using DamnScript.Runtimes.Cores;
 
-namespace DamnScript.Runtimes.Metadatas;
-
-public readonly struct RegionData
+namespace DamnScript.Runtimes.Metadatas
 {
-    public readonly String32 name;
-    
-    public readonly ByteCodeData byteCode;
-    
-    public RegionData(String32 name, ByteCodeData byteCode)
+    public readonly struct RegionData
     {
-        this.name = name;
-        this.byteCode = byteCode;
+        public readonly String32 name;
+    
+        public readonly ByteCodeData byteCode;
+    
+        public RegionData(String32 name, ByteCodeData byteCode)
+        {
+            this.name = name;
+            this.byteCode = byteCode;
+        }
     }
 }

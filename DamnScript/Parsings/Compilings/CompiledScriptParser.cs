@@ -3,11 +3,11 @@ using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 
-namespace DamnScript.Parsings.Compilings;
-
-public static unsafe class CompiledScriptParser
+namespace DamnScript.Parsings.Compilings
 {
-    public static void ParseCompiledScript(byte* scriptCode, int length, SafeString scriptName, ScriptData* scriptData)
+    public static unsafe class CompiledScriptParser
+    {
+        public static void ParseCompiledScript(byte* scriptCode, int length, SafeString scriptName, ScriptData* scriptData)
     {
         scriptData->name = scriptName.ToString32();
         
@@ -48,5 +48,6 @@ public static unsafe class CompiledScriptParser
         
         scriptData->metadata = new ScriptMetadata(new ConstantsData(constantStrings));
         constantStrings.Dispose();
+    }
     }
 }
