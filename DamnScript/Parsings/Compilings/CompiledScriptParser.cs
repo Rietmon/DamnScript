@@ -1,5 +1,7 @@
 ﻿using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Arrays;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 
@@ -7,7 +9,7 @@ namespace DamnScript.Parsings.Compilings
 {
     public static unsafe class CompiledScriptParser
     {
-        public static void ParseCompiledScript(byte* scriptCode, int length, SafeString scriptName, ScriptData* scriptData)
+        public static void ParseCompiledScript(byte* scriptCode, int length, ConstString scriptName, ScriptData* scriptData)
     {
         scriptData->name = scriptName.ToString32();
         

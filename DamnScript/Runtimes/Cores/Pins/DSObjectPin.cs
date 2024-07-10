@@ -1,4 +1,4 @@
-﻿namespace DamnScript.Runtimes.Cores
+﻿namespace DamnScript.Runtimes.Cores.Pins
 {
     public readonly struct DSObjectPin
     {

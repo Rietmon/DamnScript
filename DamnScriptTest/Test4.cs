@@ -12,8 +12,8 @@ namespace DamnScriptTest
         private const string Code = @"
         region Main
         {
-            TestOopPrint(GetObject(0));
-            TestOopPrint(GetObject(1));
+            TestManagedPrint(GetObject(0));
+            TestManagedPrint(GetObject(1));
         }
 ";
 
@@ -21,8 +21,14 @@ namespace DamnScriptTest
         {
             public string name = "test name";
             public int age = 20;
-            [MarshalAs(UnmanagedType.SysInt)]
             public TestOop parent;
+        
+            public void TestManagedPrint()
+            {
+                Console.WriteLine($"Hello! I'm {name}, {age} y.o.");
+                if (parent != null)
+                    Console.WriteLine($"My parent is {parent.name}");
+            }
         }
 
         public static TestOop[] objects = new TestOop[2];
@@ -31,19 +37,11 @@ namespace DamnScriptTest
         {
             return ScriptValue.FromReferencePin(objects[index.longValue]);
         }
-        
-        public static void TestManagedPrint(ScriptValue value)
-        {
-            var obj = value.GetReferencePin<TestOop>();
-            Console.WriteLine($"Hello! I'm {obj.name}, {obj.age} y.o.");
-            if (obj.parent != null)
-                Console.WriteLine($"My parent is {obj.parent.name}");
-        }
     
         public static void Run()
         {
             ScriptEngine.RegisterNativeMethod(GetObject);
-            ScriptEngine.RegisterNativeMethod(TestManagedPrint);
+            ScriptEngine.RegisterNativeMethod(typeof(TestOop).GetMethod(nameof(TestOop.TestManagedPrint)));
 
             objects[0] = new TestOop
             {
@@ -53,7 +51,7 @@ namespace DamnScriptTest
             objects[1] = new TestOop
             {
                 name = "Jane",
-                age = 22,
+                age = 2,
                 parent = objects[0]
             };
         

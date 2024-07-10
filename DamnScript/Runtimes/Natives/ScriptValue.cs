@@ -2,11 +2,12 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Strings;
 
 #if UNITY_5_3_OR_NEWER
 using PinHandle = System.Runtime.InteropServices.GCHandle;
 #else
-using PinHandle = DamnScript.Runtimes.Cores.DSObjectPin;
+using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
 #endif
 
 namespace DamnScript.Runtimes.Natives
@@ -14,6 +15,9 @@ namespace DamnScript.Runtimes.Natives
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct ScriptValue
     {
+        private const string ExceptionMessageInvalidTypeForPointers = 
+            $"Invalid type! Expected {nameof(ValueType.Pointer)}, {nameof(ValueType.ReferenceSafePointer)} or {nameof(ValueType.ReferenceUnsafePointer)}!";
+        
         [FieldOffset(0)] public ValueType type;
         [FieldOffset(4)] public bool boolValue;
         [FieldOffset(4)] public byte byteValue;
@@ -133,21 +137,34 @@ namespace DamnScript.Runtimes.Natives
                     return value;
                 }
                 default:
-                    throw new Exception("Invalid type for SafeString! Expected Pointer or Safe!");
+                    throw new Exception(ExceptionMessageInvalidTypeForPointers);
             }
         }
 
-        public SafeString ToSafeString()
-        {
-            return type switch
+        public SafeString ToSafeString() =>
+            type switch
             {
                 ValueType.Primitive => longValue.ToString(),
                 ValueType.Pointer or ValueType.ReferenceUnsafePointer or ValueType.ReferenceSafePointer => GetSafeString(),
-                _ => throw new Exception("Invalid type of ScriptValue!")
+                _ => throw new Exception("Type is invalid!")
             };
-        }
-    
+
+        public override string ToString() =>
+            type switch
+            {
+                ValueType.Primitive => longValue.ToString(),
+                ValueType.Pointer or ValueType.ReferenceUnsafePointer or ValueType.ReferenceSafePointer => GetSafeString().ToString(),
+                _ => throw new Exception("Type is invalid!")
+            };
+
         public void UnpinManagedPointer() => safeValue.Free();
+
+        public void* GetInstanceForVirtualMachine() => type switch
+        {
+            ValueType.Pointer or ValueType.ReferenceUnsafePointer => pointerValue,
+            ValueType.ReferenceSafePointer => UnsafeUtilities.AddressOfPinned(safeValue),
+            _ => throw new Exception(ExceptionMessageInvalidTypeForPointers)
+        };
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(ScriptValue left, ScriptValue right) => 

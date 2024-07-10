@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using DamnScript.Runtimes.Cores.Pins;
 
 #if UNITY_5_3_OR_NEWER
 using PinHandle = System.Runtime.InteropServices.GCHandle;
 #else
-using PinHandle = DamnScript.Runtimes.Cores.DSObjectPin;
+using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
 #endif
 
 namespace DamnScript.Runtimes.Cores
@@ -73,6 +74,15 @@ namespace DamnScript.Runtimes.Cores
             return value;
         }
 
+        public static void* AddressOfPinned(PinHandle value)
+        {
+#if UNITY_5_3_OR_NEWER
+            return value.AddrOfPinnedObject().ToPointer();
+#else
+            return PinHelper.GetAddress(value);
+#endif
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Unpin<T>(PinHandle handle) where T : class
         {
@@ -83,6 +93,24 @@ namespace DamnScript.Runtimes.Cores
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void* AsPointer<T>(ref T value) where T : unmanaged => Unsafe.AsPointer(ref value);
+        
+        private struct ManagedWrapper
+        {
+            public object value;
+        }
+        
+        public struct UnmanagedWrapper
+        {
+            public void* space;
+            public void* value;
+        }
+        
+        public static void* ToPointer(object value)
+        {
+            var wrapper = new ManagedWrapper { value = value };
+            ref var unmanaged = ref Unsafe.As<ManagedWrapper, UnmanagedWrapper>(ref wrapper);
+            return unmanaged.value;
+        }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int HashString(char* value, int length)

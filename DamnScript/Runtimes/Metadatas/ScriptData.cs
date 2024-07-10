@@ -1,4 +1,6 @@
 ﻿using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Arrays;
+using DamnScript.Runtimes.Cores.Strings;
 
 namespace DamnScript.Runtimes.Metadatas
 {

@@ -1,19 +1,16 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-
-#if UNITY_5_3_OR_NEWER
+﻿#if UNITY_5_3_OR_NEWER
 using PinHandle = System.Runtime.InteropServices.GCHandle;
 #else
-using PinHandle = DamnScript.Runtimes.Cores.DSObjectPin;
+using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
 #endif
+using System.Runtime.InteropServices;
 
-namespace DamnScript.Runtimes.Cores
+namespace DamnScript.Runtimes.Cores.Strings
 {
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct SafeString : IDisposable
     {
-        public bool IsSafe => type == SafeStringType.Safe;
+        public bool IsManaged => type == SafeStringType.Managed;
     
         [FieldOffset(0)] public SafeStringType type;
         [FieldOffset(4)] public PinHandle safeValue;
@@ -21,31 +18,31 @@ namespace DamnScript.Runtimes.Cores
 
         public SafeString(string value)
         {
-            type = SafeStringType.Safe;
+            type = SafeStringType.Managed;
             safeValue = UnsafeUtilities.Pin(value);
         }
 
         public SafeString(UnsafeString* value)
         {
-            type = SafeStringType.Unsafe;
+            type = SafeStringType.Unmanaged;
             unsafeValue = value;
         }
     
-        public String32 ToString32() => IsSafe
+        public String32 ToString32() => IsManaged
             ? new String32((string)safeValue.Target) 
             : new String32(unsafeValue->data, unsafeValue->length);
     
-        public UnsafeString* ToUnsafeString() => IsSafe
+        public UnsafeString* ToUnsafeString() => IsManaged
             ? UnsafeString.Alloc((string)safeValue.Target) 
             : unsafeValue;
     
-        public override string ToString() => IsSafe
+        public override string ToString() => IsManaged
             ? (string)safeValue.Target 
             : unsafeValue->ToString();
 
         public void Dispose()
         {
-            if (IsSafe)
+            if (IsManaged)
                 safeValue.Free();
             this = default;
         }
@@ -56,8 +53,8 @@ namespace DamnScript.Runtimes.Cores
         public enum SafeStringType
         {
             Invalid,
-            Safe,
-            Unsafe
+            Managed,
+            Unmanaged
         }
     }
 }

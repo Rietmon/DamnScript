@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
 using DamnScript.Parsings;
-using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.VirtualMachines.Datas;
@@ -12,7 +10,8 @@ namespace DamnScript.Runtimes
 {
     public static unsafe class ScriptEngine
     {
-        public const string DefaultRegionName = "Main";
+        private const string DefaultRegionName = "Main";
+        private static readonly String32 defaultRegionName32 = new(DefaultRegionName);
     
         private static VirtualMachineScheduler _mainScheduler = new(16);
         
@@ -62,7 +61,7 @@ namespace DamnScript.Runtimes
         /// <param name="input">Stream with script code. Should be a text code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
         /// <returns>Pointer to script data</returns>
-        public static ScriptDataPtr LoadScript(Stream input, SafeString name) => 
+        public static ScriptDataPtr LoadScript(Stream input, ConstString name) => 
             ScriptsDataManager.LoadScript(input, name);
     
         /// <summary>
@@ -73,7 +72,7 @@ namespace DamnScript.Runtimes
         /// <param name="input">Stream with compiled script code. Should be a byte code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
         /// <returns>Pointer to script data</returns>
-        public static ScriptDataPtr LoadCompiledScript(Stream input, SafeString name) => 
+        public static ScriptDataPtr LoadCompiledScript(Stream input, ConstString name) => 
             ScriptsDataManager.LoadCompiledScript(input, name);
 
         /// <summary>
@@ -84,16 +83,17 @@ namespace DamnScript.Runtimes
         /// <param name="scriptData">Pointer to script data</param>
         /// <param name="regionName">Region which should be run. By default, it's "Main" region</param>
         /// <returns>Pointer to thread</returns>
-        public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, SafeString regionName = default)
+        public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, ConstString regionName = default)
         {
-            if (regionName.type == SafeString.SafeStringType.Invalid)
-                regionName = DefaultRegionName;
+            var name = regionName.type == ConstString.ConstStringType.Invalid 
+                ? defaultRegionName32
+                : regionName.ToString32();
         
-            var regionData = scriptData.value->GetRegionData(regionName.ToString32());
+            var regionData = scriptData.value->GetRegionData(name);
             if (regionData == null)
             {
                 Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RunThread)}) " +
-                                   $"Region \"{regionName}\" not found in script \"{scriptData.value->name}\"");
+                                   $"Region \"{name}\" not found in script \"{scriptData.value->name}\"");
                 return default;
             }
             var thread = new VirtualMachineThread(regionData, &scriptData.value->metadata);
@@ -116,7 +116,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="scriptName">Name of the script</param>
         /// <returns>Pointer to script data</returns>
-        public static ScriptDataPtr GetScriptDataFromCache(SafeString scriptName) => 
+        public static ScriptDataPtr GetScriptDataFromCache(ConstString scriptName) => 
             ScriptsDataManager.GetScriptData(scriptName);
     
         /// <summary>

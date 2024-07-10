@@ -3,6 +3,8 @@ using System.IO;
 using DamnScript.Parsings.Antlrs;
 using DamnScript.Parsings.Compilings;
 using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Arrays;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 
@@ -17,7 +19,7 @@ namespace DamnScript.Parsings
         private static byte* _buffer;
         private static int _bufferSize;
     
-        public static ScriptDataPtr GetScriptData(SafeString name)
+        public static ScriptDataPtr GetScriptData(ConstString name)
         {
             if (_scripts.Count == 0)
                 return default;
@@ -36,7 +38,7 @@ namespace DamnScript.Parsings
             return default;
         }
     
-        public static ScriptDataPtr LoadScript(Stream input, SafeString name)
+        public static ScriptDataPtr LoadScript(Stream input, ConstString name)
         {
             var loaded = GetScriptData(name);
             if (loaded.value != null)
@@ -50,7 +52,7 @@ namespace DamnScript.Parsings
             return scriptDataPtr;
         }
     
-        public static ScriptDataPtr LoadCompiledScript(Stream input, SafeString name)
+        public static ScriptDataPtr LoadCompiledScript(Stream input, ConstString name)
         {
             var loaded = GetScriptData(name);
             if (loaded.value != null)
@@ -82,7 +84,7 @@ namespace DamnScript.Parsings
             return scriptDataPtr;
         }
     
-        public static ScriptDataPtr LoadCompiledScriptWithStackAlloc(Stream input, SafeString name)
+        public static ScriptDataPtr LoadCompiledScriptWithStackAlloc(Stream input, ConstString name)
         {
             var length = (int)input.Length;
             if (length > MaxStackBufferSize)

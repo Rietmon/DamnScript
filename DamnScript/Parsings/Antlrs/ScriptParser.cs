@@ -2,6 +2,8 @@
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Arrays;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
@@ -12,7 +14,7 @@ namespace DamnScript.Parsings.Antlrs
 {
     internal static unsafe class ScriptParser
     {
-        public static void ParseScript(Stream input, SafeString name, ScriptData* scriptData)
+        public static void ParseScript(Stream input, ConstString name, ScriptData* scriptData)
         {
             var charStream = new AntlrInputStream(input);
             var lexer = new DamnScriptLexer(charStream);

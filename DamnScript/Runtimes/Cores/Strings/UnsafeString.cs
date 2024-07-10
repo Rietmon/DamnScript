@@ -1,17 +1,11 @@
-﻿using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using DamnScript.Runtimes.Natives;
-
-#if UNITY_5_3_OR_NEWER
+﻿#if UNITY_5_3_OR_NEWER
 using PinHandle = System.Runtime.InteropServices.GCHandle;
 #else
-using PinHandle = DamnScript.Runtimes.Cores.DSObjectPin;
 #endif
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
-namespace DamnScript.Runtimes.Cores
+namespace DamnScript.Runtimes.Cores.Strings
 {
     public unsafe struct UnsafeStringPair
     {
