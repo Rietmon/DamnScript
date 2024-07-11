@@ -18,7 +18,7 @@ namespace DamnScript.Runtimes
         /// <summary>
         /// Will register native method in the virtual machine.
         /// It supports methods with return value and async methods.
-        /// Also, you can use OOP methods but in this case, you should pass an instance of the object as the first argument.
+        /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
         /// </summary>
         /// <param name="d">Delegate to method</param>
         public static void RegisterNativeMethod(Delegate d) => 
@@ -27,7 +27,7 @@ namespace DamnScript.Runtimes
         /// <summary>
         /// Will register native method in the virtual machine.
         /// It supports methods with return value and async methods.
-        /// Also, you can use OOP methods but in this case, you should pass an instance of the object as the first argument.
+        /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
         /// </summary>
         /// <param name="d">Delegate to method</param>
         /// <param name="name">Override method name</param>
@@ -37,7 +37,7 @@ namespace DamnScript.Runtimes
         /// <summary>
         /// Will register native method in the virtual machine.
         /// It supports methods with return value and async methods.
-        /// Also, you can use OOP methods but in this case, you should pass an instance of the object as the first argument.
+        /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
         /// </summary>
         /// <param name="method">Method info</param>
         public static void RegisterNativeMethod(MethodInfo method) => 
@@ -46,7 +46,7 @@ namespace DamnScript.Runtimes
         /// <summary>
         /// Will register native method in the virtual machine.
         /// It supports methods with return value and async methods.
-        /// Also, you can use OOP methods but in this case, you should pass an instance of the object as the first argument.
+        /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
         /// </summary>
         /// <param name="method">Method info</param>
         /// <param name="name">Override method name</param>
@@ -56,7 +56,7 @@ namespace DamnScript.Runtimes
         /// <summary>
         /// Load script from provided stream.
         /// Every single script SHOULD have a unique name because every script is loaded will be pushed into cache.
-        /// It will be present in the dictionary until it will be implicitly unloaded.
+        /// It will be present in the dictionary until it is implicitly unloaded.
         /// </summary>
         /// <param name="input">Stream with script code. Should be a text code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
@@ -67,7 +67,7 @@ namespace DamnScript.Runtimes
         /// <summary>
         /// Load compiled script from provided stream.
         /// Every single script SHOULD have a unique name because every script is loaded will be pushed into cache.
-        /// It will be present in the dictionary until it will be implicitly unloaded.
+        /// It will be present in the dictionary until it is implicitly unloaded.
         /// </summary>
         /// <param name="input">Stream with compiled script code. Should be a byte code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
@@ -77,8 +77,8 @@ namespace DamnScript.Runtimes
 
         /// <summary>
         /// Run thread with provided region name from script data.
-        /// It automatically will be registered in main scheduler.
-        /// End of thread guarantee that thread will be removed from scheduler, but not be unloaded from the cache.
+        /// It automatically is registered in the main scheduler.
+        /// End of thread guarantee that thread will be removed from the scheduler, but not be unloaded from the cache.
         /// </summary>
         /// <param name="scriptData">Pointer to script data</param>
         /// <param name="regionName">Region which should be run. By default, it's "Main" region</param>
@@ -102,11 +102,11 @@ namespace DamnScript.Runtimes
         }
 
         /// <summary>
-        /// Execute all threads which are present in main scheduler.
-        /// Each call of this method will start executing code until it catch an async method.
-        /// Because of it this method should be called in application life cycle loop.
+        /// Execute all threads that are present in the main scheduler.
+        /// Each call of this method will start executing code until it catches an async method.
+        /// Because of it, this method should be called in application life cycle loop.
         /// </summary>
-        /// <returns>Does scheduler have other threads</returns>
+        /// <returns>Does scheduler have other threads?</returns>
         public static bool ExecuteScheduler() =>
             _mainScheduler.ExecuteNext();
     
@@ -121,7 +121,7 @@ namespace DamnScript.Runtimes
     
         /// <summary>
         /// Unload script from cache by provided pointer.
-        /// If script is not present in cache, it will log an error. And do nothing.
+        /// If a script is not present in cache, it will log an error. And do nothing.
         /// </summary>
         /// <param name="scriptData">Name of the script</param>
         public static void UnloadScript(ScriptDataPtr scriptData) => 

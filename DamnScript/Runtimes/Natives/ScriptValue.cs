@@ -12,6 +12,10 @@ using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
 
 namespace DamnScript.Runtimes.Natives
 {
+    /// <summary>
+    /// This struct is a wrapper to handle any type of value in the DamnScript.
+    /// It has fixed size and can be used in the virtual machine.
+    /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct ScriptValue
     {
@@ -72,18 +76,34 @@ namespace DamnScript.Runtimes.Natives
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(PinHandle value) => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
-
-    
+        
+        /// <summary>
+        /// Create a new ScriptValue from a reference type and pin it. Safest way to handle references.
+        /// </summary>
+        /// <param name="value">Managed reference</param>
+        /// <typeparam name="T">Type of managed reference</typeparam>
+        /// <returns>ScriptValue with a pointer to value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptValue FromReferencePin<T>(T value) where T : class => 
             new(UnsafeUtilities.Pin(value));
-    
-    
+        
+        /// <summary>
+        /// Convert a reference to pointer and create a new ScriptValue from it.
+        /// </summary>
+        /// <param name="value">Managed reference</param>
+        /// <typeparam name="T">Type of managed reference</typeparam>
+        /// <returns>ScriptValue with a pointer to value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptValue FromReferenceUnsafe<T>(T value) where T : class => 
             new(UnsafeUtilities.ReferenceToPointer(value), ValueType.ReferenceUnsafePointer);
     
     
+        /// <summary>
+        /// Alloc copy of the struct and create a new ScriptValue from it.
+        /// </summary>
+        /// <param name="value">Struct value</param>
+        /// <typeparam name="T">Type of the struct</typeparam>
+        /// <returns>ScriptValue with a pointer to value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptValue FromStructAlloc<T>(T value) where T : unmanaged
         {
@@ -92,7 +112,12 @@ namespace DamnScript.Runtimes.Natives
             return new ScriptValue(allocate, ValueType.Pointer);
         }
 
-    
+        /// <summary>
+        /// Get reference from the safe pointer and can unpin it.
+        /// </summary>
+        /// <param name="freeBeforeReturn">Does need to unpin reference?</param>
+        /// <typeparam name="T">Type of the reference</typeparam>
+        /// <returns>Reference from the pointer</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetReferencePin<T>(bool freeBeforeReturn = true) where T : class
         {
@@ -102,11 +127,20 @@ namespace DamnScript.Runtimes.Natives
             return value;
         }
     
-    
+        /// <summary>
+        /// Get reference from the unsafe pointer.
+        /// </summary>
+        /// <typeparam name="T">Type of the reference</typeparam>
+        /// <returns>Reference from the pointer</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetReferenceUnsafe<T>() where T : class => UnsafeUtilities.PointerToReference<T>(pointerValue);
     
-    
+        /// <summary>
+        /// Get struct value from the pointer and can free it.
+        /// </summary>
+        /// <param name="freeBeforeReturn">Does need to free pointer after get a value?</param>
+        /// <typeparam name="T">Type of the struct</typeparam>
+        /// <returns>Struct from the pointer</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetStruct<T>(bool freeBeforeReturn = true) where T : unmanaged
         {
@@ -116,7 +150,14 @@ namespace DamnScript.Runtimes.Natives
             return value;
         }
     
-    
+        /// <summary>
+        /// Safe way to get an SafeString from the ScriptValue.
+        /// It works only if ScriptValue is based on pointers.
+        /// If it is based on primitive, it will throw an exception.
+        /// In case of a Primitive type, you can use ToSafeString() or ToString() method.
+        /// </summary>
+        /// <returns>SafeString value</returns>
+        /// <exception cref="Exception">Will throw exception if you try to get safe string if ScriptValue is based on primitive or initialized incorrectly</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SafeString GetSafeString()
         {
@@ -142,6 +183,11 @@ namespace DamnScript.Runtimes.Natives
             }
         }
 
+        /// <summary>
+        /// Convert ANY value to SafeString and returns it.
+        /// </summary>
+        /// <returns>SafeString value</returns>
+        /// <exception cref="Exception">If ScriptValue initialized incorrectly it will throw an exception</exception>
         public SafeString ToSafeString() =>
             type switch
             {
@@ -150,6 +196,11 @@ namespace DamnScript.Runtimes.Natives
                 _ => throw new Exception("Type is invalid!")
             };
 
+        /// <summary>
+        /// Convert ANY value to SafeString and then to string and returns it.
+        /// </summary>
+        /// <returns>String value</returns>
+        /// <exception cref="Exception">If ScriptValue initialized incorrectly it will throw an exception</exception>
         public override string ToString() =>
             type switch
             {
@@ -158,8 +209,20 @@ namespace DamnScript.Runtimes.Natives
                 _ => throw new Exception("Type is invalid!")
             };
 
-        public void UnpinManagedPointer() => safeValue.Free();
+        /// <summary>
+        /// Unpin safe pointer if a value type is it.
+        /// </summary>
+        public void UnpinManagedPointer()
+        {
+            if (type == ValueType.ReferenceSafePointer)
+                safeValue.Free();
+        }
 
+        /// <summary>
+        /// If ScriptValue represents a managed reference value, it will return a pointer to it.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception">Will throw exception if you try to get safe string if ScriptValue is based on primitive or initialized incorrectly</exception>
         public void* GetInstanceForVirtualMachine() => type switch
         {
             ValueType.Pointer or ValueType.ReferenceUnsafePointer => pointerValue,
@@ -268,12 +331,27 @@ namespace DamnScript.Runtimes.Natives
     
         public enum ValueType
         {
+            /// <summary>
+            /// Represent that ScriptValue initialized incorrectly.
+            /// </summary>
             Invalid,
         
+            /// <summary>
+            /// Represent that ScriptValue is a primitive type (byte, int, long, etc.)
+            /// </summary>
             Primitive,
+            /// <summary>
+            /// Pointer to the ANY value.
+            /// </summary>
             Pointer,
         
+            /// <summary>
+            /// Unsafe pointer to the reference type.
+            /// </summary>
             ReferenceUnsafePointer,
+            /// <summary>
+            /// Safe pointer to the reference type.
+            /// </summary>
             ReferenceSafePointer
         }
     }

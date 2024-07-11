@@ -7,6 +7,11 @@ using System.Runtime.InteropServices;
 
 namespace DamnScript.Runtimes.Cores.Types
 {
+    /// <summary>
+    /// Wrapper for string and UnsafeString.
+    /// It can be created from string or UnsafeString.
+    /// If provided string, it will be pinned, then you should implicitly Dispose it.
+    /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct SafeString : IDisposable
     {

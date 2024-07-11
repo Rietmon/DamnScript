@@ -6,6 +6,10 @@ using System.Runtime.InteropServices;
 
 namespace DamnScript.Runtimes.Cores.Types
 {
+    /// <summary>
+    /// Wrapper for string and UnsafeString.
+    /// Represent const string which should be used only for arguments in methods.
+    /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct ConstString
     {

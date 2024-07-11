@@ -2,6 +2,9 @@
 
 namespace DamnScript.Runtimes.Cores.Types
 {
+    /// <summary>
+    /// String buffer with fixed length of 32, but size is 33 * sizeof(char). Last char is null terminator.
+    /// </summary>
     public unsafe struct String32
     {
         public const int Length = 32;

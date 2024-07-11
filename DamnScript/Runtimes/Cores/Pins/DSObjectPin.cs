@@ -2,11 +2,11 @@
 {
     public readonly struct DSObjectPin
     {
-        public readonly long hash;
-        
         public object Target => PinHelper.GetTarget(this);
         
         public bool IsAllocated => hash != 0;
+        
+        public readonly long hash;
         
         public DSObjectPin(long hash) => this.hash = hash;
         

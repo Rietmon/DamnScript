@@ -19,6 +19,11 @@ namespace DamnScript.Runtimes.Cores.Types
         }
     }
 
+    /// <summary>
+    /// String implementation without managed allocation.
+    /// Can be used for fast string manipulation.
+    /// Might be converted to managed string.
+    /// </summary>
     public unsafe struct UnsafeString : IDisposable
     {
         private static string _buffer;
