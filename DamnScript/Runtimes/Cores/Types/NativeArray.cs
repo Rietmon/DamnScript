@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace DamnScript.Runtimes.Cores.Arrays
+namespace DamnScript.Runtimes.Cores.Types
 {
     public unsafe struct NativeArray<T> : IDisposable where T : unmanaged
     {

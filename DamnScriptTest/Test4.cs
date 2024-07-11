@@ -33,6 +33,8 @@ namespace DamnScriptTest
 
         public static TestOop[] objects = new TestOop[2];
     
+        // As I said before the safest way to pass the object to the script is to pass it as a pinned reference.
+        // But you can pass it as a pointer, but you should be careful with it especially for .NET Core.
         public static ScriptValue GetObject(ScriptValue index)
         {
             return ScriptValue.FromReferencePin(objects[index.longValue]);
@@ -41,6 +43,11 @@ namespace DamnScriptTest
         public static void Run()
         {
             ScriptEngine.RegisterNativeMethod(GetObject);
+            // In C# every method can be present as a static and called from anywhere.
+            // But you should pass the object as a first parameter. It can be any pointer or "Object"
+            // Registering as present in the example below will allow us to invoke method for different objects.
+            // If we pass as a delegate from exact object, it will be allocated one more special method.
+            // For this method you don't need to pass object pointer, it did C# for you.
             ScriptEngine.RegisterNativeMethod(typeof(TestOop).GetMethod(nameof(TestOop.TestManagedPrint)));
 
             objects[0] = new TestOop
@@ -57,7 +64,7 @@ namespace DamnScriptTest
         
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
             var scriptData = ScriptEngine.LoadScript(memoryStream, "Test4");
-            var disassembler = Disassembler.DisassembleToString(scriptData.RefValue.regions[0].byteCode, scriptData.RefValue.metadata);
+            var disassembler = ScriptDisassembler.DisassembleToString(scriptData.RefValue.regions[0].byteCode, scriptData.RefValue.metadata);
             Console.WriteLine(disassembler);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         

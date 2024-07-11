@@ -2,8 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Arrays;
-using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
@@ -17,7 +16,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
     
         public byte* byteCode;
         public int size;
-        public int previousOffset;
         public int offset;
 
         public NativeList<UnsafeStringPair> constantStrings;
@@ -75,7 +73,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         
             var ptr = byteCode + offset;
             *(T*)ptr = value;
-            previousOffset = offset;
             offset += length;
             return this;
         }

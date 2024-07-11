@@ -5,7 +5,7 @@ using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
 #endif
 using System.Runtime.InteropServices;
 
-namespace DamnScript.Runtimes.Cores.Strings
+namespace DamnScript.Runtimes.Cores.Types
 {
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct SafeString : IDisposable

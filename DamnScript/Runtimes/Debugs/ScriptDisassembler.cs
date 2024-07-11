@@ -5,7 +5,7 @@ using DamnScript.Runtimes.VirtualMachines.OpCodes;
 
 namespace DamnScript.Runtimes.Debugs
 {
-    public static unsafe class Disassembler
+    public static unsafe class ScriptDisassembler
     {
         public static string DisassembleToString(ByteCodeData data, ScriptMetadata metadata)
         {

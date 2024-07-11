@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using DamnScript.Parsings;
-using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.VirtualMachines.Datas;

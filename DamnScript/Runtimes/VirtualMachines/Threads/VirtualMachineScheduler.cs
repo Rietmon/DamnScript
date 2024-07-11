@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Arrays;
+using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Natives;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads

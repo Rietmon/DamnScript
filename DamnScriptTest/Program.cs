@@ -25,9 +25,10 @@ namespace DamnScriptTest
             {
                 Console.WriteLine("---------------------------------");
                 Console.WriteLine("Hello! Choose a test:");
-                Console.WriteLine("1: Print string from DamnScript");
-                Console.WriteLine("2: Print dynamic value from DamnScript");
+                Console.WriteLine("1: Print string from");
+                Console.WriteLine("2: Print dynamic value");
                 Console.WriteLine("3: Print with delay from DamnScript + async/await + difficulty expression");
+                Console.WriteLine("4: Print non static method from object instance");
                 Console.WriteLine("Q: Exit");
                 Console.WriteLine("---------------------------------");
             

@@ -1,37 +1,37 @@
 ﻿using System;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.Metadatas
 {
     public unsafe struct ScriptMetadata : IDisposable
     {
         private ConstantsData _constants;
-    
+
         public ScriptMetadata(ConstantsData constants)
-    {
-        _constants = constants;
-    }
+        {
+            _constants = constants;
+        }
 
         public UnsafeString* GetUnsafeString(int hash)
-    {
-        var begin = _constants.strings.Begin;
-        var end = _constants.strings.End;
-        
-        while (begin < end)
         {
-            if (begin->hash == hash)
-                return begin->value;
-            
-            begin++;
+            var begin = _constants.strings.Begin;
+            var end = _constants.strings.End;
+
+            while (begin < end)
+            {
+                if (begin->hash == hash)
+                    return begin->value;
+
+                begin++;
+            }
+
+            return null;
         }
-        
-        return null;
-    }
 
         public void Dispose()
-    {
-        _constants.Dispose();
-    }
+        {
+            _constants.Dispose();
+        }
     }
 }

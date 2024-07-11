@@ -11,10 +11,10 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         public ThreadParameters parameters;
 
         public SetThreadParameters(ThreadParameters parameters)
-    {
-        this.parameters = parameters;
-    }
-    
+        {
+            this.parameters = parameters;
+        }
+
         [Flags]
         public enum ThreadParameters
         {

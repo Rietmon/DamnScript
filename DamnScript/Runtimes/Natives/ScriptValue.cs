@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.Cores.Types;
 
 #if UNITY_5_3_OR_NEWER
 using PinHandle = System.Runtime.InteropServices.GCHandle;
@@ -16,7 +16,9 @@ namespace DamnScript.Runtimes.Natives
     public unsafe struct ScriptValue
     {
         private const string ExceptionMessageInvalidTypeForPointers = 
-            $"Invalid type! Expected {nameof(ValueType.Pointer)}, {nameof(ValueType.ReferenceSafePointer)} or {nameof(ValueType.ReferenceUnsafePointer)}!";
+            $"Invalid type! Expected {nameof(ValueType.Pointer)}, " +
+            $"{nameof(ValueType.ReferenceSafePointer)} or " +
+            $"{nameof(ValueType.ReferenceUnsafePointer)}!";
         
         [FieldOffset(0)] public ValueType type;
         [FieldOffset(4)] public bool boolValue;
@@ -132,8 +134,7 @@ namespace DamnScript.Runtimes.Natives
                 }
                 case ValueType.ReferenceSafePointer:
                 {
-                    var value = (string)safeValue.Target;
-                    safeValue.Free();
+                    var value = UnsafeUtilities.Unpin<string>(safeValue);
                     return value;
                 }
                 default:

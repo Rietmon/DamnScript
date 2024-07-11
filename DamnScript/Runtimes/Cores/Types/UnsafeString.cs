@@ -5,7 +5,7 @@ using PinHandle = System.Runtime.InteropServices.GCHandle;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace DamnScript.Runtimes.Cores.Strings
+namespace DamnScript.Runtimes.Cores.Types
 {
     public unsafe struct UnsafeStringPair
     {

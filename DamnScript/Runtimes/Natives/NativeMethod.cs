@@ -7,7 +7,7 @@
         public readonly bool isAsync;
         public readonly bool isStatic;
         public readonly bool hasReturnValue;
-    
+
         public NativeMethod(void* methodPointer, int argumentsCount, bool isAsync, bool isStatic, bool hasReturnValue)
         {
             this.methodPointer = methodPointer;

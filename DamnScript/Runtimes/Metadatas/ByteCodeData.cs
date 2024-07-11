@@ -8,21 +8,21 @@ namespace DamnScript.Runtimes.Metadatas
         public readonly byte* start;
         public readonly byte* end;
         public readonly int length;
-    
+
         public ByteCodeData(byte* start, byte* end)
-    {
-        this.start = start;
-        this.end = end;
-        length = (int)(end - start);
-    }
-    
+        {
+            this.start = start;
+            this.end = end;
+            length = (int)(end - start);
+        }
+
         public ByteCodeData(byte* start, int length)
-    {
-        this.start = start;
-        end = start + length;
-        this.length = length;
-    }
-    
+        {
+            this.start = start;
+            end = start + length;
+            this.length = length;
+        }
+
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
         public bool IsInRange(int offset) => offset < length;
     }

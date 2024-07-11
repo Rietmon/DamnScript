@@ -3,8 +3,7 @@ using System.IO;
 using DamnScript.Parsings.Antlrs;
 using DamnScript.Parsings.Compilings;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Arrays;
-using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 

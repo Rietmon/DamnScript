@@ -1,11 +1,10 @@
 ﻿#if UNITY_5_3_OR_NEWER
 using PinHandle = System.Runtime.InteropServices.GCHandle;
 #else
-using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
 #endif
 using System.Runtime.InteropServices;
 
-namespace DamnScript.Runtimes.Cores.Strings
+namespace DamnScript.Runtimes.Cores.Types
 {
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct ConstString

@@ -1,19 +1,18 @@
 ﻿using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Arrays;
-using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.Metadatas
 {
     public readonly unsafe struct ScriptDataPtr
     {
-        public readonly ScriptData* value; 
-    
+        public readonly ScriptData* value;
+
         public ref ScriptData RefValue => ref *value;
-    
+
         public ScriptDataPtr(ScriptData* value) => this.value = value;
 
         public static implicit operator ScriptDataPtr(ScriptData* value) => new(value);
-    
+
         public static implicit operator ScriptData*(ScriptDataPtr ptr) => ptr.value;
     }
 
@@ -22,22 +21,22 @@ namespace DamnScript.Runtimes.Metadatas
         public String32 name;
 
         public ScriptMetadata metadata;
-    
+
         public NativeArray<RegionData> regions;
 
         public RegionData* GetRegionData(String32 regionName)
         {
             var begin = regions.Begin;
             var end = regions.End;
-        
+
             while (begin < end)
             {
                 if (UnsafeUtilities.Memcmp(&regionName, &begin->name))
                     return begin;
-            
+
                 begin++;
             }
-        
+
             return null;
         }
 

@@ -2,8 +2,7 @@
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Arrays;
-using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;

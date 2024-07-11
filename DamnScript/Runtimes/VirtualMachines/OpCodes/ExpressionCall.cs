@@ -8,11 +8,11 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         public const int OpCode = 0x3;
         public readonly int opCode = OpCode;
         public readonly ExpressionCallType type;
-    
+
         public ExpressionCall(ExpressionCallType type)
-    {
-        this.type = type;
-    }
+        {
+            this.type = type;
+        }
 
         public enum ExpressionCallType
         {

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace DamnScript.Runtimes.Cores.Strings
+namespace DamnScript.Runtimes.Cores.Types
 {
     public unsafe struct String32
     {

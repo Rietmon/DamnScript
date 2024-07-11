@@ -1,22 +1,21 @@
 ﻿using System;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Arrays;
-using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.Metadatas
 {
     public struct ConstantsData : IDisposable
     {
         public NativeArray<UnsafeStringPair> strings;
-    
+
         public ConstantsData(NativeArray<UnsafeStringPair> strings)
-    {
-        this.strings = strings;
-    }
+        {
+            this.strings = strings;
+        }
 
         public void Dispose()
-    {
-        strings.Dispose();
-    }
+        {
+            strings.Dispose();
+        }
     }
 }
