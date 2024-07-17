@@ -194,5 +194,5 @@ this script is still running! This can lead to unpredictable results.
 ... And much more. :)
 
 ## Support
-You can also support the project by buying me a coffee, so I can continue developing this project through the night.
+You can also support the project by buying me a coffee, so I can continue developing this project through the night.  
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/rietmon)
