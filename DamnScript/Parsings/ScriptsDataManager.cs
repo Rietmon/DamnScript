@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using DamnScript.Parsings.Antlrs;
+﻿using DamnScript.Parsings.Antlrs;
 using DamnScript.Parsings.Compilings;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;

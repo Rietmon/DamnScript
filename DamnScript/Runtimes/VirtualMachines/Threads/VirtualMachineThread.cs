@@ -45,6 +45,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             _stack = new VirtualMachineThreadStack();
         }
     
+        /// <summary>
+        /// Begin handle thread. Will work until the end of the bytecode, or until it invokes async method.
+        /// In the second case, it will return "out Task".
+        /// </summary>
+        /// <param name="result">Is invoked async method?</param>
+        /// <returns>Is the end of the bytecode or thread disposed?</returns>
+        /// <exception cref="Exception">Invalid opcode</exception>
         public bool ExecuteNext(out Task result)
         {
             result = null;

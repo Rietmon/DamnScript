@@ -19,7 +19,7 @@ namespace DamnScriptTest
             // Load the script data from the stream and set it the name "Test1"
             var scriptData = ScriptEngine.LoadScript(memoryStream, "Test1");
             // Run the script thread, which is going to start execute region with the name "Main"
-            var thread = ScriptEngine.RunThread(scriptData, "Main");
+            var thread = ScriptEngine.RunThread(scriptData);
         
             Console.Write("\n");
             // Execute the scheduler until the thread is finished

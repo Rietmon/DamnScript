@@ -14,7 +14,7 @@ namespace DamnScript.Runtimes.Natives
 {
     /// <summary>
     /// This struct is a wrapper to handle any type of value in the DamnScript.
-    /// It has fixed size and can be used in the virtual machine.
+    /// It has a fixed size and can be used in the virtual machine.
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct ScriptValue
