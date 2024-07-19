@@ -1,7 +1,5 @@
-﻿using System.IO;
-using Antlr4.Runtime;
+﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
@@ -79,7 +77,9 @@ namespace DamnScript.Parsings.Antlrs
                 case DamnScriptParser.IfStatementContext ifStatement:
                     ParseIfStatement(ifStatement, context);
                     return;
-            
+                case DamnScriptParser.ForStatementContext forStatement:
+                    ParseForStatement(forStatement, context);
+                    return;
                 case DamnScriptParser.LogicalStatementContext logicalExpression:
                     AssemblyLogicalExpression(logicalExpression, context);
                     return;
@@ -98,6 +98,9 @@ namespace DamnScript.Parsings.Antlrs
                     break;
                 case DamnScriptParser.MultiplicativeOperatorContext operatorContext:
                     AssemblyMultiplicativeOperator(operatorContext, context);
+                    break;
+                case DamnScriptParser.VariableExpressionContext variableExpression:
+                    AssemblyVariableExpression(variableExpression, context);
                     break;
             
                 case ErrorNodeImpl errorNode:
@@ -146,6 +149,30 @@ namespace DamnScript.Parsings.Antlrs
             context.assembler->offset = targetOffset;
         }
 
+        private static void ParseForStatement(DamnScriptParser.ForStatementContext forStatement, ScriptParserContext context)
+        {
+            var variableName = GetNextNodeOfType<DamnScriptParser.VariableContext>(forStatement).GetText();
+            
+            var registerIndex = context.ReserveIdentifier(variableName);
+
+            context.assembler->PushToStack(0);
+            context.assembler->PushToRegister(registerIndex);
+            var beginOffset = context.assembler->offset;
+            
+            var countExpression = GetNextNodeOfType<DamnScriptParser.ExpressionContext>(forStatement);
+            
+            var statementContext = GetNextNodeOfType<DamnScriptParser.StatementContext>(forStatement);
+            ParseNode(statementContext, context);
+            
+            context.assembler->PeekFromRegister(registerIndex);
+            context.assembler->PushToStack(1);
+            context.assembler->ExpressionCall(ExpressionCall.ExpressionCallType.Add);
+            context.assembler->DuplicateStack();
+            context.assembler->PushToRegister(registerIndex);
+            ParseNode(countExpression, context);
+            context.assembler->JumpNotEquals(beginOffset);
+        }
+
         private static void ParseCallStatementBody(IParseTree callStatement, ScriptParserContext context)
         {
             var start = callStatement.GetChild(0);
@@ -159,11 +186,12 @@ namespace DamnScript.Parsings.Antlrs
 
         private static void ParseAdditiveExpression(DamnScriptParser.AdditiveExpressionContext operatorContext, ScriptParserContext context)
         {
-            for (var i = 0; i < operatorContext.ChildCount; i++)
+            var parent = operatorContext.GetChild(0);
+            for (var i = 0; i < parent.ChildCount; i++)
             {
-                var child = operatorContext.GetChild(i);
-                if (child is DamnScriptParser.AdditiveOperatorContext)
-                    ParseNode(operatorContext.GetChild(++i), context);
+                var child = parent.GetChild(i);
+                if (child is DamnScriptParser.AdditiveOperatorContext or DamnScriptParser.MultiplicativeOperatorContext)
+                    ParseNode(parent.GetChild(++i), context);
                 ParseNode(child, context);
             }
         }
@@ -241,6 +269,20 @@ namespace DamnScript.Parsings.Antlrs
             context.strings->Add(new UnsafeStringPair(hash, value));
             context.assembler->PushStringToStack(hash);
         }
+        
+        private static void AssemblyVariableExpression(DamnScriptParser.VariableExpressionContext variableExpression, ScriptParserContext context)
+        {
+            var variableName = variableExpression.GetText();
+            var registerIndex = context.GetRegisterIndex(variableName);
+
+            if (registerIndex == -1)
+            {
+                Debugging.LogError($"[{nameof(ScriptParser)}] ({AssemblyVariableExpression}) Unknown variable: {variableName}!");
+                context.isError = true;
+                return;
+            }
+            context.assembler->PeekFromRegister(registerIndex);
+        }
 
         private static void AssemblyMultiplicativeOperator(DamnScriptParser.MultiplicativeOperatorContext multiplicativeOperator, ScriptParserContext context)
         {
@@ -280,6 +322,21 @@ namespace DamnScript.Parsings.Antlrs
                 return;
             }
             context.assembler->ExpressionCall(operatorType);
+        }
+
+        private static T GetNextNodeOfType<T>(IParseTree node)
+        {
+            for (var i = 0; i < node.ChildCount; i++)
+            {
+                var child = node.GetChild(i);
+                if (child is T result)
+                    return result;
+                
+                var t = GetNextNodeOfType<T>(child);
+                if (t != null)
+                    return t;
+            }
+            return default;
         }
     }
 }

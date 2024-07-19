@@ -10,9 +10,12 @@ statement: LEFT_BRACKET statementBody* RIGHT_BRACKET;
 
 statementBody
     : ifStatement
+    | forStatement
     | callStatement;
     
 ifStatement: IF logicalStatement (ELSEIF logicalStatement)* (ELSE statement)?;
+
+forStatement: FOR LEFT_PAREN variable IN expression RIGHT_PAREN statement;
 
 logicalStatement: LEFT_PAREN expression RIGHT_PAREN statement;
 
@@ -35,11 +38,14 @@ factor
     | LEFT_PAREN expression RIGHT_PAREN              # ParenthesizedExpression
     | methodCall                                     # MethodCallExpression
     | stringLiteral                                        # LiteralExpression
+    | variable                                        # VariableExpression
     ;
 
 methodCall: identifier LEFT_PAREN args? RIGHT_PAREN;
 
 stringLiteral: STRING;
+
+variable: identifier;
 
 logicalOperator: (EQUAL | NOT_EQUAL | LESS | LESS_EQUAL | GREATER | GREATER_EQUAL | AND | OR);
 additiveOperator: (ADD | SUBTRACT);

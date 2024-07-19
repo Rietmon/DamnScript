@@ -10,6 +10,9 @@ IF     : 'if';
 ELSEIF : 'elseif';
 ELSE   : 'else';
 
+FOR    : 'for';
+IN    : 'in';
+
 AND    : '&&';
 OR     : '||';
 

@@ -57,6 +57,24 @@ namespace DamnScript.Runtimes.Debugs
                         sb.AppendLine($"{offset.ToString()}: PUSHSTR {str->ToString()} ({pushStringToStack.hash.ToString()})");
                         offset += sizeof(JumpIfEquals);
                         break;
+                    case SetThreadParameters.OpCode:
+                        // Rietmon: Not implemented
+                        offset += sizeof(SetThreadParameters);
+                        break;
+                    case PushToRegister.OpCode:
+                        var pushToRegister = *(PushToRegister*)byteCode;
+                        sb.AppendLine($"{offset.ToString()}: PUSHREG {pushToRegister.register.ToString()}");
+                        offset += sizeof(PushToRegister);
+                        break;
+                    case PeekFromRegister.OpCode:
+                        var popFromRegister = *(PeekFromRegister*)byteCode;
+                        sb.AppendLine($"{offset.ToString()}: PEEKREG {popFromRegister.register.ToString()}");
+                        offset += sizeof(PeekFromRegister);
+                        break;
+                    case DuplicateStack.OpCode:
+                        sb.AppendLine($"{offset.ToString()}: DPL");
+                        offset += sizeof(DuplicateStack);
+                        break;
                     default:
                         throw new Exception($"Invalid OpCode: {opCode}");
                 }

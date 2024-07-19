@@ -7,7 +7,7 @@ namespace DamnScriptTest
     {
         public static void Print(ScriptValue value)
         {
-            var str = value.GetSafeString();
+            var str = value.ToSafeString();
             var safeStr = str.ToString();
             Console.WriteLine($"DAMN SCRIPT: {safeStr}");
         }
@@ -29,6 +29,7 @@ namespace DamnScriptTest
                 Console.WriteLine("2: Print dynamic value");
                 Console.WriteLine("3: Print with delay from DamnScript + async/await + difficulty expression");
                 Console.WriteLine("4: Print non static method from object instance");
+                Console.WriteLine("5: Print from loop with indexing");
                 Console.WriteLine("Q: Exit");
                 Console.WriteLine("---------------------------------");
             
@@ -40,6 +41,7 @@ namespace DamnScriptTest
                     case "2": Test2.Run(); break;
                     case "3": Test3.Run(); break;
                     case "4": Test4.Run(); break;
+                    case "5": Test5.Run(); break;
                     case "Q": return;
                 }
             }

@@ -53,7 +53,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 {
                     RemoveFromAwait(begin->pointer);
                     if (result is Task<ScriptValue> task)
-                        begin->pointer.value->Push(task.Result.longValue);
+                        begin->pointer.value->StackPush(task.Result.longValue);
                 }
             
                 begin++;

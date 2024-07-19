@@ -30,6 +30,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         private readonly ScriptMetadata* _metadata;
 
         private VirtualMachineThreadStack _stack;
+        private VirtualMachineRegisters _registers;
     
         private int _offset;
         private int _savePoint;
@@ -43,6 +44,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             _regionData = regionData;
             _metadata = metadata;
             _stack = new VirtualMachineThreadStack();
+            _registers = new VirtualMachineRegisters();
         }
     
         /// <summary>
@@ -102,6 +104,18 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                     ExecuteSetThreadParameters(*(SetThreadParameters*)byteCode);
                     _offset += sizeof(SetThreadParameters);
                     break;
+                case PushToRegister.OpCode:
+                    ExecutePushToRegister(*(PushToRegister*)byteCode);
+                    _offset += sizeof(PushToRegister);
+                    break;
+                case PeekFromRegister.OpCode:
+                    ExecutePopFromRegister(*(PeekFromRegister*)byteCode);
+                    _offset += sizeof(PeekFromRegister);
+                    break;
+                case DuplicateStack.OpCode:
+                    ExecuteDuplicateStack(*(DuplicateStack*)byteCode);
+                    _offset += sizeof(DuplicateStack);
+                    break;
                 default:
                     throw new Exception($"Invalid OpCode: {opCode}");
             }
@@ -120,7 +134,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         
             var argumentsStack = stackalloc ScriptValue[method.argumentsCount];
             for (var i = method.argumentsCount - 1; i >= 0; i--)
-                argumentsStack[i] = Pop();
+                argumentsStack[i] = StackPop();
         
             var returnValue = VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out result);
         
@@ -132,7 +146,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             }
         
             if (method.hasReturnValue)
-                Push(returnValue);
+                StackPush(returnValue);
         
             return true;
         }
@@ -140,7 +154,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ExecutePushToStack(PushToStack pushToStack)
         {
-            Push(pushToStack.value);
+            StackPush(pushToStack.value);
             return true;
         }
 
@@ -150,21 +164,21 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             switch (expressionCall.type)
             {
                 case ExpressionCall.ExpressionCallType.Invalid: break;
-                case ExpressionCall.ExpressionCallType.Add: Push(Pop() + Pop()); break;
-                case ExpressionCall.ExpressionCallType.Subtract: Push(Pop() - Pop()); break;
-                case ExpressionCall.ExpressionCallType.Multiply: Push(Pop() * Pop()); break;
-                case ExpressionCall.ExpressionCallType.Divide: Push(Pop() / Pop()); break;
-                case ExpressionCall.ExpressionCallType.Modulo: Push(Pop() % Pop()); break;
-                case ExpressionCall.ExpressionCallType.Negate: Push(-Pop()); break;
-                case ExpressionCall.ExpressionCallType.Equal: Push(Pop() == Pop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.NotEqual: Push(Pop() != Pop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Greater: Push(Pop() > Pop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.GreaterOrEqual: Push(Pop() >= Pop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Less: Push(Pop() < Pop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.LessOrEqual: Push(Pop() <= Pop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.And: Push(Pop() != 0 && Pop() != 0 ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Or: Push(Pop() != 0 || Pop() != 0 ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Not: Push(Pop() == 0 ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.Add: StackPush(StackPop() + StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Subtract: StackPush(StackPop() - StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Multiply: StackPush(StackPop() * StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Divide: StackPush(StackPop() / StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Modulo: StackPush(StackPop() % StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Negate: StackPush(-StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Equal: StackPush(StackPop() == StackPop() ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.NotEqual: StackPush(StackPop() != StackPop() ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.Greater: StackPush(StackPop() > StackPop() ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.GreaterOrEqual: StackPush(StackPop() >= StackPop() ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.Less: StackPush(StackPop() < StackPop() ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.LessOrEqual: StackPush(StackPop() <= StackPop() ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.And: StackPush(StackPop() != 0 && StackPop() != 0 ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.Or: StackPush(StackPop() != 0 || StackPop() != 0 ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.Not: StackPush(StackPop() == 0 ? 1 : 0); break;
                 default: throw new ArgumentOutOfRangeException(nameof(expressionCall));
             }
 
@@ -181,7 +195,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ExecuteJumpNotEquals(JumpNotEquals jumpNotEquals)
         {
-            if (Pop() == Pop()) 
+            if (StackPop() == StackPop()) 
                 return true;
         
             _offset = jumpNotEquals.jumpOffset;
@@ -191,7 +205,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ExecuteJumpIfEquals(JumpIfEquals jumpIfEquals)
         {
-            if (Pop() != Pop())
+            if (StackPop() != StackPop())
                 return true;
         
             _offset = jumpIfEquals.jumpOffset;
@@ -213,7 +227,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             if (str == null)
                 throw new Exception($"String not found with hash: {hash}");
         
-            Push(str);
+            StackPush(str);
             return true;
         }
 
@@ -223,12 +237,52 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             _threadParameters = setThreadParameters.parameters;
             return true;
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool ExecutePushToRegister(PushToRegister pushToRegister)
+        {
+            switch (pushToRegister.register)
+            {
+                case 0: _registers[0] = StackPop().longValue; break;
+                case 1: _registers[1] = StackPop().longValue; break;
+                case 2: _registers[2] = StackPop().longValue; break;
+                case 3: _registers[3] = StackPop().longValue; break;
+                default: throw new ArgumentOutOfRangeException(nameof(pushToRegister.register));
+            }
+
+            return true;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool ExecutePopFromRegister(PeekFromRegister peekFromRegister)
+        {
+            switch (peekFromRegister.register)
+            {
+                case 0: StackPush(_registers[0]); break;
+                case 1: StackPush(_registers[1]); break;
+                case 2: StackPush(_registers[2]); break;
+                case 3: StackPush(_registers[3]); break;
+                default: throw new ArgumentOutOfRangeException(nameof(peekFromRegister.register));
+            }
+
+            return true;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool ExecuteDuplicateStack(DuplicateStack duplicateStack)
+        {
+            var value = StackPop();
+            StackPush(value);
+            StackPush(value);
+
+            return true;
+        }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Push(ScriptValue value) => _stack.Push(value);
+        public void StackPush(ScriptValue value) => _stack.Push(value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue Pop() => _stack.Pop();
+        public ScriptValue StackPop() => _stack.Pop();
 
         public void Dispose()
         {
