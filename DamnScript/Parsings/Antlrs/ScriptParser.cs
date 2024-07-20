@@ -104,7 +104,50 @@ namespace DamnScript.Parsings.Antlrs
         
         public static void ParseIfStatement(DamnScriptParser.IfStatementContext ifStatement, ScriptParserContext* context)
         {
+            var branches = stackalloc int[32];
+            var branchCount = 0;
+
+            var conditions = ifStatement.condition();
+            var blocks = ifStatement.block();
             
+            var hasElse = blocks.Length > conditions.Length;
+            
+            for (var i = 0; i < conditions.Length; i++)
+            {
+                var conditionExpression = conditions[i].expression();
+                ParseExpression(conditionExpression, context);
+
+                context->assembler->PushToStack(1);
+                var conditionJumpOffset = context->assembler->offset;
+                context->assembler->JumpNotEquals(-1);
+
+                var block = blocks[i];
+                ParseBlock(block, context);
+
+                branches[branchCount++] = context->assembler->offset;
+                context->assembler->Jump(-1);
+                
+                var prevOffset = context->assembler->offset;
+                context->assembler->offset = conditionJumpOffset;
+                context->assembler->JumpNotEquals(prevOffset);
+                context->assembler->offset = prevOffset;
+            }
+            
+            if (hasElse)
+            {
+                var elseBlock = blocks[^1];
+                ParseBlock(elseBlock, context);
+            }
+            
+            var endOffset = context->assembler->offset;
+            for (var i = 0; i < branchCount; i++)
+            {
+                var branch = branches[i];
+                var prevOffset = context->assembler->offset;
+                context->assembler->offset = branch;
+                context->assembler->Jump(endOffset);
+                context->assembler->offset = prevOffset;
+            }
         }
         
         public static void ParseForStatement(DamnScriptParser.ForStatementContext forStatement, ScriptParserContext* context)

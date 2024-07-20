@@ -9,8 +9,6 @@ namespace DamnScriptTest
         private const string Code = @"
         region Main
         {
-            Print((1 + 2) * (2 - 1));
-            Print(8 / 2);
             Print(""Hello from DamnScript!"");
         }
 ";

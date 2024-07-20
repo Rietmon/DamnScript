@@ -13,9 +13,9 @@ statement
     | forStatement
     | callStatement;
 
-condition: LEFT_PAREN expression RIGHT_PAREN block;
+condition: LEFT_PAREN expression RIGHT_PAREN;
 
-ifStatement: IF condition (ELSEIF condition)* (ELSE block)?;
+ifStatement: IF condition block (ELSEIF condition block)* (ELSE block)?;
 
 forStatement: FOR LEFT_PAREN var IN expression RIGHT_PAREN block;
 
