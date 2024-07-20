@@ -31,7 +31,8 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
             LessOrEqual,
             And,
             Or,
-            Not
+            Not,
+            Test
         }
     }
 }

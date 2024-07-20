@@ -1,4 +1,4 @@
-﻿using Antlr4.Runtime;
+using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
@@ -9,7 +9,7 @@ using DamnScript.Runtimes.VirtualMachines.OpCodes;
 
 namespace DamnScript.Parsings.Antlrs
 {
-    internal static unsafe class ScriptParser
+    public static unsafe class ScriptParser
     {
         public static void ParseScript(Stream input, ConstString name, ScriptData* scriptData)
         {
@@ -17,326 +17,263 @@ namespace DamnScript.Parsings.Antlrs
             var lexer = new DamnScriptLexer(charStream);
             var tokenStream = new CommonTokenStream(lexer);
             var parser = new DamnScriptParser(tokenStream);
-            var file = parser.file();
-        
+            
+            var program = parser.program();
+
             scriptData->name = name.ToString32();
 
             var regions = new NativeList<RegionData>(16);
-        
+
             var strings = new NativeList<UnsafeStringPair>(16);
             var context = new ScriptParserContext();
-            for (var i = 0; i < file.ChildCount - 1; i++)
+            for (var i = 0; i < program.ChildCount; i++)
             {
                 var assembler = new ScriptAssembler();
                 context.strings = &strings;
                 context.assembler = &assembler;
-            
-                var region = ParseRegion(file.GetChild(i), context);
-                regions.Add(region);
-            
+
+                var regionContext = program.GetChild(i) as DamnScriptParser.RegionContext;
+                ParseRegion(regionContext, &context);
+
+                var byteCode = context.assembler->FinishAlloc();
                 context.assembler->Dispose();
+                
+                var region = new RegionData(context.name, byteCode);
+                regions.Add(region);
             }
-        
+
             if (context.isError)
             {
                 scriptData->Dispose();
-                *scriptData = default; 
+                *scriptData = default;
                 regions.Dispose();
                 strings.Dispose();
                 return;
             }
-        
+
             scriptData->regions = regions.ToArrayAlloc();
             regions.Dispose();
-        
+
             scriptData->metadata = new ScriptMetadata(new ConstantsData(strings.ToArrayAlloc()));
             strings.Dispose();
         }
 
-        private static RegionData ParseRegion(IParseTree region, ScriptParserContext context)
+        public static void ParseRegion(DamnScriptParser.RegionContext region, ScriptParserContext* context)
         {
-            var regionName = region.GetChild(1).GetText();
-            var statement = region.GetChild(2);
+            var regionName = region.name().GetText();
+            var regionBlock = region.block();
+            context->name = new String32(regionName);
+            ParseBlock(regionBlock, context);
+        }
         
-            ParseNode(statement, context);
+        public static void ParseBlock(DamnScriptParser.BlockContext block, ScriptParserContext* context)
+        {
+            var statements = block.statement();
+            for (var i = 0; i < statements.Length; i++)
+            {
+                var statement = statements[i].GetChild(0);
+                switch (statement)
+                {
+                    case DamnScriptParser.CallStatementContext callStatement:
+                        ParseCallStatement(callStatement, context);
+                        break;
+                    case DamnScriptParser.IfStatementContext ifStatement:
+                        ParseIfStatement(ifStatement, context);
+                        break;
+                    case DamnScriptParser.ForStatementContext forStatement:
+                        ParseForStatement(forStatement, context);
+                        break;
+                }
+            }
+        }
+        
+        public static void ParseCallStatement(DamnScriptParser.CallStatementContext callStatement, ScriptParserContext* context)
+        {
+            var functionCall = callStatement.funcCall();
+            var functionName = functionCall.name().GetText();
+            var arguments = functionCall.arguments();
+            for (var i = 0; i < arguments.ChildCount; i++)
+            {
+                var argument = arguments.GetChild<DamnScriptParser.ArgumentContext>(i);
+                var expression = argument.expression();
+                ParseExpression(expression, context);
+            }
 
-            var byteCode = context.assembler->FinishAlloc();
-            return new RegionData(new String32(regionName), byteCode);
+            context->assembler->NativeCall(functionName, arguments.ChildCount);
+        }
+        
+        public static void ParseIfStatement(DamnScriptParser.IfStatementContext ifStatement, ScriptParserContext* context)
+        {
+            
+        }
+        
+        public static void ParseForStatement(DamnScriptParser.ForStatementContext forStatement, ScriptParserContext* context)
+        {
+            
         }
 
-        private static void ParseNode(IParseTree tree, ScriptParserContext context)
+        public static void ParseExpression(DamnScriptParser.ExpressionContext expression, ScriptParserContext* context)
         {
-            switch (tree)
+            var additiveExpression = expression.additiveExpression();
+            var logicalOp = expression.logicalOp();
+            for (var i = 0; i < additiveExpression.Length; i++)
             {
-                case DamnScriptParser.CallStatementContext callStatement:
-                    ParseCallStatementBody(callStatement, context);
-                    return;
-                case DamnScriptParser.AdditiveExpressionContext operatorContext:
-                    ParseAdditiveExpression(operatorContext, context);
-                    return;
-                case DamnScriptParser.IfStatementContext ifStatement:
-                    ParseIfStatement(ifStatement, context);
-                    return;
-                case DamnScriptParser.ForStatementContext forStatement:
-                    ParseForStatement(forStatement, context);
-                    return;
-                case DamnScriptParser.LogicalStatementContext logicalExpression:
-                    AssemblyLogicalExpression(logicalExpression, context);
-                    return;
-            
-                case DamnScriptParser.NumberExpressionContext expression:
-                    AssemblyNumberExpression(expression, context);
-                    break;
-                case DamnScriptParser.MethodCallContext methodCall:
-                    AssemblyMethodCall(methodCall, context);
-                    return;
-                case DamnScriptParser.StringLiteralContext stringLiteral:
-                    AssemblyStringLiteral(stringLiteral, context);
-                    break;
-                case DamnScriptParser.AdditiveOperatorContext operatorContext:
-                    AssemblyAdditiveOperator(operatorContext, context);
-                    break;
-                case DamnScriptParser.MultiplicativeOperatorContext operatorContext:
-                    AssemblyMultiplicativeOperator(operatorContext, context);
-                    break;
-                case DamnScriptParser.VariableExpressionContext variableExpression:
-                    AssemblyVariableExpression(variableExpression, context);
-                    break;
-            
-                case ErrorNodeImpl errorNode:
-                    context.isError = true;
-                    Debugging.LogError($"[{nameof(ScriptParser)}] ({nameof(ParseNode)}) Error node: \"{errorNode.GetText()}\"!" +
-                                       $" Token number: {errorNode.SourceInterval.a}");
-                    return;
+                var child = additiveExpression[i];
+                ParseAddictiveExpressionNodes(child, context);
+                
+                var logicalIndex = i - 1;
+                if (logicalIndex >= 0 && logicalIndex % 2 == 0)
+                    AssemblyLogicalOp(logicalOp[logicalIndex], context);
             }
+        }
         
-            if (context.isError)
-                return;
+        public static void AssemblyLogicalOp(DamnScriptParser.LogicalOpContext logicalOp, ScriptParserContext* context)
+        {
+            var type = logicalOp.Stop.Type;
+            var operation = type switch
+            {
+                DamnScriptParser.EQUAL => ExpressionCall.ExpressionCallType.Equal,
+                DamnScriptParser.NOT_EQUAL => ExpressionCall.ExpressionCallType.NotEqual,
+                DamnScriptParser.GREATER => ExpressionCall.ExpressionCallType.Greater,
+                DamnScriptParser.GREATER_EQUAL => ExpressionCall.ExpressionCallType.GreaterOrEqual,
+                DamnScriptParser.LESS => ExpressionCall.ExpressionCallType.Less,
+                DamnScriptParser.LESS_EQUAL => ExpressionCall.ExpressionCallType.LessOrEqual,
+                DamnScriptParser.AND => ExpressionCall.ExpressionCallType.And,
+                DamnScriptParser.OR => ExpressionCall.ExpressionCallType.Or,
+                _ => ExpressionCall.ExpressionCallType.Invalid
+            };
+            
+            context->assembler->ExpressionCall(operation);
+        }
         
+        public static void ParseAddictiveExpressionNodes(IParseTree tree, ScriptParserContext* context)
+        {
             for (var i = 0; i < tree.ChildCount; i++)
             {
                 var child = tree.GetChild(i);
-                ParseNode(child, context);
+                switch (child)
+                {
+                    case DamnScriptParser.TermContext term:
+                        ParseTerm(term, context);
+                        break;
+                    
+                    case DamnScriptParser.AddOpContext addOp:
+                        var nextTerm = tree.GetChild(++i) as DamnScriptParser.TermContext;
+                        ParseTerm(nextTerm, context);
+                        AssemblyAddOp(addOp, context);
+                        break;
+                }
             }
-        }
-
-        private static void ParseIfStatement(DamnScriptParser.IfStatementContext ifStatement, ScriptParserContext context)
-        {
-            var jumps = stackalloc int[16];
-            var jumpsCount = 0;
-            for (var i = 0; i < ifStatement.ChildCount; i++)
-            {
-                var child = ifStatement.GetChild(i);
-                if (child is TerminalNodeImpl)
-                    continue;
-            
-                ParseNode(child, context);
-            
-                if (i >= ifStatement.ChildCount - 1)
-                    continue;
-            
-                jumps[jumpsCount++] = context.assembler->offset;
-                context.assembler->Jump(-1);
-            }
-        
-            var targetOffset = context.assembler->offset;
-            for (var i = 0; i < jumpsCount; i++)
-            {
-                var offset = jumps[i];
-                context.assembler->offset = offset;
-                context.assembler->Jump(targetOffset);
-            }
-            context.assembler->offset = targetOffset;
-        }
-
-        private static void ParseForStatement(DamnScriptParser.ForStatementContext forStatement, ScriptParserContext context)
-        {
-            var variableName = GetNextNodeOfType<DamnScriptParser.VariableContext>(forStatement).GetText();
-            
-            var registerIndex = context.ReserveIdentifier(variableName);
-
-            context.assembler->PushToStack(0);
-            context.assembler->PushToRegister(registerIndex);
-            var beginOffset = context.assembler->offset;
-            
-            var countExpression = GetNextNodeOfType<DamnScriptParser.ExpressionContext>(forStatement);
-            
-            var statementContext = GetNextNodeOfType<DamnScriptParser.StatementContext>(forStatement);
-            ParseNode(statementContext, context);
-            
-            context.assembler->PeekFromRegister(registerIndex);
-            context.assembler->PushToStack(1);
-            context.assembler->ExpressionCall(ExpressionCall.ExpressionCallType.Add);
-            context.assembler->DuplicateStack();
-            context.assembler->PushToRegister(registerIndex);
-            ParseNode(countExpression, context);
-            context.assembler->JumpNotEquals(beginOffset);
-        }
-
-        private static void ParseCallStatementBody(IParseTree callStatement, ScriptParserContext context)
-        {
-            var start = callStatement.GetChild(0);
-            var keyword = start as DamnScriptParser.KeywordContext;
-            var nextIndex = keyword == null ? 0 : 1;
-            var methodCall = callStatement.GetChild(nextIndex);
-            if (keyword != null)
-                AssemblyKeyword(keyword, context);
-            AssemblyMethodCall((DamnScriptParser.MethodCallContext)methodCall, context);
-        }
-
-        private static void ParseAdditiveExpression(DamnScriptParser.AdditiveExpressionContext operatorContext, ScriptParserContext context)
-        {
-            var parent = operatorContext.GetChild(0);
-            for (var i = 0; i < parent.ChildCount; i++)
-            {
-                var child = parent.GetChild(i);
-                if (child is DamnScriptParser.AdditiveOperatorContext or DamnScriptParser.MultiplicativeOperatorContext)
-                    ParseNode(parent.GetChild(++i), context);
-                ParseNode(child, context);
-            }
-        }
-    
-        private static void AssemblyLogicalExpression(DamnScriptParser.LogicalStatementContext logicalExpression, ScriptParserContext context)
-        {
-            for (var i = 0; i < logicalExpression.ChildCount; i++)
-            {
-                var child = logicalExpression.GetChild(i);
-                if (child is DamnScriptParser.ExpressionContext)
-                    ParseNode(child, context);
-            }
-
-            context.assembler->PushToStack(new ScriptValue(1));
-            var jumpOffset = context.assembler->offset;
-            context.assembler->JumpNotEquals(-1);
-        
-            for (var i = 0; i < logicalExpression.ChildCount; i++)
-            {
-                var child = logicalExpression.GetChild(i);
-                if (child is DamnScriptParser.StatementContext)
-                    ParseNode(child, context);
-            }
-        
-            var offset = context.assembler->offset;
-            context.assembler->offset = jumpOffset;
-            context.assembler->JumpNotEquals(offset + sizeof(Jump));
-            context.assembler->offset = offset;
-        }
-
-        // Rietmon: TODO: That's not implemented for now.
-        // Also move %noawait% const to lexer.
-        private static void AssemblyKeyword(DamnScriptParser.KeywordContext keyword, ScriptParserContext context)
-        {
-            var text = keyword.GetText();
-            var threadParameter = text switch
-            {
-                "%noawait%" => SetThreadParameters.ThreadParameters.NoAwait,
-                _ => SetThreadParameters.ThreadParameters.None
-            };
-        
-            if (threadParameter == SetThreadParameters.ThreadParameters.None)
-            {
-                Debugging.LogError($"[{nameof(ScriptParser)}] ({AssemblyKeyword}) Unknown keyword: {text}!");
-                return;
-            }
-        
-            context.assembler->SetThreadParameters(threadParameter);
-        }
-
-        private static void AssemblyMethodCall(DamnScriptParser.MethodCallContext methodCall, ScriptParserContext context)
-        {
-            var identifier = methodCall.GetChild(0);
-            for (var i = 0; i < methodCall.ChildCount; i++)
-            {
-                var child = methodCall.GetChild(i);
-                ParseNode(child, context);
-            }
-        
-            context.assembler->NativeCall(identifier.GetText(), methodCall.ChildCount);
-        }
-
-        private static void AssemblyNumberExpression(DamnScriptParser.NumberExpressionContext numberExpression, ScriptParserContext context)
-        {
-            var number = numberExpression.GetText();
-            var value = long.Parse(number);
-            context.assembler->PushToStack(value);
-        }
-
-        private static void AssemblyStringLiteral(DamnScriptParser.StringLiteralContext stringLiteral, ScriptParserContext context)
-        {
-            var text = stringLiteral.GetText();
-            var value = UnsafeString.Alloc(text, 1, text.Length - 2);
-            var hash = value->GetHashCode();
-            context.strings->Add(new UnsafeStringPair(hash, value));
-            context.assembler->PushStringToStack(hash);
         }
         
-        private static void AssemblyVariableExpression(DamnScriptParser.VariableExpressionContext variableExpression, ScriptParserContext context)
+        public static void AssemblyAddOp(DamnScriptParser.AddOpContext addOp, ScriptParserContext* context)
         {
-            var variableName = variableExpression.GetText();
-            var registerIndex = context.GetRegisterIndex(variableName);
-
-            if (registerIndex == -1)
+            var type = addOp.Stop.Type;
+            var operation = type switch
             {
-                Debugging.LogError($"[{nameof(ScriptParser)}] ({AssemblyVariableExpression}) Unknown variable: {variableName}!");
-                context.isError = true;
-                return;
-            }
-            context.assembler->PeekFromRegister(registerIndex);
-        }
-
-        private static void AssemblyMultiplicativeOperator(DamnScriptParser.MultiplicativeOperatorContext multiplicativeOperator, ScriptParserContext context)
-        {
-            var operatorText = multiplicativeOperator.GetText();
-            AssemblyOperator(operatorText, context);
-        }
-
-        private static void AssemblyAdditiveOperator(DamnScriptParser.AdditiveOperatorContext additiveOperator, ScriptParserContext context)
-        {
-            var operatorText = additiveOperator.GetText();
-            AssemblyOperator(operatorText, context);
-        }
-
-        private static void AssemblyOperator(string operatorText, ScriptParserContext context)
-        {
-            var operatorType = operatorText switch
-            {
-                "+" => ExpressionCall.ExpressionCallType.Add,
-                "-" => ExpressionCall.ExpressionCallType.Subtract,
-                "*" => ExpressionCall.ExpressionCallType.Multiply,
-                "/" => ExpressionCall.ExpressionCallType.Divide,
-                "%" => ExpressionCall.ExpressionCallType.Modulo,
-                "==" => ExpressionCall.ExpressionCallType.Equal,
-                "!=" => ExpressionCall.ExpressionCallType.NotEqual,
-                ">" => ExpressionCall.ExpressionCallType.Greater,
-                ">=" => ExpressionCall.ExpressionCallType.GreaterOrEqual,
-                "<" => ExpressionCall.ExpressionCallType.Less,
-                "<=" => ExpressionCall.ExpressionCallType.LessOrEqual,
-                "&&" => ExpressionCall.ExpressionCallType.And,
-                "||" => ExpressionCall.ExpressionCallType.Or,
-                "!" => ExpressionCall.ExpressionCallType.Not,
+                DamnScriptParser.ADD => ExpressionCall.ExpressionCallType.Add,
+                DamnScriptParser.SUBTRACT => ExpressionCall.ExpressionCallType.Subtract,
                 _ => ExpressionCall.ExpressionCallType.Invalid
             };
-            if (operatorType == ExpressionCall.ExpressionCallType.Invalid)
+            
+            context->assembler->ExpressionCall(operation);
+        }
+        
+        public static void ParseTerm(DamnScriptParser.TermContext term, ScriptParserContext* context)
+        {
+            var factor = term.factor();
+            var mulOp = term.mulOp();
+            for (var i = 0; i < factor.Length; i++)
             {
-                Debugging.LogError($"[{nameof(ScriptParser)}] ({AssemblyAdditiveOperator}) Unknown operator: {operatorText}!");
-                return;
+                var child = factor[i];
+                switch (child)
+                {
+                    case DamnScriptParser.NumberContext number:
+                        AssemblyNumber(number, context);
+                        break;
+                    case DamnScriptParser.ParensContext parensExpression:
+                        AssemblyParens(parensExpression, context);
+                        break;
+                    case DamnScriptParser.MethodCallContext functionCall:
+                        AssemblyMethodCall(functionCall, context);
+                        break;
+                    case DamnScriptParser.StringContext stringContext:
+                        AssemblyString(stringContext, context);
+                        break;
+                    case DamnScriptParser.VariableContext variable:
+                        AssemblyVariable(variable, context);
+                        break;
+                }
+                
+                var mulIndex = i - 1;
+                if (mulIndex >= 0 && mulIndex % 2 == 0)
+                    AssemblyMulOp(mulOp[mulIndex], context);
             }
-            context.assembler->ExpressionCall(operatorType);
+        }
+        
+        public static void AssemblyMulOp(DamnScriptParser.MulOpContext mulOp, ScriptParserContext* context)
+        {
+            var type = mulOp.Stop.Type;
+            var operation = type switch
+            {
+                DamnScriptParser.MULTIPLY => ExpressionCall.ExpressionCallType.Multiply,
+                DamnScriptParser.DIVIDE => ExpressionCall.ExpressionCallType.Divide,
+                DamnScriptParser.MODULO => ExpressionCall.ExpressionCallType.Modulo,
+                _ => ExpressionCall.ExpressionCallType.Invalid
+            };
+            
+            context->assembler->ExpressionCall(operation);
+        }
+        
+        public static void AssemblyNumber(DamnScriptParser.NumberContext numberContext, ScriptParserContext* context)
+        {
+            var number = numberContext.GetText();
+            var value = long.Parse(number);
+            context->assembler->PushToStack(new ScriptValue(value));
+        }
+        
+        public static void AssemblyParens(DamnScriptParser.ParensContext parensExpression, ScriptParserContext* context)
+        {
+            var expression = parensExpression.expression();
+            ParseExpression(expression, context);
         }
 
-        private static T GetNextNodeOfType<T>(IParseTree node)
+        public static void AssemblyMethodCall(DamnScriptParser.MethodCallContext methodCall, ScriptParserContext* context)
         {
-            for (var i = 0; i < node.ChildCount; i++)
+            var functionCall = methodCall.funcCall();
+            var functionName = functionCall.name().GetText();
+            var arguments = functionCall.arguments();
+            for (var i = 0; i < arguments.ChildCount; i++)
             {
-                var child = node.GetChild(i);
-                if (child is T result)
-                    return result;
-                
-                var t = GetNextNodeOfType<T>(child);
-                if (t != null)
-                    return t;
+                var argument = arguments.GetChild<DamnScriptParser.ArgumentContext>(i);
+                var expression = argument.expression();
+                ParseExpression(expression, context);
             }
-            return default;
+
+            context->assembler->NativeCall(functionName, arguments.ChildCount);
+        }
+        
+        public static void AssemblyString(DamnScriptParser.StringContext stringContext, ScriptParserContext* context)
+        {
+            var text = stringContext.GetText();
+            var unsafeString = UnsafeString.Alloc(text);
+            var hash = unsafeString->GetHashCode();
+            
+            context->strings->Add(new UnsafeStringPair(hash, unsafeString));
+            context->assembler->PushStringToStack(hash);
+        }
+        
+        public static void AssemblyVariable(DamnScriptParser.VariableContext variable, ScriptParserContext* context)
+        {
+            var variableName = variable.GetText();
+            var str32 = new String32(variableName);
+            var registerIndex = context->GetRegisterIndex(str32);
+            if (registerIndex != -1)
+                context->assembler->PushToRegister(registerIndex);
+            
+            Debugging.LogError($"[{nameof(ScriptParser)}] ({nameof(AssemblyVariable)}) " +
+                               $"Variable {variableName} not found!");
+            context->isError = true;
         }
     }
 }

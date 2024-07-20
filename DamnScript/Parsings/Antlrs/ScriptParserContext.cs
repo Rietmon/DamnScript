@@ -6,38 +6,39 @@ namespace DamnScript.Parsings.Antlrs
 {
     public unsafe struct ScriptParserContext
     {
+        public String32 name;
+        
         public NativeList<UnsafeStringPair>* strings;
-    
         public ScriptAssembler* assembler;
 
-        public string loopRegisterIdentifier0;
-        public string loopRegisterIdentifier1;
-        public string loopRegisterIdentifier2;
-        public string loopRegisterIdentifier3;
+        public String32 loopRegisterIdentifier0;
+        public String32 loopRegisterIdentifier1;
+        public String32 loopRegisterIdentifier2;
+        public String32 loopRegisterIdentifier3;
 
         public bool isError;
         
-        public int ReserveIdentifier(string identifier)
+        public int ReserveIdentifier(String32 identifier)
         {
-            if (loopRegisterIdentifier0 == null)
+            if (loopRegisterIdentifier0 == default)
             {
                 loopRegisterIdentifier0 = identifier;
                 return 0;
             }
 
-            if (loopRegisterIdentifier1 == null)
+            if (loopRegisterIdentifier1 == default)
             {
                 loopRegisterIdentifier1 = identifier;
                 return 1;
             }
 
-            if (loopRegisterIdentifier2 == null)
+            if (loopRegisterIdentifier2 == default)
             {
                 loopRegisterIdentifier2 = identifier;
                 return 2;
             }
 
-            if (loopRegisterIdentifier3 == null)
+            if (loopRegisterIdentifier3 == default)
             {
                 loopRegisterIdentifier3 = identifier;
                 return 3;
@@ -46,7 +47,7 @@ namespace DamnScript.Parsings.Antlrs
             return -1;
         }
         
-        public int GetRegisterIndex(string identifier)
+        public int GetRegisterIndex(String32 identifier)
         {
             if (loopRegisterIdentifier0 == identifier)
                 return 0;
@@ -65,16 +66,16 @@ namespace DamnScript.Parsings.Antlrs
             switch (index)
             {
                 case 0:
-                    loopRegisterIdentifier0 = null;
+                    loopRegisterIdentifier0 = default;
                     break;
                 case 1:
-                    loopRegisterIdentifier1 = null;
+                    loopRegisterIdentifier1 = default;
                     break;
                 case 2:
-                    loopRegisterIdentifier2 = null;
+                    loopRegisterIdentifier2 = default;
                     break;
                 case 3:
-                    loopRegisterIdentifier3 = null;
+                    loopRegisterIdentifier3 = default;
                     break;
             }
         }

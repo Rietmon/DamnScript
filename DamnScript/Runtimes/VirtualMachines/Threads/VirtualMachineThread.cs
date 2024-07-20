@@ -165,10 +165,28 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             {
                 case ExpressionCall.ExpressionCallType.Invalid: break;
                 case ExpressionCall.ExpressionCallType.Add: StackPush(StackPop() + StackPop()); break;
-                case ExpressionCall.ExpressionCallType.Subtract: StackPush(StackPop() - StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Subtract:
+                {
+                    var right = StackPop();
+                    var left = StackPop();
+                    StackPush(left - right);
+                    break;
+                }
                 case ExpressionCall.ExpressionCallType.Multiply: StackPush(StackPop() * StackPop()); break;
-                case ExpressionCall.ExpressionCallType.Divide: StackPush(StackPop() / StackPop()); break;
-                case ExpressionCall.ExpressionCallType.Modulo: StackPush(StackPop() % StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Divide:
+                {
+                    var right = StackPop();
+                    var left = StackPop();
+                    StackPush(left / right);
+                    break;
+                }
+                case ExpressionCall.ExpressionCallType.Modulo:
+                {
+                    var right = StackPop();
+                    var left = StackPop();
+                    StackPush(left % right);
+                    break;
+                }
                 case ExpressionCall.ExpressionCallType.Negate: StackPush(-StackPop()); break;
                 case ExpressionCall.ExpressionCallType.Equal: StackPush(StackPop() == StackPop() ? 1 : 0); break;
                 case ExpressionCall.ExpressionCallType.NotEqual: StackPush(StackPop() != StackPop() ? 1 : 0); break;
@@ -179,6 +197,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 case ExpressionCall.ExpressionCallType.And: StackPush(StackPop() != 0 && StackPop() != 0 ? 1 : 0); break;
                 case ExpressionCall.ExpressionCallType.Or: StackPush(StackPop() != 0 || StackPop() != 0 ? 1 : 0); break;
                 case ExpressionCall.ExpressionCallType.Not: StackPush(StackPop() == 0 ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.Test: StackPush(StackPop() != 0 ? 1 : 0); break;
                 default: throw new ArgumentOutOfRangeException(nameof(expressionCall));
             }
 

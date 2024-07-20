@@ -12,8 +12,10 @@ namespace DamnScriptTest
         private const string Code = @"
         region Main
         {
-            for (i in ""a"") {
-                Print(i);
+            for (i in 5) {
+                for (j in 5) {
+                    Print((i + 1) * (j + 1));
+                }
             }
         }
 ";

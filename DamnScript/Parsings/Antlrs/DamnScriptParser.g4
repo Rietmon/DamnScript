@@ -2,53 +2,49 @@
 
 options { tokenVocab=DamnScriptLexer; }
 
-file: region+ EOF;
+program: region+;
 
-region: REGION identifier statement;
+region: REGION name block;
 
-statement: LEFT_BRACKET statementBody* RIGHT_BRACKET;
+block: LEFT_BRACKET statement* RIGHT_BRACKET;
 
-statementBody
+statement
     : ifStatement
     | forStatement
     | callStatement;
-    
-ifStatement: IF logicalStatement (ELSEIF logicalStatement)* (ELSE statement)?;
 
-forStatement: FOR LEFT_PAREN variable IN expression RIGHT_PAREN statement;
+condition: LEFT_PAREN expression RIGHT_PAREN block;
 
-logicalStatement: LEFT_PAREN expression RIGHT_PAREN statement;
+ifStatement: IF condition (ELSEIF condition)* (ELSE block)?;
 
-callStatement: (keyword | methodCall)+ SEMICOLON;
+forStatement: FOR LEFT_PAREN var IN expression RIGHT_PAREN block;
 
-args: arg (COMMA arg)*;
+callStatement: funcCall SEMICOLON;
 
-arg: expression;
+arguments: argument (COMMA argument)*;
 
-keyword: KEYWORD;
+argument: expression;
 
-expression: additiveExpression ((logicalOperator additiveExpression)+)?;
+expression: additiveExpression (logicalOp additiveExpression)*;
 
-additiveExpression: term ((additiveOperator term)+)?;
+additiveExpression: term (addOp term)*;
 
-term: factor ((multiplicativeOperator factor)+)?;
+term: factor (mulOp factor)*;
 
 factor
-    : NUMBER                                          # NumberExpression
-    | LEFT_PAREN expression RIGHT_PAREN              # ParenthesizedExpression
-    | methodCall                                     # MethodCallExpression
-    | stringLiteral                                        # LiteralExpression
-    | variable                                        # VariableExpression
+    : NUMBER                  # Number
+    | LEFT_PAREN expression RIGHT_PAREN  # Parens
+    | funcCall                # MethodCall
+    | STRING                    # String
+    | var                  # Variable
     ;
 
-methodCall: identifier LEFT_PAREN args? RIGHT_PAREN;
+funcCall: name LEFT_PAREN arguments? RIGHT_PAREN;
 
-stringLiteral: STRING;
+var: name;
 
-variable: identifier;
+logicalOp: (EQUAL | NOT_EQUAL | LESS | LESS_EQUAL | GREATER | GREATER_EQUAL | AND | OR);
+addOp: (ADD | SUBTRACT);
+mulOp: (MULTIPLY | DIVIDE | MODULO);
 
-logicalOperator: (EQUAL | NOT_EQUAL | LESS | LESS_EQUAL | GREATER | GREATER_EQUAL | AND | OR);
-additiveOperator: (ADD | SUBTRACT);
-multiplicativeOperator: (MULTIPLY | DIVIDE | MODULO);
-
-identifier: NAME;
+name: NAME;

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using DamnScript.Runtimes;
+using DamnScript.Runtimes.Debugs;
 
 namespace DamnScriptTest
 {
@@ -8,6 +9,8 @@ namespace DamnScriptTest
         private const string Code = @"
         region Main
         {
+            Print((1 + 2) * (2 - 1));
+            Print(8 / 2);
             Print(""Hello from DamnScript!"");
         }
 ";
@@ -18,6 +21,8 @@ namespace DamnScriptTest
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
             // Load the script data from the stream and set it the name "Test1"
             var scriptData = ScriptEngine.LoadScript(memoryStream, "Test1");
+            var disassembler = ScriptDisassembler.DisassembleToString(scriptData.RefValue.regions[0].byteCode, scriptData.RefValue.metadata);
+            Console.WriteLine(disassembler);
             // Run the script thread, which is going to start execute region with the name "Main"
             var thread = ScriptEngine.RunThread(scriptData);
         

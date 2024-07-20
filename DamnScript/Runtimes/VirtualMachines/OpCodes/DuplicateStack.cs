@@ -1,10 +1,11 @@
-namespace DamnScript.Runtimes.VirtualMachines.OpCodes;
-
-public struct DuplicateStack
+namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
-    public const int OpCode = 0xC;
+    public struct DuplicateStack
+    {
+        public const int OpCode = 0xC;
     
-    public readonly int opCode = OpCode;
+        public readonly int opCode = OpCode;
     
-    public DuplicateStack() { }
+        public DuplicateStack() { }
+    }
 }
