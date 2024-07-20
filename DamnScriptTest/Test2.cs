@@ -32,6 +32,7 @@ namespace DamnScriptTest
             ScriptEngine.RegisterNativeMethod(GetString);
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
             var scriptData = ScriptEngine.LoadScript(memoryStream, "Test2");
+            Shared.PrintDisassembly(scriptData);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         
             Console.Write("\n");

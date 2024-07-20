@@ -13,6 +13,8 @@ ELSE   : 'else';
 FOR    : 'for';
 IN    : 'in';
 
+WHILE  : 'while';
+
 AND    : '&&';
 OR     : '||';
 

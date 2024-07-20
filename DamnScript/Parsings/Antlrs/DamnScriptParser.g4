@@ -11,6 +11,7 @@ block: LEFT_BRACKET statement* RIGHT_BRACKET;
 statement
     : ifStatement
     | forStatement
+    | whileStatement
     | callStatement;
 
 condition: LEFT_PAREN expression RIGHT_PAREN;
@@ -18,6 +19,8 @@ condition: LEFT_PAREN expression RIGHT_PAREN;
 ifStatement: IF condition block (ELSEIF condition block)* (ELSE block)?;
 
 forStatement: FOR LEFT_PAREN var IN expression RIGHT_PAREN block;
+
+whileStatement: WHILE condition block;
 
 callStatement: funcCall SEMICOLON;
 

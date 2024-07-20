@@ -29,7 +29,8 @@ namespace DamnScriptTest
                 Console.WriteLine("2: Print dynamic value");
                 Console.WriteLine("3: Print with delay from DamnScript + async/await + difficulty expression");
                 Console.WriteLine("4: Print non static method from object instance");
-                Console.WriteLine("5: Print from loop with indexing");
+                Console.WriteLine("5: Print from \"for\" loop with indexing");
+                Console.WriteLine("6: Print from \"while\" loop with counter");
                 Console.WriteLine("Q: Exit");
                 Console.WriteLine("---------------------------------");
             
@@ -42,6 +43,7 @@ namespace DamnScriptTest
                     case "3": Test3.Run(); break;
                     case "4": Test4.Run(); break;
                     case "5": Test5.Run(); break;
+                    case "6": Test6.Run(); break;
                     case "Q": return;
                 }
             }

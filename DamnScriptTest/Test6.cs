@@ -7,23 +7,28 @@ using DamnScript.Runtimes.VirtualMachines.Datas;
 
 namespace DamnScriptTest
 {
-    public static class Test5
+    public static class Test6
     {
         private const string Code = @"
         region Main
         {
-            for (i in 5) {
-                for (j in 5) {
-                    Print((i + 1) * (j + 1));
-                }
+            while (CanHandle()) {
+                Print(GetCounter());
             }
         }
 ";
+
+        private static int counter;
+        public static ScriptValue CanHandle() => ++counter < 10;
+        public static ScriptValue GetCounter() => counter;
     
         public static void Run()
         {
+            ScriptEngine.RegisterNativeMethod(CanHandle);
+            ScriptEngine.RegisterNativeMethod(GetCounter);
+            
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-            var scriptData = ScriptEngine.LoadScript(memoryStream, "Test5");
+            var scriptData = ScriptEngine.LoadScript(memoryStream, "Test6");
             Shared.PrintDisassembly(scriptData);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         

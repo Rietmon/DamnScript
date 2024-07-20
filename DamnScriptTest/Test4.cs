@@ -64,8 +64,7 @@ namespace DamnScriptTest
         
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
             var scriptData = ScriptEngine.LoadScript(memoryStream, "Test4");
-            var disassembler = ScriptDisassembler.DisassembleToString(scriptData.RefValue.regions[0].byteCode, scriptData.RefValue.metadata);
-            Console.WriteLine(disassembler);
+            Shared.PrintDisassembly(scriptData);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         
             Console.Write("\n");

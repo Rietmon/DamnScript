@@ -85,6 +85,9 @@ namespace DamnScript.Parsings.Antlrs
                     case DamnScriptParser.ForStatementContext forStatement:
                         ParseForStatement(forStatement, context);
                         break;
+                    case DamnScriptParser.WhileStatementContext whileStatement:
+                        ParseWhileStatement(whileStatement, context);
+                        break;
                 }
             }
         }
@@ -175,6 +178,24 @@ namespace DamnScript.Parsings.Antlrs
             var countExpression = forStatement.expression();
             ParseExpression(countExpression, context);
             context->assembler->JumpNotEquals(beginOffset);
+        }
+        
+        public static void ParseWhileStatement(DamnScriptParser.WhileStatementContext whileStatement, ScriptParserContext* context)
+        {
+            var beginOffset = context->assembler->offset;
+            var conditionExpression = whileStatement.condition().expression();
+            ParseExpression(conditionExpression, context);
+            context->assembler->PushToStack(1);
+            var jumpConditionOffset = context->assembler->offset;
+            context->assembler->JumpNotEquals(-1);
+            
+            var block = whileStatement.block();
+            ParseBlock(block, context);
+            context->assembler->Jump(beginOffset);
+            var prevOffset = context->assembler->offset;
+            context->assembler->offset = jumpConditionOffset;
+            context->assembler->JumpNotEquals(prevOffset);
+            context->assembler->offset = prevOffset;
         }
 
         public static void ParseExpression(DamnScriptParser.ExpressionContext expression, ScriptParserContext* context)
@@ -308,14 +329,17 @@ namespace DamnScript.Parsings.Antlrs
             var functionCall = methodCall.funcCall();
             var functionName = functionCall.name().GetText();
             var arguments = functionCall.arguments();
-            for (var i = 0; i < arguments.ChildCount; i++)
+            if (arguments != null)
             {
-                var argument = arguments.GetChild<DamnScriptParser.ArgumentContext>(i);
-                var expression = argument.expression();
-                ParseExpression(expression, context);
+                for (var i = 0; i < arguments.ChildCount; i++)
+                {
+                    var argument = arguments.GetChild<DamnScriptParser.ArgumentContext>(i);
+                    var expression = argument.expression();
+                    ParseExpression(expression, context);
+                }
             }
 
-            context->assembler->NativeCall(functionName, arguments.ChildCount);
+            context->assembler->NativeCall(functionName, arguments?.ChildCount ?? 0);
         }
         
         public static void AssemblyString(DamnScriptParser.StringContext stringContext, ScriptParserContext* context)

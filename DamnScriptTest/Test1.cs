@@ -19,8 +19,7 @@ namespace DamnScriptTest
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
             // Load the script data from the stream and set it the name "Test1"
             var scriptData = ScriptEngine.LoadScript(memoryStream, "Test1");
-            var disassembler = ScriptDisassembler.DisassembleToString(scriptData.RefValue.regions[0].byteCode, scriptData.RefValue.metadata);
-            Console.WriteLine(disassembler);
+            Shared.PrintDisassembly(scriptData);
             // Run the script thread, which is going to start execute region with the name "Main"
             var thread = ScriptEngine.RunThread(scriptData);
         
