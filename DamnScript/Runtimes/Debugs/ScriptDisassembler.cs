@@ -61,15 +61,15 @@ namespace DamnScript.Runtimes.Debugs
                         // Rietmon: Not implemented
                         offset += sizeof(SetThreadParameters);
                         break;
-                    case PushToRegister.OpCode:
-                        var pushToRegister = *(PushToRegister*)byteCode;
-                        sb.AppendLine($"{offset.ToString()}: PUSHREG {pushToRegister.register.ToString()}");
-                        offset += sizeof(PushToRegister);
+                    case StoreToRegister.OpCode:
+                        var pushToRegister = *(StoreToRegister*)byteCode;
+                        sb.AppendLine($"{offset.ToString()}: STORE {pushToRegister.register.ToString()}");
+                        offset += sizeof(StoreToRegister);
                         break;
-                    case PeekFromRegister.OpCode:
-                        var popFromRegister = *(PeekFromRegister*)byteCode;
-                        sb.AppendLine($"{offset.ToString()}: PEEKREG {popFromRegister.register.ToString()}");
-                        offset += sizeof(PeekFromRegister);
+                    case LoadFromRegister.OpCode:
+                        var popFromRegister = *(LoadFromRegister*)byteCode;
+                        sb.AppendLine($"{offset.ToString()}: LOAD {popFromRegister.register.ToString()}");
+                        offset += sizeof(LoadFromRegister);
                         break;
                     case DuplicateStack.OpCode:
                         sb.AppendLine($"{offset.ToString()}: DPL");

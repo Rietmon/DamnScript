@@ -52,11 +52,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public ScriptAssembler PushStringToStack(int hash) =>
             Add(new PushStringToStack(hash));
         
-        public ScriptAssembler PushToRegister(int register) =>
-            Add(new PushToRegister(register));
+        public ScriptAssembler StoreToRegister(int register) =>
+            Add(new StoreToRegister(register));
         
-        public ScriptAssembler PeekFromRegister(int register) =>
-            Add(new PeekFromRegister(register));
+        public ScriptAssembler LoadFromRegister(int register) =>
+            Add(new LoadFromRegister(register));
         
         public ScriptAssembler DuplicateStack() =>
             Add(new DuplicateStack());

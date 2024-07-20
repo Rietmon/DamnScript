@@ -104,13 +104,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                     ExecuteSetThreadParameters(*(SetThreadParameters*)byteCode);
                     _offset += sizeof(SetThreadParameters);
                     break;
-                case PushToRegister.OpCode:
-                    ExecutePushToRegister(*(PushToRegister*)byteCode);
-                    _offset += sizeof(PushToRegister);
+                case StoreToRegister.OpCode:
+                    ExecuteStoreToRegister(*(StoreToRegister*)byteCode);
+                    _offset += sizeof(StoreToRegister);
                     break;
-                case PeekFromRegister.OpCode:
-                    ExecutePopFromRegister(*(PeekFromRegister*)byteCode);
-                    _offset += sizeof(PeekFromRegister);
+                case LoadFromRegister.OpCode:
+                    ExecuteLoadFromRegister(*(LoadFromRegister*)byteCode);
+                    _offset += sizeof(LoadFromRegister);
                     break;
                 case DuplicateStack.OpCode:
                     ExecuteDuplicateStack(*(DuplicateStack*)byteCode);
@@ -258,30 +258,30 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecutePushToRegister(PushToRegister pushToRegister)
+        public bool ExecuteStoreToRegister(StoreToRegister storeToRegister)
         {
-            switch (pushToRegister.register)
+            switch (storeToRegister.register)
             {
                 case 0: _registers[0] = StackPop().longValue; break;
                 case 1: _registers[1] = StackPop().longValue; break;
                 case 2: _registers[2] = StackPop().longValue; break;
                 case 3: _registers[3] = StackPop().longValue; break;
-                default: throw new ArgumentOutOfRangeException(nameof(pushToRegister.register));
+                default: throw new ArgumentOutOfRangeException(nameof(storeToRegister.register));
             }
 
             return true;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecutePopFromRegister(PeekFromRegister peekFromRegister)
+        public bool ExecuteLoadFromRegister(LoadFromRegister loadFromRegister)
         {
-            switch (peekFromRegister.register)
+            switch (loadFromRegister.register)
             {
                 case 0: StackPush(_registers[0]); break;
                 case 1: StackPush(_registers[1]); break;
                 case 2: StackPush(_registers[2]); break;
                 case 3: StackPush(_registers[3]); break;
-                default: throw new ArgumentOutOfRangeException(nameof(peekFromRegister.register));
+                default: throw new ArgumentOutOfRangeException(nameof(loadFromRegister.register));
             }
 
             return true;

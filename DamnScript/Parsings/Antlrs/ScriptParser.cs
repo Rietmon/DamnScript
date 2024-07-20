@@ -44,6 +44,8 @@ namespace DamnScript.Parsings.Antlrs
 
             if (context.isError)
             {
+                Debugging.LogError($"[{nameof(ScriptParser)}] ({nameof(ParseScript)}) " +
+                                   $"Error while parsing script {scriptData->name}!");
                 scriptData->Dispose();
                 *scriptData = default;
                 regions.Dispose();
@@ -152,7 +154,27 @@ namespace DamnScript.Parsings.Antlrs
         
         public static void ParseForStatement(DamnScriptParser.ForStatementContext forStatement, ScriptParserContext* context)
         {
+            var variable = forStatement.var();
+            var variableName = new String32(variable.GetText());
             
+            var register = context->ReserveIdentifier(variableName);
+            
+            context->assembler->PushToStack(0);
+            context->assembler->StoreToRegister(register);
+            
+            var beginOffset = context->assembler->offset;
+
+            var block = forStatement.block();
+            ParseBlock(block, context);
+            
+            context->assembler->LoadFromRegister(register);
+            context->assembler->PushToStack(1);
+            context->assembler->ExpressionCall(ExpressionCall.ExpressionCallType.Add);
+            context->assembler->DuplicateStack();
+            context->assembler->StoreToRegister(register);
+            var countExpression = forStatement.expression();
+            ParseExpression(countExpression, context);
+            context->assembler->JumpNotEquals(beginOffset);
         }
 
         public static void ParseExpression(DamnScriptParser.ExpressionContext expression, ScriptParserContext* context)
@@ -311,12 +333,15 @@ namespace DamnScript.Parsings.Antlrs
             var variableName = variable.GetText();
             var str32 = new String32(variableName);
             var registerIndex = context->GetRegisterIndex(str32);
-            if (registerIndex != -1)
-                context->assembler->PushToRegister(registerIndex);
+            if (registerIndex == -1)
+            {
+                Debugging.LogError($"[{nameof(ScriptParser)}] ({nameof(AssemblyVariable)}) " +
+                                   $"Variable {variableName} not found!");
+                context->isError = true;
+                return;
+            }
             
-            Debugging.LogError($"[{nameof(ScriptParser)}] ({nameof(AssemblyVariable)}) " +
-                               $"Variable {variableName} not found!");
-            context->isError = true;
+            context->assembler->LoadFromRegister(registerIndex);
         }
     }
 }
