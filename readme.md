@@ -41,6 +41,13 @@ it stops and is removed from the thread list. The `ExecuteNext()` call will proc
 are executed or the thread enters a waiting state due to an asynchronous method call. The call will check if the 
 operation is complete and resume the thread if it is. Each thread has 128 bytes allocated for its stack.
 
+### Registers
+The virtual machine has 4 registers used for storing data during script execution. Currently, their use is permitted 
+only for loops (for), as this requires storing the indexer for an extended period. Registers are not part of 
+`ScriptValue`; their size is fixed at 8 bytes. When a variable is loaded into a register, it will be taken from the 
+stack, and when unloaded, it will be put back onto the stack. The registers operate independently of each other, 
+and modifying one will not explicitly affect another.
+
 ### Stack
 For correct code execution, values and data must be saved during runtime. Each thread has its own stack, fixed at
 128 bytes. Stack overflow triggers an exception. The stack stores local data and passes arguments to C# methods. 
@@ -78,8 +85,7 @@ not subject to garbage collection. It is fully prepared for use and can be easil
 (though in this case, a `System.String` allocation will occur, as a copy of the `UnsafeString`) for use in high-level code.
 Additionally, when passing a string from a C# method to a script, it must be wrapped in a `ScriptValue` and either 
 pinned or a pointer to it must be obtained, since it is a reference type!
-Furthermore, if a duplicate string is encountered (even in another script unrelated to this one), no data copying 
-will occur. The same pointer to the string will be used in both cases.
+Furthermore, if a duplicate string is encountered (within the current script only), it will not be copied.
 
 ### Assembler
 Any DamnScript code compiles to bytecode, which can be represented as text (assembler). An example:
@@ -181,7 +187,7 @@ this script is still running! This can lead to unpredictable results.
 - [x] Basic functionality
 - [x] Ability to call C# methods
 - [x] Conditions (if, elseif, else)
-- [ ] Loops (for, while)
+- [x] Loops (for, while)
 - [ ] Unity support
 - [ ] Additional security measures
 - [ ] State saving
