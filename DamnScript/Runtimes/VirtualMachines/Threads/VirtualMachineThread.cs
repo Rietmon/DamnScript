@@ -128,7 +128,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public bool ExecuteNativeCall(NativeCall nativeCall, out Task result)
         {
             result = null;
-            var methodName = new string(nativeCall.name);
+            var methodName = nativeCall.name;
             if (!VirtualMachineData.TryGetNativeMethod(methodName, out var method))
                 return false;
         

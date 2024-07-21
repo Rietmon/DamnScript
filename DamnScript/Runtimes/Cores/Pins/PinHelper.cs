@@ -2,8 +2,6 @@
 
 namespace DamnScript.Runtimes.Cores.Pins
 {
-    // Rietmon: Thanks to .NET we can't pin the objects which are contains other references.
-    // Only one way I found its storage them in the dictionary and pin them by the key.
     public static unsafe class PinHelper
     {
         private static readonly HashSet<(long hash, object target)> pinnedObjects = new(32);

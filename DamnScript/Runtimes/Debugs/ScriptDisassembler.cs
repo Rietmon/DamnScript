@@ -19,7 +19,7 @@ namespace DamnScript.Runtimes.Debugs
                 {
                     case NativeCall.OpCode:
                         var nativeCall = *(NativeCall*)byteCode;
-                        sb.AppendLine($"{offset.ToString()}: CALL {new string(nativeCall.name)} {nativeCall.argumentsCount.ToString()}");
+                        sb.AppendLine($"{offset.ToString()}: CALL {nativeCall.name} {nativeCall.argumentsCount.ToString()}");
                         offset += sizeof(NativeCall);
                         break;
                     case PushToStack.OpCode:

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace DamnScript.Runtimes.Cores.Types
 {
     /// <summary>
-    /// String buffer with fixed length of 32, but size is 33 * sizeof(char). Last char is null terminator.
+    /// String buffer with fixed length of 32, without last null terminator.
     /// </summary>
     public unsafe struct String32
     {
@@ -15,7 +15,7 @@ namespace DamnScript.Runtimes.Cores.Types
             [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref data[index];
         }
     
-        public fixed char data[Length + 1];
+        public fixed char data[Length];
     
         public String32(char* source, int length)
         {
@@ -24,8 +24,6 @@ namespace DamnScript.Runtimes.Cores.Types
         
             fixed (char* dest = data)
                 UnsafeUtilities.Memcpy(source, dest, length * sizeof(char));
-        
-            data[length] = '\0';
         }
     
         public String32(string value)
@@ -41,8 +39,6 @@ namespace DamnScript.Runtimes.Cores.Types
                     UnsafeUtilities.Memcpy(src, dest, length * sizeof(char));
                 }
             }
-        
-            data[length] = '\0';
         }
 
         public override string ToString()

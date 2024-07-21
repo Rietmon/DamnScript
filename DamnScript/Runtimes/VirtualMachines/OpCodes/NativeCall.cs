@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
@@ -7,14 +8,13 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     {
         public const int OpCode = 0x1;
         public readonly int opCode;
-        public fixed char name[32];
+        public String32 name;
         public readonly int argumentsCount;
 
-        public NativeCall(string name, int argumentsCount)
+        public NativeCall(String32 name, int argumentsCount)
         {
             opCode = OpCode;
-            for (var i = 0; i < name.Length; i++)
-                this.name[i] = name[i];
+            this.name = name;
             this.argumentsCount = argumentsCount;
         }
     }
