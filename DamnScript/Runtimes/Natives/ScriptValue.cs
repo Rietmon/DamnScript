@@ -2,13 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Pins;
 using DamnScript.Runtimes.Cores.Types;
-
-#if UNITY_5_3_OR_NEWER
-using PinHandle = System.Runtime.InteropServices.GCHandle;
-#else
-using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
-#endif
 
 namespace DamnScript.Runtimes.Natives
 {
@@ -34,7 +29,7 @@ namespace DamnScript.Runtimes.Natives
         [FieldOffset(4)] public double doubleValue;
         [FieldOffset(4)] public char charValue;
         [FieldOffset(4)] public void* pointerValue;
-        [FieldOffset(4)] public PinHandle safeValue;
+        [FieldOffset(4)] public DSObjectPin safeValue;
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(ValueType type, long value) : this()
@@ -75,7 +70,7 @@ namespace DamnScript.Runtimes.Natives
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(PinHandle value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
+        public ScriptValue(DSObjectPin value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
         
         /// <summary>
         /// Create a new ScriptValue from a reference type and pin it. Safest way to handle references.
@@ -175,7 +170,7 @@ namespace DamnScript.Runtimes.Natives
                 }
                 case ValueType.ReferenceSafePointer:
                 {
-                    var value = UnsafeUtilities.Unpin<string>(safeValue);
+                    var value = safeValue;
                     return value;
                 }
                 default:
@@ -327,7 +322,7 @@ namespace DamnScript.Runtimes.Natives
         public static implicit operator ScriptValue(void* value) => new(value, ValueType.Pointer);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(PinHandle value) => new(value);
+        public static implicit operator ScriptValue(DSObjectPin value) => new(value);
     
         public enum ValueType
         {

@@ -56,7 +56,7 @@ namespace DamnScript.Runtimes.Cores.Pins
                     continue;
                 
                 pinnedObjects.Remove(obj);
-                return obj;
+                return obj.target;
             }
 
             return null;

@@ -5,6 +5,7 @@ using PinHandle = System.Runtime.InteropServices.GCHandle;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using DamnScript.Runtimes.Cores.Pins;
 
 namespace DamnScript.Runtimes.Cores.Types
 {
@@ -28,7 +29,7 @@ namespace DamnScript.Runtimes.Cores.Types
     public unsafe struct UnsafeString : IDisposable
     {
         private static string _buffer;
-        private static GCHandle _gcHandleBuffer;
+        private static DSObjectPin _gcHandleBuffer;
         private static UnmanagedString* _bufferPtr;
 
         public ref char this[int index]
@@ -75,8 +76,8 @@ namespace DamnScript.Runtimes.Cores.Types
             if (_bufferPtr == null)
             {
                 _buffer = new string('\0', 1024);
-                _gcHandleBuffer = UnsafeUtilities.PinAsDotNet(_buffer);
-                _bufferPtr = (UnmanagedString*)_gcHandleBuffer.AddrOfPinnedObject();
+                _gcHandleBuffer = UnsafeUtilities.Pin(_buffer);
+                _bufferPtr = (UnmanagedString*)PinHelper.GetAddress(_gcHandleBuffer);
             }
         
             _bufferPtr->length = length;

@@ -1,10 +1,6 @@
-﻿#if UNITY_5_3_OR_NEWER
-using PinHandle = System.Runtime.InteropServices.GCHandle;
-#else
-using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
-#endif
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
+using DamnScript.Runtimes.Cores.Pins;
 
 namespace DamnScript.Runtimes.Cores.Types
 {
@@ -16,16 +12,22 @@ namespace DamnScript.Runtimes.Cores.Types
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct SafeString : IDisposable
     {
-        public bool IsManaged => type == SafeStringType.Managed;
+        public bool IsManaged => type is SafeStringType.Managed or SafeStringType.ManagedAlreadyPinned;
     
         [FieldOffset(0)] public SafeStringType type;
-        [FieldOffset(4)] public PinHandle safeValue;
+        [FieldOffset(4)] public DSObjectPin safeValue;
         [FieldOffset(4)] public UnsafeString* unsafeValue;
 
         public SafeString(string value) : this()
         {
             type = SafeStringType.Managed;
             safeValue = UnsafeUtilities.Pin(value);
+        }
+
+        public SafeString(DSObjectPin value) : this()
+        {
+            type = SafeStringType.ManagedAlreadyPinned;
+            safeValue = value;
         }
 
         public SafeString(UnsafeString* value) : this()
@@ -48,18 +50,20 @@ namespace DamnScript.Runtimes.Cores.Types
 
         public void Dispose()
         {
-            if (IsManaged)
+            if (type is SafeStringType.Unmanaged)
                 safeValue.Free();
             this = default;
         }
 
         public static implicit operator SafeString(string value) => new(value);
+        public static implicit operator SafeString(DSObjectPin value) => new(value);
         public static implicit operator SafeString(UnsafeString* value) => new(value);
     
         public enum SafeStringType
         {
             Invalid,
             Managed,
+            ManagedAlreadyPinned,
             Unmanaged
         }
     }

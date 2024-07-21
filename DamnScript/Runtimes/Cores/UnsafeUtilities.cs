@@ -4,9 +4,7 @@ using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores.Pins;
 
 #if UNITY_5_3_OR_NEWER
-using PinHandle = System.Runtime.InteropServices.GCHandle;
-#else
-using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
+using Unity.Collections.LowLevel.Unsafe;
 #endif
 
 namespace DamnScript.Runtimes.Cores
@@ -27,11 +25,19 @@ namespace DamnScript.Runtimes.Cores
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Memcpy(void* src, void* dest, int size) => 
+#if UNITY_5_3_OR_NEWER
+            UnsafeUtility.MemCpy(dest, src, size);
+#else
             Unsafe.CopyBlock(dest, src, (uint)size);
-    
+#endif
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Memset(void* dest, byte value, int size) => 
+        public static void Memset(void* dest, byte value, int size) =>
+#if UNITY_5_3_OR_NEWER
+            UnsafeUtility.MemSet(dest, value, size);
+#else
             Unsafe.InitBlock(dest, value, (uint)size);
+#endif
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Memcmp<T>(T* ptr1, T* ptr2) where T : unmanaged => Memcmp(ptr1, ptr2, sizeof(T));
@@ -49,45 +55,54 @@ namespace DamnScript.Runtimes.Cores
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* ReferenceToPointer<T>(T value) where T : class => 
-            *(void**)Unsafe.AsPointer(ref value);
+        public struct PointerToReferenceCastHelper
+        {
+            public object value;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T PointerToReference<T>(void* ptr) where T : class => Unsafe.AsRef<T>(&ptr);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PinHandle Pin<T>(T value) where T : class
+        public static void* ReferenceToPointer<T>(T value) where T : class
         {
 #if UNITY_5_3_OR_NEWER
-            return PinAsDotNet(value);
+            var castHelper = new PointerToReferenceCastHelper() { value = value };
+            var ptr = (void**)UnsafeUtility.AddressOf(ref castHelper);
+            return *ptr;
 #else
+            return *(void**)Unsafe.AsPointer(ref value);
+#endif
+        }
+
+        [StructLayout(LayoutKind.Sequential, Size = 8)]
+        private struct ReferenceToPointerCastHelper<T>
+        {
+            public T value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T PointerToReference<T>(void* ptr) where T : class
+        {
+#if UNITY_5_3_OR_NEWER
+            
+            var castHelper = UnsafeUtility.AsRef<ReferenceToPointerCastHelper<T>>(&ptr);
+            return castHelper.value;
+#else
+            return Unsafe.AsRef<T>(&ptr);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static DSObjectPin Pin<T>(T value) where T : class
+        {
             return PinHelper.Pin(value);
-#endif
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static GCHandle PinAsDotNet<T>(T value) where T : class => GCHandle.Alloc(value, GCHandleType.Pinned);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T UnpinAsDotNet<T>(GCHandle handle) where T : class
+        public static void* AddressOfPinned(DSObjectPin value)
         {
-            var value = (T)handle.Target;
-            handle.Free();
-            return value;
-        }
-
-        public static void* AddressOfPinned(PinHandle value)
-        {
-#if UNITY_5_3_OR_NEWER
-            return value.AddrOfPinnedObject().ToPointer();
-#else
             return PinHelper.GetAddress(value);
-#endif
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Unpin<T>(PinHandle handle) where T : class
+        public static T Unpin<T>(DSObjectPin handle) where T : class
         {
             var value = (T)handle.Target;
             handle.Free();
@@ -95,7 +110,12 @@ namespace DamnScript.Runtimes.Cores
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* AsPointer<T>(ref T value) where T : unmanaged => Unsafe.AsPointer(ref value);
+        public static void* AsPointer<T>(ref T value) where T : unmanaged =>
+#if UNITY_5_3_OR_NEWER
+            UnsafeUtility.AddressOf(ref value);
+#else
+            Unsafe.AsPointer(ref value);
+#endif
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int HashString(char* value, int length)
