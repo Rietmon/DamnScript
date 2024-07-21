@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
@@ -7,10 +8,6 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     {
         public const int OpCode = 0x4;
         public readonly int opCode;
-        
-#if !DAMN_SCRIPT_UNITY
-        public SetSavePoint() => throw new Exception("Don't use default constructor.");
-#endif
     
         public SetSavePoint(int _) 
         { 

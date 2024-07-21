@@ -17,10 +17,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public int offset;
 
         public NativeList<UnsafeStringPair> constantStrings;
-        
-#if !DAMN_SCRIPT_UNITY
-        public ScriptAssembler() => throw new Exception("Don't use default constructor.");
-#endif
     
         public ScriptAssembler(int _) : this()
         {

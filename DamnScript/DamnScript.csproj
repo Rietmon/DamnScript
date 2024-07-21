@@ -9,7 +9,7 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       <OutputPath>../_Binaries/Debug/</OutputPath>
-      <DefineConstants>TRACE;DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG;DAMN_SCRIPT_UNITY</DefineConstants>
+      <DefineConstants>TRACE;DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG;</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -23,6 +23,10 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Parsings\Antlrs\Generates\" />
     </ItemGroup>
 
 </Project>

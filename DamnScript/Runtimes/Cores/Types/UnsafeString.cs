@@ -39,10 +39,6 @@ namespace DamnScript.Runtimes.Cores.Types
         public int length;
         public fixed char data[1];
 
-#if !DAMN_SCRIPT_UNITY
-        public UnsafeString() => throw new Exception("UnsafeString cannot be created without allocation.");
-#endif
-
         public static UnsafeString* Alloc(int length)
         {
             var str = (UnsafeString*)UnsafeUtilities.Alloc((length + 1) * sizeof(char) + sizeof(int));

@@ -26,10 +26,12 @@ namespace DamnScript.Runtimes.Cores
         public static void Free(void* ptr) => Marshal.FreeHGlobal(new IntPtr(ptr));
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Memcpy(void* src, void* dest, int size) => Unsafe.CopyBlock(dest, src, (uint)size);
+        public static void Memcpy(void* src, void* dest, int size) => 
+            Unsafe.CopyBlock(dest, src, (uint)size);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Memset(void* dest, byte value, int size) => Unsafe.InitBlock(dest, value, (uint)size);
+        public static void Memset(void* dest, byte value, int size) => 
+            Unsafe.InitBlock(dest, value, (uint)size);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Memcmp<T>(T* ptr1, T* ptr2) where T : unmanaged => Memcmp(ptr1, ptr2, sizeof(T));
@@ -48,7 +50,8 @@ namespace DamnScript.Runtimes.Cores
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* ReferenceToPointer<T>(T value) where T : class => *(void**)Unsafe.AsPointer(ref value);
+        public static void* ReferenceToPointer<T>(T value) where T : class => 
+            *(void**)Unsafe.AsPointer(ref value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T PointerToReference<T>(void* ptr) where T : class => Unsafe.AsRef<T>(&ptr);
@@ -93,24 +96,6 @@ namespace DamnScript.Runtimes.Cores
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void* AsPointer<T>(ref T value) where T : unmanaged => Unsafe.AsPointer(ref value);
-        
-        private struct ManagedWrapper
-        {
-            public object value;
-        }
-        
-        public struct UnmanagedWrapper
-        {
-            public void* space;
-            public void* value;
-        }
-        
-        public static void* ToPointer(object value)
-        {
-            var wrapper = new ManagedWrapper { value = value };
-            ref var unmanaged = ref Unsafe.As<ManagedWrapper, UnmanagedWrapper>(ref wrapper);
-            return unmanaged.value;
-        }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int HashString(char* value, int length)
