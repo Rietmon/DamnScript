@@ -188,7 +188,7 @@ this script is still running! This can lead to unpredictable results.
 - [x] Ability to call C# methods
 - [x] Conditions (if, elseif, else)
 - [x] Loops (for, while)
-- [ ] Unity support
+- [x] Unity support
 - [ ] Additional security measures
 - [ ] State saving
 - [ ] State loading

@@ -204,6 +204,13 @@ namespace DamnScript.Runtimes.Natives
                 _ => throw new Exception("Type is invalid!")
             };
 
+        
+        public bool Equals(ScriptValue other) => type == other.type && longValue == other.longValue;
+
+        public override bool Equals(object obj) => obj is ScriptValue other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine((int)type, longValue);
+        
         /// <summary>
         /// Unpin safe pointer if a value type is it.
         /// </summary>
