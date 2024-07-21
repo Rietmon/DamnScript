@@ -12,11 +12,6 @@
         {
             this.methodPointer = methodPointer;
             this.argumentsCount = argumentsCount + (isStatic ? 0 : 1);
-            if (this.argumentsCount > 10)
-            {
-                throw new System.ArgumentException("The maximum number of arguments is 10 for native method. " +
-                                                   "Probably it is 10 but you are using a non-static method which is add one more argument for object pointer.");
-            }
             this.isAsync = isAsync;
             this.isStatic = isStatic;
             this.hasReturnValue = hasReturnValue;

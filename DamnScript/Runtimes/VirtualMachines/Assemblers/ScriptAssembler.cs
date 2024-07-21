@@ -29,7 +29,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public ScriptAssembler PushToStack(ScriptValue value) =>
             Add(new PushToStack(value.longValue));
     
-        public ScriptAssembler NativeCall(ConstString name, int argumentsCount) =>
+        public ScriptAssembler NativeCall(StringWrapper name, int argumentsCount) =>
             Add(new NativeCall(name.ToString32(), argumentsCount));
     
         public ScriptAssembler ExpressionCall(ExpressionCall.ExpressionCallType type) =>

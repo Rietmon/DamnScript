@@ -8,7 +8,7 @@ namespace DamnScript.Parsings.Compilings
 {
     public static unsafe class CompiledScriptParser
     {
-        public static void ParseCompiledScript(byte* scriptCode, int length, ConstString scriptName,
+        public static void ParseCompiledScript(byte* scriptCode, int length, StringWrapper scriptName,
             ScriptData* scriptData)
         {
             scriptData->name = scriptName.ToString32();

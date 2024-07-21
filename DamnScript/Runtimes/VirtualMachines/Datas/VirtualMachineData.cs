@@ -14,9 +14,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
         private static readonly Dictionary<String32, NativeMethod> methods = new();
     
         public static void RegisterNativeMethod(Delegate d) => RegisterNativeMethod(d.Method);
-        public static void RegisterNativeMethod(Delegate d, ConstString name) => RegisterNativeMethod(d.Method, name);
+        public static void RegisterNativeMethod(Delegate d, StringWrapper name) => RegisterNativeMethod(d.Method, name);
         public static void RegisterNativeMethod(MethodInfo method) => RegisterNativeMethod(method, method.Name);
-        public static void RegisterNativeMethod(MethodInfo method, ConstString name)
+        public static void RegisterNativeMethod(MethodInfo method, StringWrapper name)
         {
             var str32 = name.ToString32();
             if (methods.ContainsKey(str32))
@@ -26,7 +26,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
                 return;
             }
         
-            foreach (var parameter in method.GetParameters())
+            var parameters = method.GetParameters();
+            foreach (var parameter in parameters)
             {
                 if (parameter.ParameterType == typeof(ScriptValue)) 
                     continue;
@@ -46,9 +47,17 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
         
             var methodPointer = method.MethodHandle.GetFunctionPointer().ToPointer();
             var isAsync = method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
-            var argumentsCount = method.GetParameters().Length;
+            var argumentsCount = parameters.Length;
             var isStatic = method.IsStatic;
             var hasReturnValue = method.ReturnType != typeof(void) || method.ReturnType.IsGenericType;
+            if (argumentsCount + (isStatic ? 0 : 1) > 10)
+            {
+                Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
+                                   $"The maximum number of arguments is 10 for native method. " +
+                                   "Probably it is 10 but you are using a non-static method which is add one more argument for object pointer.");
+                return;
+            }
+            
             var nativeMethod = new NativeMethod(methodPointer, argumentsCount, isAsync, isStatic, hasReturnValue);
             methods.Add(str32, nativeMethod);
         }

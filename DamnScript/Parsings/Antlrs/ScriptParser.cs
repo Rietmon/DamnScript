@@ -12,7 +12,7 @@ namespace DamnScript.Parsings.Antlrs
 {
     public static unsafe class ScriptParser
     {
-        public static void ParseScript(Stream input, ConstString name, ScriptData* scriptData)
+        public static void ParseScript(Stream input, StringWrapper name, ScriptData* scriptData)
         {
             var charStream = new AntlrInputStream(input);
             var lexer = new DamnScriptLexer(charStream);
@@ -179,6 +179,8 @@ namespace DamnScript.Parsings.Antlrs
             var countExpression = forStatement.expression();
             ParseExpression(countExpression, context);
             context->assembler->JumpNotEquals(beginOffset);
+            
+            context->FreeRegister(register);
         }
         
         public static void ParseWhileStatement(DamnScriptParser.WhileStatementContext whileStatement, ScriptParserContext* context)

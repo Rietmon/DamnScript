@@ -18,7 +18,7 @@ namespace DamnScript.Parsings
         private static byte* _buffer;
         private static int _bufferSize;
     
-        public static ScriptDataPtr GetScriptData(ConstString name)
+        public static ScriptDataPtr GetScriptData(StringWrapper name)
         {
             if (_scripts.Count == 0)
                 return default;
@@ -37,7 +37,7 @@ namespace DamnScript.Parsings
             return default;
         }
     
-        public static ScriptDataPtr LoadScript(Stream input, ConstString name)
+        public static ScriptDataPtr LoadScript(Stream input, StringWrapper name)
         {
             var loaded = GetScriptData(name);
             if (loaded.value != null)
@@ -51,7 +51,7 @@ namespace DamnScript.Parsings
             return scriptDataPtr;
         }
     
-        public static ScriptDataPtr LoadCompiledScript(Stream input, ConstString name)
+        public static ScriptDataPtr LoadCompiledScript(Stream input, StringWrapper name)
         {
             var loaded = GetScriptData(name);
             if (loaded.value != null)
@@ -83,7 +83,7 @@ namespace DamnScript.Parsings
             return scriptDataPtr;
         }
     
-        public static ScriptDataPtr LoadCompiledScriptWithStackAlloc(Stream input, ConstString name)
+        public static ScriptDataPtr LoadCompiledScriptWithStackAlloc(Stream input, StringWrapper name)
         {
             var length = (int)input.Length;
             if (length > MaxStackBufferSize)

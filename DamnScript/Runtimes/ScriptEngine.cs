@@ -52,7 +52,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="method">Method info</param>
         /// <param name="name">Override method name</param>
-        public static void RegisterNativeMethod(MethodInfo method, string name) => 
+        public static void RegisterNativeMethod(MethodInfo method, StringWrapper name) => 
             VirtualMachineData.RegisterNativeMethod(method, name);
     
         /// <summary>
@@ -63,7 +63,7 @@ namespace DamnScript.Runtimes
         /// <param name="input">Stream with script code. Should be a text code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
         /// <returns>Pointer to script data</returns>
-        public static ScriptDataPtr LoadScript(Stream input, ConstString name) => 
+        public static ScriptDataPtr LoadScript(Stream input, StringWrapper name) => 
             ScriptsDataManager.LoadScript(input, name);
     
         /// <summary>
@@ -74,7 +74,7 @@ namespace DamnScript.Runtimes
         /// <param name="input">Stream with compiled script code. Should be a byte code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
         /// <returns>Pointer to script data</returns>
-        public static ScriptDataPtr LoadCompiledScript(Stream input, ConstString name) => 
+        public static ScriptDataPtr LoadCompiledScript(Stream input, StringWrapper name) => 
             ScriptsDataManager.LoadCompiledScript(input, name);
 
         /// <summary>
@@ -85,9 +85,9 @@ namespace DamnScript.Runtimes
         /// <param name="scriptData">Pointer to script data</param>
         /// <param name="regionName">Region which should be run. By default, it's "Main" region</param>
         /// <returns>Pointer to thread</returns>
-        public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, ConstString regionName = default)
+        public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, StringWrapper regionName = default)
         {
-            var name = regionName.type == ConstString.ConstStringType.Invalid 
+            var name = regionName.type == StringWrapper.ConstStringType.Invalid 
                 ? defaultRegionName32
                 : regionName.ToString32();
         
@@ -118,7 +118,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="scriptName">Name of the script</param>
         /// <returns>Pointer to script data</returns>
-        public static ScriptDataPtr GetScriptDataFromCache(ConstString scriptName) => 
+        public static ScriptDataPtr GetScriptDataFromCache(StringWrapper scriptName) => 
             ScriptsDataManager.GetScriptData(scriptName);
     
         /// <summary>
