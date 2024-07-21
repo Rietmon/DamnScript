@@ -19,13 +19,13 @@ namespace DamnScript.Runtimes.Cores.Types
         [FieldOffset(4)] public void* managedStringValue;
         [FieldOffset(4)] public UnsafeString* unmanagedStringValue;
 
-        public ConstString(string value)
+        public ConstString(string value) : this()
         {
             type = ConstStringType.Managed;
             managedStringValue = UnsafeUtilities.ReferenceToPointer(value);
         }
 
-        public ConstString(UnsafeString* value)
+        public ConstString(UnsafeString* value) : this()
         {
             type = ConstStringType.Unmanaged;
             unmanagedStringValue = value;

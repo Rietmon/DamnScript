@@ -1,4 +1,5 @@
-﻿using DamnScript.Runtimes.Cores;
+﻿using System;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
@@ -16,8 +17,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public int offset;
 
         public NativeList<UnsafeStringPair> constantStrings;
+        
+#if !DAMN_SCRIPT_UNITY
+        public ScriptAssembler() => throw new Exception("Don't use default constructor.");
+#endif
     
-        public ScriptAssembler()
+        public ScriptAssembler(int _) : this()
         {
             byteCode = (byte*)UnsafeUtilities.Alloc(DefaultSize);
             UnsafeUtilities.Memset(byteCode, 0, DefaultSize);
@@ -35,7 +40,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
             Add(new ExpressionCall(type));
     
         public ScriptAssembler SetSavePoint() =>
-            Add(new SetSavePoint());
+            Add(new SetSavePoint(0));
     
         public ScriptAssembler JumpNotEquals(int jumpOffset) =>
             Add(new JumpNotEquals(jumpOffset));
@@ -59,7 +64,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
             Add(new LoadFromRegister(register));
         
         public ScriptAssembler DuplicateStack() =>
-            Add(new DuplicateStack());
+            Add(new DuplicateStack(0));
 
         private ScriptAssembler Add<T>(T value) where T : unmanaged
         {

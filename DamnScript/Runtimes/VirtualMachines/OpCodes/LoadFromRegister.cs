@@ -7,12 +7,13 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     public struct LoadFromRegister
     {
         public const int OpCode = 0xB;
-        public readonly int opCode = OpCode;
+        public readonly int opCode;
 
         public int register;
 
         public LoadFromRegister(int register)
         {
+            opCode = OpCode;
             this.register = register;
         }
     }

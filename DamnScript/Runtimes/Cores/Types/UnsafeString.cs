@@ -2,6 +2,7 @@
 using PinHandle = System.Runtime.InteropServices.GCHandle;
 #else
 #endif
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -38,7 +39,9 @@ namespace DamnScript.Runtimes.Cores.Types
         public int length;
         public fixed char data[1];
 
+#if !DAMN_SCRIPT_UNITY
         public UnsafeString() => throw new Exception("UnsafeString cannot be created without allocation.");
+#endif
 
         public static UnsafeString* Alloc(int length)
         {

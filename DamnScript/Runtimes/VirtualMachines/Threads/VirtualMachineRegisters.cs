@@ -1,3 +1,4 @@
+using System;
 using DamnScript.Runtimes.Natives;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads

@@ -6,11 +6,12 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     public struct ExpressionCall
     {
         public const int OpCode = 0x3;
-        public readonly int opCode = OpCode;
+        public readonly int opCode;
         public readonly ExpressionCallType type;
 
         public ExpressionCall(ExpressionCallType type)
         {
+            opCode = OpCode;
             this.type = type;
         }
 

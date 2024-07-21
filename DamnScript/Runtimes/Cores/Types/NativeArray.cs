@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace DamnScript.Runtimes.Cores.Types
 {
@@ -17,7 +18,7 @@ namespace DamnScript.Runtimes.Cores.Types
             [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref Begin[index];
         }
     
-        public NativeArray(int length)
+        public NativeArray(int length) : this()
         {
             Begin = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
         }

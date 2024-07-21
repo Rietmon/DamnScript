@@ -3,6 +3,7 @@ using PinHandle = System.Runtime.InteropServices.GCHandle;
 #else
 using PinHandle = DamnScript.Runtimes.Cores.Pins.DSObjectPin;
 #endif
+using System;
 using System.Runtime.InteropServices;
 
 namespace DamnScript.Runtimes.Cores.Types
@@ -21,13 +22,13 @@ namespace DamnScript.Runtimes.Cores.Types
         [FieldOffset(4)] public PinHandle safeValue;
         [FieldOffset(4)] public UnsafeString* unsafeValue;
 
-        public SafeString(string value)
+        public SafeString(string value) : this()
         {
             type = SafeStringType.Managed;
             safeValue = UnsafeUtilities.Pin(value);
         }
 
-        public SafeString(UnsafeString* value)
+        public SafeString(UnsafeString* value) : this()
         {
             type = SafeStringType.Unmanaged;
             unsafeValue = value;

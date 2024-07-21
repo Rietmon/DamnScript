@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
+        <LangVersion>9</LangVersion>
+        <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       <OutputPath>../_Binaries/Debug/</OutputPath>
-      <DefineConstants>TRACE;DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG</DefineConstants>
+      <DefineConstants>TRACE;DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG;DAMN_SCRIPT_UNITY</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

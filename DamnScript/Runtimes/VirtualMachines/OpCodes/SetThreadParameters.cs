@@ -7,11 +7,12 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     public struct SetThreadParameters
     {
         public const int OpCode = 0x7;
-        public readonly int opCode = OpCode;
+        public readonly int opCode;
         public ThreadParameters parameters;
 
         public SetThreadParameters(ThreadParameters parameters)
         {
+            opCode = OpCode;
             this.parameters = parameters;
         }
 

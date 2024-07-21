@@ -39,7 +39,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 
         private bool _isDisposed;
 
-        public VirtualMachineThread(RegionData* regionData, ScriptMetadata* metadata)
+        public VirtualMachineThread(RegionData* regionData, ScriptMetadata* metadata) : this()
         {
             _regionData = regionData;
             _metadata = metadata;

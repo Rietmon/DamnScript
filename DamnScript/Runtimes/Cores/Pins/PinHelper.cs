@@ -1,4 +1,6 @@
-﻿namespace DamnScript.Runtimes.Cores.Pins
+﻿using System.Collections.Generic;
+
+namespace DamnScript.Runtimes.Cores.Pins
 {
     // Rietmon: Thanks to .NET we can't pin the objects which are contains other references.
     // Only one way I found its storage them in the dictionary and pin them by the key.

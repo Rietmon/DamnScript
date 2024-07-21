@@ -1,3 +1,4 @@
+using System.IO;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using DamnScript.Runtimes.Cores.Types;
@@ -28,7 +29,7 @@ namespace DamnScript.Parsings.Antlrs
             var context = new ScriptParserContext();
             for (var i = 0; i < program.ChildCount; i++)
             {
-                var assembler = new ScriptAssembler();
+                var assembler = new ScriptAssembler(0);
                 context.strings = &strings;
                 context.assembler = &assembler;
 

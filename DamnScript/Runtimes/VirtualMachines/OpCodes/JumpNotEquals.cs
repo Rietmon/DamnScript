@@ -6,11 +6,12 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     public struct JumpNotEquals
     {
         public const int OpCode = 0x5;
-        public readonly int opCode = OpCode;
+        public readonly int opCode;
         public readonly int jumpOffset;
     
         public JumpNotEquals(int jumpOffset)
         {
+            opCode = OpCode;
             this.jumpOffset = jumpOffset;
         }
     }

@@ -19,7 +19,7 @@ namespace DamnScript.Runtimes.Natives
     [StructLayout(LayoutKind.Explicit, Size = 12)]
     public unsafe struct ScriptValue
     {
-        private const string ExceptionMessageInvalidTypeForPointers = 
+        private static readonly string ExceptionMessageInvalidTypeForPointers = 
             $"Invalid type! Expected {nameof(ValueType.Pointer)}, " +
             $"{nameof(ValueType.ReferenceSafePointer)} or " +
             $"{nameof(ValueType.ReferenceUnsafePointer)}!";
@@ -37,45 +37,45 @@ namespace DamnScript.Runtimes.Natives
         [FieldOffset(4)] public PinHandle safeValue;
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(ValueType type, long value)
+        public ScriptValue(ValueType type, long value) : this()
         {
             this.type = type;
             longValue = value;
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(bool value) => (type, boolValue) = (ValueType.Primitive, value);
+        public ScriptValue(bool value) : this() => (type, boolValue) = (ValueType.Primitive, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(byte value) => (type, byteValue) = (ValueType.Primitive, value);
+        public ScriptValue(byte value) : this() => (type, byteValue) = (ValueType.Primitive, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(short value) => (type, shortValue) = (ValueType.Primitive, value);
+        public ScriptValue(short value) : this() => (type, shortValue) = (ValueType.Primitive, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(int value) => (type, intValue) = (ValueType.Primitive, value);
+        public ScriptValue(int value) : this() => (type, intValue) = (ValueType.Primitive, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(long value) => (type, longValue) = (ValueType.Primitive, value);
+        public ScriptValue(long value) : this() => (type, longValue) = (ValueType.Primitive, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(float value) => (type, floatValue) = (ValueType.Primitive, value);
+        public ScriptValue(float value) : this() => (type, floatValue) = (ValueType.Primitive, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(double value) => (type, doubleValue) = (ValueType.Primitive, value);
+        public ScriptValue(double value) : this() => (type, doubleValue) = (ValueType.Primitive, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(char value) => (type, charValue) = (ValueType.Primitive, value);
+        public ScriptValue(char value) : this() => (type, charValue) = (ValueType.Primitive, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(void* value, ValueType type)
+        public ScriptValue(void* value, ValueType type) : this()
         {
             this.type = type;
             pointerValue = value;
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(PinHandle value) => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
+        public ScriptValue(PinHandle value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
         
         /// <summary>
         /// Create a new ScriptValue from a reference type and pin it. Safest way to handle references.
