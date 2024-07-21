@@ -64,11 +64,10 @@ namespace DamnScript.Runtimes.Cores.Types
         }
 
         public static bool operator !=(String32 left, String32 right) => !(left == right);
-    
-    
-        public bool Equals(String32 other) => this == other;
 
         public override bool Equals(object obj) => obj is String32 other && Equals(other);
+        
+        public bool Equals(String32 other) => this == other;
 
         public override int GetHashCode()
         {

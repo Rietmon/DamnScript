@@ -11,22 +11,20 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
 {
     public static unsafe class VirtualMachineData
     {
-        private static readonly Dictionary<String32, NativeMethod> methods = new();
+        private static readonly Type voidType = typeof(void);
+        private static readonly Type scriptValueType = typeof(ScriptValue);
+        private static readonly Type taskType = typeof(Task);
+        private static readonly Type taskScriptValueType = typeof(Task<ScriptValue>);
+        
+        private static readonly Dictionary<NativeMethodId, NativeMethod> methods = new();
     
         public static void RegisterNativeMethod(Delegate d) => RegisterNativeMethod(d.Method);
         public static void RegisterNativeMethod(Delegate d, StringWrapper name) => RegisterNativeMethod(d.Method, name);
         public static void RegisterNativeMethod(MethodInfo method) => RegisterNativeMethod(method, method.Name);
         public static void RegisterNativeMethod(MethodInfo method, StringWrapper name)
         {
-            var str32 = name.ToString32();
-            if (methods.ContainsKey(str32))
-            {
-                Debugging.LogWarning($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
-                                     $"Method already registered: \"{name}\"");
-                return;
-            }
-        
             var parameters = method.GetParameters();
+            var argumentsCount = parameters.Length;
             foreach (var parameter in parameters)
             {
                 if (parameter.ParameterType == typeof(ScriptValue)) 
@@ -37,20 +35,22 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
                 return;
             }
         
-            if (!(method.ReturnType == typeof(void) || method.ReturnType == typeof(ScriptValue) ||
-                  method.ReturnType == typeof(Task) || method.ReturnType == typeof(Task<ScriptValue>)))
+            var returnType = method.ReturnType;
+            if (returnType!= voidType && returnType != scriptValueType && 
+                returnType != taskType && returnType != taskScriptValueType)
             {
                 Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
-                                   $"Method \"{name}\" has invalid return type: {method.ReturnType}");
+                                   $"Method \"{name}\" has invalid return type: {returnType}");
                 return;
             }
-        
+            
             var methodPointer = method.MethodHandle.GetFunctionPointer().ToPointer();
             var isAsync = method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
-            var argumentsCount = parameters.Length;
             var isStatic = method.IsStatic;
+            if (!isStatic)
+                argumentsCount++;
             var hasReturnValue = method.ReturnType != typeof(void) || method.ReturnType.IsGenericType;
-            if (argumentsCount + (isStatic ? 0 : 1) > 10)
+            if (argumentsCount > 10)
             {
                 Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
                                    $"The maximum number of arguments is 10 for native method. " +
@@ -58,13 +58,20 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
                 return;
             }
             
+            var id = new NativeMethodId(name.ToString32(), argumentsCount);
             var nativeMethod = new NativeMethod(methodPointer, argumentsCount, isAsync, isStatic, hasReturnValue);
-            methods.Add(str32, nativeMethod);
+
+            if (methods.TryAdd(id, nativeMethod)) 
+                return;
+            
+            Debugging.LogWarning($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
+                                 $"Method with the name \"{name}\" and with {argumentsCount.ToString()} arguments is already registered.");
         }
     
-        public static bool TryGetNativeMethod(String32 methodName, out NativeMethod method)
+        public static bool TryGetNativeMethod(String32 methodName, int argumentsCount, out NativeMethod method)
         {
-            if (methods.TryGetValue(methodName, out method)) 
+            var id = new NativeMethodId(methodName, argumentsCount);
+            if (methods.TryGetValue(id, out method)) 
                 return true;
         
             Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(TryGetNativeMethod)}) " +

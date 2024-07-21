@@ -129,7 +129,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         {
             result = null;
             var methodName = nativeCall.name;
-            if (!VirtualMachineData.TryGetNativeMethod(methodName, out var method))
+            var argumentsCount = nativeCall.argumentsCount;
+            if (!VirtualMachineData.TryGetNativeMethod(methodName, argumentsCount, out var method))
                 return false;
         
             var argumentsStack = stackalloc ScriptValue[method.argumentsCount];

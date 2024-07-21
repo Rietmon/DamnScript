@@ -87,7 +87,7 @@ namespace DamnScript.Parsings
         {
             var length = (int)input.Length;
             if (length > MaxStackBufferSize)
-                throw new NotSupportedException($"Input length is too big for stack: {input.Length}!");
+                throw new NotSupportedException($"Input length is too big for stack: {input.Length.ToString()}!");
         
             var scriptData = UnsafeUtilities.Alloc<ScriptData>();
             var buffer = stackalloc byte[length];
