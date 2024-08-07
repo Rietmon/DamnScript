@@ -98,14 +98,18 @@ namespace DamnScript.Parsings.Antlrs
             var functionCall = callStatement.funcCall();
             var functionName = functionCall.name().GetText();
             var arguments = functionCall.arguments();
-            for (var i = 0; i < arguments.ChildCount; i++)
+            var argumentCount = arguments?.ChildCount ?? 0;
+            if (argumentCount > 0)
             {
-                var argument = arguments.GetChild<DamnScriptParser.ArgumentContext>(i);
-                var expression = argument.expression();
-                ParseExpression(expression, context);
+                for (var i = 0; i < arguments!.ChildCount; i++)
+                {
+                    var argument = arguments.GetChild<DamnScriptParser.ArgumentContext>(i);
+                    var expression = argument.expression();
+                    ParseExpression(expression, context);
+                }
             }
 
-            context->assembler->NativeCall(functionName, arguments.ChildCount);
+            context->assembler->NativeCall(functionName, argumentCount);
         }
         
         public static void ParseIfStatement(DamnScriptParser.IfStatementContext ifStatement, ScriptParserContext* context)

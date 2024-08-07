@@ -5,21 +5,15 @@ using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
 
-namespace DamnScriptTest
+namespace DamnScriptExamples
 {
-    public static class Test67
+    public static class Example6
     {
         private const string Code = @"
         region Main
         {
-            if (0) {
-                Print(""IF"");
-            }
-            elseif (0) {
-                Print(""ELSEIF"");
-            }
-            else {
-                Print(""ELSE"");
+            while (CanHandle()) {
+                Print(GetCounter());
             }
         }
 ";
@@ -34,7 +28,7 @@ namespace DamnScriptTest
             ScriptEngine.RegisterNativeMethod(GetCounter);
             
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-            var scriptData = ScriptEngine.LoadScript(memoryStream, "Test7");
+            var scriptData = ScriptEngine.LoadScript(memoryStream, "Example6");
             Shared.PrintDisassembly(scriptData);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         

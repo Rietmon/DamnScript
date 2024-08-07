@@ -2,9 +2,9 @@
 using DamnScript.Runtimes;
 using DamnScript.Runtimes.Debugs;
 
-namespace DamnScriptTest
+namespace DamnScriptExamples
 {
-    public static class Test1
+    public static class Example1
     {
         private const string Code = @"
         region Main
@@ -17,8 +17,8 @@ namespace DamnScriptTest
         {
             // Open the stream with script code
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-            // Load the script data from the stream and set it the name "Test1"
-            var scriptData = ScriptEngine.LoadScript(memoryStream, "Test1");
+            // Load the script data from the stream and set it the name "Example1"
+            var scriptData = ScriptEngine.LoadScript(memoryStream, "Example1");
             Shared.PrintDisassembly(scriptData);
             // Run the script thread, which is going to start execute region with the name "Main"
             var thread = ScriptEngine.RunThread(scriptData);

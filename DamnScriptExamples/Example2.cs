@@ -2,9 +2,9 @@
 using DamnScript.Runtimes;
 using DamnScript.Runtimes.Natives;
 
-namespace DamnScriptTest
+namespace DamnScriptExamples
 {
-    public static class Test2
+    public static class Example2
     {
         private const string Code = @"
         region Main
@@ -31,7 +31,7 @@ namespace DamnScriptTest
             // Register the native method GetString
             ScriptEngine.RegisterNativeMethod(GetString);
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-            var scriptData = ScriptEngine.LoadScript(memoryStream, "Test2");
+            var scriptData = ScriptEngine.LoadScript(memoryStream, "Example2");
             Shared.PrintDisassembly(scriptData);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         

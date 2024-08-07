@@ -24,14 +24,16 @@ namespace DamnScript.Runtimes.Metadatas
 
         public NativeArray<RegionData> regions;
 
-        public RegionData* GetRegionData(String32 regionName)
+        public RegionData* GetRegionData(String32 regionName) => GetRegionData(regionName.GetHashCode());
+
+        public RegionData* GetRegionData(int hash)
         {
             var begin = regions.Begin;
             var end = regions.End;
 
             while (begin < end)
             {
-                if (UnsafeUtilities.Memcmp(&regionName, &begin->name))
+                if (begin->name.GetHashCode() == hash)
                     return begin;
 
                 begin++;

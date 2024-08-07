@@ -3,9 +3,9 @@ using DamnScript.Runtimes;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
 
-namespace DamnScriptTest
+namespace DamnScriptExamples
 {
-    public static class Test3
+    public static class Example3
     {
         private const string Code = @"
         region Main
@@ -36,7 +36,7 @@ namespace DamnScriptTest
             ScriptEngine.RegisterNativeMethod(GetInt);
         
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-            var scriptData = ScriptEngine.LoadScript(memoryStream, "Test3");
+            var scriptData = ScriptEngine.LoadScript(memoryStream, "Example3");
             Shared.PrintDisassembly(scriptData);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         

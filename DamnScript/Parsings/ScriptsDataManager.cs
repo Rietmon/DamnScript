@@ -18,7 +18,10 @@ namespace DamnScript.Parsings
         private static byte* _buffer;
         private static int _bufferSize;
     
-        public static ScriptDataPtr GetScriptData(StringWrapper name)
+        public static ScriptDataPtr GetScriptData(StringWrapper name) => 
+            GetScriptData(name.ToString32());
+    
+        public static ScriptDataPtr GetScriptData(String32 name)
         {
             if (_scripts.Count == 0)
                 return default;
@@ -26,11 +29,9 @@ namespace DamnScript.Parsings
             var begin = _scripts.Begin;
             var end = _scripts.End;
         
-            var nameStr32 = name.ToString32();
-        
             while (begin < end)
             {
-                if (begin->value->name == nameStr32)
+                if (begin->value->name == name)
                     return *begin;
                 begin++;
             }

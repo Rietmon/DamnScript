@@ -5,30 +5,29 @@ using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
 
-namespace DamnScriptTest
+namespace DamnScriptExamples
 {
-    public static class Test6
+    public static class Example7
     {
         private const string Code = @"
         region Main
         {
-            while (CanHandle()) {
-                Print(GetCounter());
+            if (0) {
+                Print(""IF"");
+            }
+            elseif (0) {
+                Print(""ELSEIF"");
+            }
+            else {
+                Print(""ELSE"");
             }
         }
 ";
-
-        private static int counter;
-        public static ScriptValue CanHandle() => ++counter < 10;
-        public static ScriptValue GetCounter() => counter;
     
         public static void Run()
         {
-            ScriptEngine.RegisterNativeMethod(CanHandle);
-            ScriptEngine.RegisterNativeMethod(GetCounter);
-            
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-            var scriptData = ScriptEngine.LoadScript(memoryStream, "Test6");
+            var scriptData = ScriptEngine.LoadScript(memoryStream, "Example7");
             Shared.PrintDisassembly(scriptData);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         

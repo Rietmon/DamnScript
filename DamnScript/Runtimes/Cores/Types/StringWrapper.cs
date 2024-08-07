@@ -1,8 +1,4 @@
-﻿#if UNITY_5_3_OR_NEWER
-using PinHandle = System.Runtime.InteropServices.GCHandle;
-#else
-#endif
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace DamnScript.Runtimes.Cores.Types
 {
@@ -10,7 +6,7 @@ namespace DamnScript.Runtimes.Cores.Types
     /// Wrapper for string and UnsafeString.
     /// Represent const string which should be used only for arguments in methods.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Size = 12)]
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct StringWrapper
     {
         public bool IsManaged => type == ConstStringType.Managed;
@@ -45,6 +41,11 @@ namespace DamnScript.Runtimes.Cores.Types
 
         public static implicit operator StringWrapper(string value) => new(value);
         public static implicit operator StringWrapper(UnsafeString* value) => new(value);
+
+        public static bool operator ==(StringWrapper l, StringWrapper r) =>
+            l.type == r.type && l.unmanagedStringValue == r.unmanagedStringValue;
+        public static bool operator !=(StringWrapper l, StringWrapper r) =>
+            !(l.type == r.type && l.unmanagedStringValue == r.unmanagedStringValue);
     
         public enum ConstStringType
         {

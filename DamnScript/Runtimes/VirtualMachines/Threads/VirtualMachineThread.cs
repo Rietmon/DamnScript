@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
@@ -24,27 +25,27 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 
     public unsafe struct VirtualMachineThread : IDisposable
     {
-        private byte* ByteCode => _regionData->byteCode.start + _offset;
+        private byte* ByteCode => regionData->byteCode.start + offset;
 
-        private readonly RegionData* _regionData;
-        private readonly ScriptMetadata* _metadata;
+        public readonly String32* scriptName;
+        public readonly RegionData* regionData;
+        public readonly ScriptMetadata* metadata;
 
-        private VirtualMachineThreadStack _stack;
-        private VirtualMachineRegisters _registers;
+        public VirtualMachineThreadStack stack;
+        public VirtualMachineRegisters registers;
     
-        private int _offset;
-        private int _savePoint;
-    
-        private SetThreadParameters.ThreadParameters _threadParameters;
+        public int offset;
+        public int savePoint;
 
-        private bool _isDisposed;
+        public bool isDisposed;
 
-        public VirtualMachineThread(RegionData* regionData, ScriptMetadata* metadata) : this()
+        public VirtualMachineThread(String32* scriptName, RegionData* regionData, ScriptMetadata* metadata) : this()
         {
-            _regionData = regionData;
-            _metadata = metadata;
-            _stack = new VirtualMachineThreadStack();
-            _registers = new VirtualMachineRegisters();
+            this.scriptName = scriptName;
+            this.regionData = regionData;
+            this.metadata = metadata;
+            stack = new VirtualMachineThreadStack();
+            registers = new VirtualMachineRegisters();
         }
     
         /// <summary>
@@ -58,10 +59,10 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         {
             result = null;
         
-            if (_isDisposed)
+            if (isDisposed)
                 return false;
         
-            if (!_regionData->byteCode.IsInRange(_offset))
+            if (!regionData->byteCode.IsInRange(offset))
                 return false;
         
             var byteCode = ByteCode;
@@ -70,51 +71,51 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             {
                 case NativeCall.OpCode:
                     ExecuteNativeCall(*(NativeCall*)byteCode, out result);
-                    _offset += sizeof(NativeCall);
+                    offset += sizeof(NativeCall);
                     break;
                 case PushToStack.OpCode:
                     ExecutePushToStack(*(PushToStack*)byteCode);
-                    _offset += sizeof(PushToStack);
+                    offset += sizeof(PushToStack);
                     break;
                 case ExpressionCall.OpCode:
                     ExecuteExpressionCall(*(ExpressionCall*)byteCode);
-                    _offset += sizeof(ExpressionCall);
+                    offset += sizeof(ExpressionCall);
                     break;
                 case SetSavePoint.OpCode:
                     ExecuteSetSavePoint();
-                    _offset += sizeof(SetSavePoint);
+                    offset += sizeof(SetSavePoint);
                     break;
                 case JumpNotEquals.OpCode:
                     if (ExecuteJumpNotEquals(*(JumpNotEquals*)byteCode))
-                        _offset += sizeof(JumpNotEquals);
+                        offset += sizeof(JumpNotEquals);
                     break;
                 case JumpIfEquals.OpCode:
                     if (ExecuteJumpIfEquals(*(JumpIfEquals*)byteCode))
-                        _offset += sizeof(JumpIfEquals);
+                        offset += sizeof(JumpIfEquals);
                     break;
                 case Jump.OpCode:
                     if (ExecuteJump(*(Jump*)byteCode))
-                        _offset += sizeof(Jump);
+                        offset += sizeof(Jump);
                     break;
                 case PushStringToStack.OpCode:
                     ExecutePushStringToStack(*(PushStringToStack*)byteCode);
-                    _offset += sizeof(JumpIfEquals);
+                    offset += sizeof(JumpIfEquals);
                     break;
                 case SetThreadParameters.OpCode:
                     ExecuteSetThreadParameters(*(SetThreadParameters*)byteCode);
-                    _offset += sizeof(SetThreadParameters);
+                    offset += sizeof(SetThreadParameters);
                     break;
                 case StoreToRegister.OpCode:
                     ExecuteStoreToRegister(*(StoreToRegister*)byteCode);
-                    _offset += sizeof(StoreToRegister);
+                    offset += sizeof(StoreToRegister);
                     break;
                 case LoadFromRegister.OpCode:
                     ExecuteLoadFromRegister(*(LoadFromRegister*)byteCode);
-                    _offset += sizeof(LoadFromRegister);
+                    offset += sizeof(LoadFromRegister);
                     break;
                 case DuplicateStack.OpCode:
                     ExecuteDuplicateStack(*(DuplicateStack*)byteCode);
-                    _offset += sizeof(DuplicateStack);
+                    offset += sizeof(DuplicateStack);
                     break;
                 default:
                     throw new Exception($"Invalid OpCode: {opCode}");
@@ -123,7 +124,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             return true;
         }
 
-        // Rietmon: TODO: Remove String and use StringHash
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ExecuteNativeCall(NativeCall nativeCall, out Task result)
         {
@@ -164,8 +164,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         {
             switch (expressionCall.type)
             {
-                case ExpressionCall.ExpressionCallType.Invalid: break;
-                case ExpressionCall.ExpressionCallType.Add: StackPush(StackPop() + StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Add:
+                {
+                    var right = StackPop();
+                    var left = StackPop();
+                    StackPush(left + right);
+                    break;
+                }
                 case ExpressionCall.ExpressionCallType.Subtract:
                 {
                     var right = StackPop();
@@ -173,7 +178,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                     StackPush(left - right);
                     break;
                 }
-                case ExpressionCall.ExpressionCallType.Multiply: StackPush(StackPop() * StackPop()); break;
+                case ExpressionCall.ExpressionCallType.Multiply:
+                {
+                    var right = StackPop();
+                    var left = StackPop();
+                    StackPush(left * right);
+                    break;
+                }
                 case ExpressionCall.ExpressionCallType.Divide:
                 {
                     var right = StackPop();
@@ -191,15 +202,39 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 case ExpressionCall.ExpressionCallType.Negate: StackPush(-StackPop()); break;
                 case ExpressionCall.ExpressionCallType.Equal: StackPush(StackPop() == StackPop() ? 1 : 0); break;
                 case ExpressionCall.ExpressionCallType.NotEqual: StackPush(StackPop() != StackPop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Greater: StackPush(StackPop() > StackPop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.GreaterOrEqual: StackPush(StackPop() >= StackPop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Less: StackPush(StackPop() < StackPop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.LessOrEqual: StackPush(StackPop() <= StackPop() ? 1 : 0); break;
+                case ExpressionCall.ExpressionCallType.Greater:
+                {
+                    var right = StackPop();
+                    var left = StackPop();
+                    StackPush(left > right);
+                    break;
+                }
+                case ExpressionCall.ExpressionCallType.GreaterOrEqual:
+                {
+                    var right = StackPop();
+                    var left = StackPop();
+                    StackPush(left >= right);
+                    break;
+                }
+                case ExpressionCall.ExpressionCallType.Less:
+                {
+                    var right = StackPop();
+                    var left = StackPop();
+                    StackPush(left < right);
+                    break;
+                }
+                case ExpressionCall.ExpressionCallType.LessOrEqual:
+                {
+                    var right = StackPop();
+                    var left = StackPop();
+                    StackPush(left <= right);
+                    break;
+                }
                 case ExpressionCall.ExpressionCallType.And: StackPush(StackPop() != 0 && StackPop() != 0 ? 1 : 0); break;
                 case ExpressionCall.ExpressionCallType.Or: StackPush(StackPop() != 0 || StackPop() != 0 ? 1 : 0); break;
                 case ExpressionCall.ExpressionCallType.Not: StackPush(StackPop() == 0 ? 1 : 0); break;
                 case ExpressionCall.ExpressionCallType.Test: StackPush(StackPop() != 0 ? 1 : 0); break;
-                default: throw new ArgumentOutOfRangeException(nameof(expressionCall));
+                default: throw new ArgumentOutOfRangeException($"{nameof(expressionCall)} == {expressionCall.type}");
             }
 
             return true;
@@ -208,7 +243,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ExecuteSetSavePoint()
         {
-            _savePoint = _offset;
+            savePoint = offset;
             return true;
         }
     
@@ -218,7 +253,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             if (StackPop() == StackPop()) 
                 return true;
         
-            _offset = jumpNotEquals.jumpOffset;
+            offset = jumpNotEquals.jumpOffset;
             return false;
         }
     
@@ -228,14 +263,14 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             if (StackPop() != StackPop())
                 return true;
         
-            _offset = jumpIfEquals.jumpOffset;
+            offset = jumpIfEquals.jumpOffset;
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool ExecuteJump(Jump jump)
         {
-            _offset = jump.jumpOffset;
+            offset = jump.jumpOffset;
             return false;
         }
     
@@ -243,7 +278,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public bool ExecutePushStringToStack(PushStringToStack pushStringToStack)
         {
             var hash = pushStringToStack.hash;
-            var str = _metadata->GetUnsafeString(hash);
+            var str = metadata->GetUnsafeString(hash);
             if (str == null)
                 throw new Exception($"String not found with hash: {hash}");
         
@@ -254,37 +289,22 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ExecuteSetThreadParameters(SetThreadParameters setThreadParameters)
         {
-            _threadParameters = setThreadParameters.parameters;
-            return true;
+            throw new NotImplementedException();
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ExecuteStoreToRegister(StoreToRegister storeToRegister)
         {
-            switch (storeToRegister.register)
-            {
-                case 0: _registers[0] = StackPop().longValue; break;
-                case 1: _registers[1] = StackPop().longValue; break;
-                case 2: _registers[2] = StackPop().longValue; break;
-                case 3: _registers[3] = StackPop().longValue; break;
-                default: throw new ArgumentOutOfRangeException(nameof(storeToRegister.register));
-            }
-
+            var registerIndex = storeToRegister.register;
+            registers[registerIndex] = StackPop().longValue;
             return true;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ExecuteLoadFromRegister(LoadFromRegister loadFromRegister)
         {
-            switch (loadFromRegister.register)
-            {
-                case 0: StackPush(_registers[0]); break;
-                case 1: StackPush(_registers[1]); break;
-                case 2: StackPush(_registers[2]); break;
-                case 3: StackPush(_registers[3]); break;
-                default: throw new ArgumentOutOfRangeException(nameof(loadFromRegister.register));
-            }
-
+            var registerIndex = loadFromRegister.register;
+            StackPush(registers[registerIndex]);
             return true;
         }
         
@@ -299,14 +319,14 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void StackPush(ScriptValue value) => _stack.Push(value);
+        public void StackPush(ScriptValue value) => stack.Push(value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue StackPop() => _stack.Pop();
+        public ScriptValue StackPop() => stack.Pop();
 
         public void Dispose()
         {
-            _isDisposed = true;
+            isDisposed = true;
         }
     }
 }

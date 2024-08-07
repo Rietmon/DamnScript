@@ -1,8 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DamnScriptTest", "DamnScriptTest\DamnScriptTest.csproj", "{23C6630C-CD5A-4DD9-BD3E-35980F990507}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DamnScriptExamples", "DamnScriptExamples\DamnScriptExamples.csproj", "{23C6630C-CD5A-4DD9-BD3E-35980F990507}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DamnScript", "DamnScript\DamnScript.csproj", "{D0F3A93D-08D1-46FA-8500-9F077D67D61A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DamnScriptBenchmarks", "DamnScriptBenchmarks\DamnScriptBenchmarks.csproj", "{1DC4963D-358E-4EAF-A7CF-42FB71E5813E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +20,9 @@ Global
 		{D0F3A93D-08D1-46FA-8500-9F077D67D61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0F3A93D-08D1-46FA-8500-9F077D67D61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0F3A93D-08D1-46FA-8500-9F077D67D61A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DC4963D-358E-4EAF-A7CF-42FB71E5813E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DC4963D-358E-4EAF-A7CF-42FB71E5813E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DC4963D-358E-4EAF-A7CF-42FB71E5813E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DC4963D-358E-4EAF-A7CF-42FB71E5813E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

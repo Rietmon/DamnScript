@@ -22,13 +22,12 @@ namespace DamnScript.Parsings.Compilings
                 while (begin < end)
                 {
                     stream.Write(begin->name);
-                    stream.Write(begin->name);
                     stream.Write(begin->byteCode);
                     begin++;
                 }
             }
 
-            var span = (ReadOnlySpan<byte>)stackalloc byte[stream.Length];
+            var span = new ReadOnlySpan<byte>(stream.start, stream.length);
             output.Write(span);
             stream.Dispose();
         }

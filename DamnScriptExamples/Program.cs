@@ -1,9 +1,10 @@
 ﻿using DamnScript.Runtimes;
+using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Natives;
 
-namespace DamnScriptTest
+namespace DamnScriptExamples
 {
-    public static class Program
+    public static unsafe class Program
     {
         public static void Print(ScriptValue value)
         {
@@ -31,6 +32,8 @@ namespace DamnScriptTest
                 Console.WriteLine("4: Print non static method from object instance");
                 Console.WriteLine("5: Print from \"for\" loop with indexing");
                 Console.WriteLine("6: Print from \"while\" loop with counter");
+                Console.WriteLine("7: If-elseif-else statement");
+                Console.WriteLine("8: Save point");
                 Console.WriteLine("Q: Exit");
                 Console.WriteLine("---------------------------------");
             
@@ -38,12 +41,14 @@ namespace DamnScriptTest
 
                 switch (input)
                 {
-                    case "1": Test1.Run(); break;
-                    case "2": Test2.Run(); break;
-                    case "3": Test3.Run(); break;
-                    case "4": Test4.Run(); break;
-                    case "5": Test5.Run(); break;
-                    case "6": Test6.Run(); break;
+                    case "1": Example1.Run(); break;
+                    case "2": Example2.Run(); break;
+                    case "3": Example3.Run(); break;
+                    case "4": Example4.Run(); break;
+                    case "5": Example5.Run(); break;
+                    case "6": Example6.Run(); break;
+                    case "7": Example7.Run(); break;
+                    case "8": Example8.Run(); break;
                     case "Q": return;
                 }
             }

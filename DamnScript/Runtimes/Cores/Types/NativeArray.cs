@@ -18,8 +18,9 @@ namespace DamnScript.Runtimes.Cores.Types
             [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref Begin[index];
         }
     
-        public NativeArray(int length) : this()
+        public NativeArray(int length)
         {
+            Length = length;
             Begin = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
         }
     

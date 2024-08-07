@@ -2,9 +2,12 @@
 using System.IO;
 using System.Reflection;
 using DamnScript.Parsings;
+using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
+using DamnScript.Runtimes.Serializations;
+using DamnScript.Runtimes.VirtualMachines;
 using DamnScript.Runtimes.VirtualMachines.Datas;
 using DamnScript.Runtimes.VirtualMachines.Threads;
 
@@ -13,18 +16,10 @@ namespace DamnScript.Runtimes
     public static unsafe class ScriptEngine
     {
         private const string DefaultRegionName = "Main";
-        private static readonly String32 defaultRegionName32 = new(DefaultRegionName);
-    
-        private static VirtualMachineScheduler _mainScheduler = new(16);
         
-        /// <summary>
-        /// Will register native method in the virtual machine.
-        /// It supports methods with return value and async methods.
-        /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
-        /// </summary>
-        /// <param name="d">Delegate to method</param>
-        public static void RegisterNativeMethod(Delegate d) => 
-            VirtualMachineData.RegisterNativeMethod(d);
+        private static readonly String32 defaultRegionName32 = new(DefaultRegionName);
+        
+        private static VirtualMachine _main = new(16);
 
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -33,7 +28,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="d">Delegate to method</param>
         /// <param name="name">Override method name</param>
-        public static void RegisterNativeMethod(Delegate d, string name) => 
+        public static void RegisterNativeMethod(Delegate d, StringWrapper name = default) => 
             VirtualMachineData.RegisterNativeMethod(d, name);
 
         /// <summary>
@@ -42,17 +37,8 @@ namespace DamnScript.Runtimes
         /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
         /// </summary>
         /// <param name="method">Method info</param>
-        public static void RegisterNativeMethod(MethodInfo method) => 
-            VirtualMachineData.RegisterNativeMethod(method);
-
-        /// <summary>
-        /// Will register native method in the virtual machine.
-        /// It supports methods with return value and async methods.
-        /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
-        /// </summary>
-        /// <param name="method">Method info</param>
         /// <param name="name">Override method name</param>
-        public static void RegisterNativeMethod(MethodInfo method, StringWrapper name) => 
+        public static void RegisterNativeMethod(MethodInfo method, StringWrapper name = default) => 
             VirtualMachineData.RegisterNativeMethod(method, name);
     
         /// <summary>
@@ -93,13 +79,10 @@ namespace DamnScript.Runtimes
         
             var regionData = scriptData.value->GetRegionData(name);
             if (regionData == null)
-            {
-                Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RunThread)}) " +
-                                   $"Region \"{name}\" not found in script \"{scriptData.value->name}\"");
-                return default;
-            }
-            var thread = new VirtualMachineThread(regionData, &scriptData.value->metadata);
-            var ptr = _mainScheduler.Register(thread);
+                throw new Exception($"Region with name {regionName} not found in script \"{name}\"!");
+            
+            var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata);
+            var ptr = _main.Register(thread);
             return ptr;
         }
 
@@ -110,7 +93,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <returns>Does scheduler have other threads?</returns>
         public static bool ExecuteScheduler() =>
-            _mainScheduler.ExecuteNext();
+            _main.ExecuteNext();
     
         /// <summary>
         /// Return script data from cache by provided name if it's present.
@@ -122,11 +105,55 @@ namespace DamnScript.Runtimes
             ScriptsDataManager.GetScriptData(scriptName);
     
         /// <summary>
+        /// Return script data from cache by provided name if it's present.
+        /// If it's not present, it will return default.
+        /// </summary>
+        /// <param name="scriptName">Name of the script</param>
+        /// <returns>Pointer to script data</returns>
+        public static ScriptDataPtr GetScriptDataFromCache(String32 scriptName) => 
+            ScriptsDataManager.GetScriptData(scriptName);
+    
+        /// <summary>
         /// Unload script from cache by provided pointer.
         /// If a script is not present in cache, it will log an error. And do nothing.
         /// </summary>
         /// <param name="scriptData">Name of the script</param>
         public static void UnloadScript(ScriptDataPtr scriptData) => 
             ScriptsDataManager.UnloadScript(scriptData);
+        
+        public static VirtualMachineThreadPtr GetCurrentThread() => 
+            _main.currentThread;
+
+        public static SerializationStream SerializeToSerializationStream() => 
+            VirtualMachineSerialization.SerializeToSerializationStream(_main);
+
+        public static void DeserializeFromSerializationStream(SerializationStream stream)
+        {
+            var threads = VirtualMachineSerialization.DeserializeFromSerializationStream(stream);
+            var begin = threads.Begin;
+            var end = threads.End;
+            while (begin < end)
+            {
+                var scriptData = GetScriptDataFromCache(begin->scriptName);
+                if (scriptData.value == null)
+                    throw new Exception($"Script data with hash {begin->scriptName} not found in cache!");
+                
+                var thread = new VirtualMachineThread(
+                    &scriptData.value->name, 
+                    scriptData.value->GetRegionData(begin->regionName),
+                    &scriptData.value->metadata)
+                {
+                    offset = begin->savePoint,
+                    savePoint = begin->savePoint,
+                    stack = begin->stack,
+                    registers = begin->registers
+                };
+                
+                _main.Register(thread);
+                begin++;
+            }
+            
+            threads.Dispose();
+        }
     }
 }

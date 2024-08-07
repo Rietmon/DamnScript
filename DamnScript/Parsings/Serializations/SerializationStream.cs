@@ -3,105 +3,102 @@ using DamnScript.Runtimes.Cores;
 
 namespace DamnScript.Parsings.Serializations
 {
-    internal unsafe struct SerializationStream : IDisposable
+    public unsafe struct SerializationStream : IDisposable
     {
-        public int Capacity => _capacity;
-        public int Length => _length;
-
-        private int _capacity;
-        private int _length;
-        private byte* _start;
+        public int capacity;
+        public int length;
+        public byte* start;
 
         public SerializationStream(int capacity)
         {
-            _start = (byte*)UnsafeUtilities.Alloc(capacity);
-            _capacity = capacity;
-            _length = 0;
+            start = (byte*)UnsafeUtilities.Alloc(capacity);
+            this.capacity = capacity;
+            length = 0;
         }
 
         public SerializationStream(byte* start, int capacity)
         {
-            _start = start;
-            _capacity = capacity;
-            _length = 0;
+            this.start = start;
+            this.capacity = capacity;
+            length = 0;
         }
 
         public void Write<T>(T value) where T : unmanaged
         {
             var size = sizeof(T);
-            if (_length + size > _capacity)
+            if (length + size > capacity)
             {
-                _capacity *= 2;
-                var newPtr = (byte*)UnsafeUtilities.ReAlloc(_start, _capacity);
-                UnsafeUtilities.Free(_start);
-                _start = newPtr;
+                capacity *= 2;
+                var newPtr = (byte*)UnsafeUtilities.ReAlloc(start, capacity);
+                UnsafeUtilities.Free(start);
+                start = newPtr;
             }
 
-            *(T*)_start = value;
-            _length += size;
+            *(T*)(start + length) = value;
+            length += size;
         }
 
         public void WriteBytes(byte* bytes, int count)
         {
-            if (_length + count > _capacity)
+            if (length + count > capacity)
             {
-                _capacity *= 2;
-                var newPtr = (byte*)UnsafeUtilities.ReAlloc(_start, _capacity);
-                UnsafeUtilities.Free(_start);
-                _start = newPtr;
+                capacity *= 2;
+                var newPtr = (byte*)UnsafeUtilities.ReAlloc(start, capacity);
+                UnsafeUtilities.Free(start);
+                start = newPtr;
             }
 
-            UnsafeUtilities.Memcpy(bytes, _start + _length, count);
-            _length += count;
+            UnsafeUtilities.Memcpy(bytes, start + length, count);
+            length += count;
         }
 
         public void CustomWrite<T>(T* ptr, int count) where T : unmanaged
         {
-            if (_length + count > _capacity)
+            if (length + count > capacity)
             {
-                _capacity *= 2;
-                var newPtr = (byte*)UnsafeUtilities.ReAlloc(_start, _capacity);
-                UnsafeUtilities.Free(_start);
-                _start = newPtr;
+                capacity *= 2;
+                var newPtr = (byte*)UnsafeUtilities.ReAlloc(start, capacity);
+                UnsafeUtilities.Free(start);
+                start = newPtr;
             }
 
-            UnsafeUtilities.Memcpy(ptr, _start + _length, count);
-            _length += count;
+            UnsafeUtilities.Memcpy(ptr, start + length, count);
+            length += count;
         }
 
         public T Read<T>() where T : unmanaged
         {
             var size = sizeof(T);
-            if (_length + size > _capacity)
+            if (length + size > capacity)
                 return default;
 
-            var value = *(T*)(_start + _length);
-            _length += size;
+            var value = *(T*)(start + length);
+            length += size;
             return value;
         }
 
         public byte* ReadBytes(int count)
         {
-            if (_length + count > _capacity)
+            if (length + count > capacity)
                 return null;
 
-            var ptr = _start + _length;
-            _length += count;
+            var ptr = start + length;
+            length += count;
             return ptr;
         }
 
         public void CustomRead<T>(T* ptr, int count) where T : unmanaged
         {
-            if (_length + count > _capacity)
+            if (length + count > capacity)
                 return;
 
-            UnsafeUtilities.Memcpy(_start + _length, ptr, count);
-            _length += count;
+            UnsafeUtilities.Memcpy(start + length, ptr, count);
+            length += count;
         }
 
         public void Dispose()
         {
-            UnsafeUtilities.Free(_start);
+            UnsafeUtilities.Free(start);
             this = default;
         }
     }
