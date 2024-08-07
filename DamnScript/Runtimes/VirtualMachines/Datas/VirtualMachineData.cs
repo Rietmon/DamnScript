@@ -18,11 +18,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
         
         private static readonly Dictionary<NativeMethodId, NativeMethod> methods = new();
     
-        public static void RegisterNativeMethod(Delegate d, StringWrapper name) => RegisterNativeMethod(d.Method, name);
-        public static void RegisterNativeMethod(MethodInfo method, StringWrapper name = default)
+        public static void RegisterNativeMethod(Delegate d, String32 name) => 
+            RegisterNativeMethod(d.Method, name);
+        
+        public static void RegisterNativeMethod(MethodInfo method, String32 name)
         {
-            if (name == default)
-                name = new StringWrapper(method.Name);
             var parameters = method.GetParameters();
             var argumentsCount = parameters.Length;
             foreach (var parameter in parameters)
@@ -58,7 +58,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
                 return;
             }
             
-            var id = new NativeMethodId(name.ToString32(), argumentsCount);
+            var id = new NativeMethodId(name, argumentsCount);
             var nativeMethod = new NativeMethod(methodPointer, argumentsCount, isAsync, isStatic, hasReturnValue);
 
             if (methods.TryAdd(id, nativeMethod)) 

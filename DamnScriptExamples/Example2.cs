@@ -15,12 +15,12 @@ namespace DamnScriptExamples
 
         // Every method should operate ONLY with ScriptValue.
         // This is a wrapper for each one of the types that can be passed to/from the script.
-        // You can pass managed reference, pointer, string, number, boolean etc.
-        // Return type also should be a ScriptValue.
+        // You can pass managed reference, pointer, string, number, boolean, etc.
+        // A return type also should be a ScriptValue.
         // Because of string is a reference type, we should Pin it to prevent the garbage collector from collecting it.
         // ScriptValue.ToSafeString() is a safe way to get the string from the ScriptValue.
-        // If it pinned will auto unpin it.
-        // P.S. Every value which is used from stack will be unpinned automatically.
+        // If it is pinned will auto unpin it.
+        // P.S. Every value used from stack will be unpinned automatically.
         public static ScriptValue GetString()
         {
             return ScriptValue.FromReferencePin("Hello from C#!");

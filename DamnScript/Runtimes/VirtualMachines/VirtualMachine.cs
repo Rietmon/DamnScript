@@ -2,7 +2,9 @@
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.Serializations;
 using DamnScript.Runtimes.VirtualMachines.Threads;
 
 namespace DamnScript.Runtimes.VirtualMachines
@@ -20,7 +22,7 @@ namespace DamnScript.Runtimes.VirtualMachines
         public static implicit operator VirtualMachine*(VirtualMachinePtr ptr) => ptr.value;
     }
 
-    public unsafe struct VirtualMachine
+    public unsafe partial struct VirtualMachine
     {
         public const int Version = 1;
         public bool HasThreads => threads.Count > 0;
@@ -37,105 +39,38 @@ namespace DamnScript.Runtimes.VirtualMachines
             threadsAreAwait = new NativeList<(IntPtr, VirtualMachineThreadPtr)>(capacity);
             currentThread = null;
         }
-    
-        public bool ExecuteNext()
-        {
-            ExecuteAwaitsThreads();
-            ExecuteThreads();
         
-            return HasThreads || HasThreadsAwaiting;
-        }
-    
-        private void ExecuteAwaitsThreads()
+        public VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, String32 regionName)
         {
-            var begin = threadsAreAwait.Begin;
-            var end = threadsAreAwait.End;
-            while (begin < end)
-            {
-                currentThread = begin->pointer;
-                var result = UnsafeUtilities.PointerToReference<IAsyncResult>(begin->result.ToPointer());
-                if (result.IsCompleted)
-                {
-                    RemoveFromAwait(begin->pointer);
-                    if (result is Task<ScriptValue> task)
-                        begin->pointer.value->StackPush(task.Result.longValue);
-                }
+            var regionData = scriptData.value->GetRegionData(regionName);
+            if (regionData == null)
+                throw new Exception($"Region with name {regionName} not found in script \"{scriptData.value->name}\"!");
             
-                begin++;
-            }
-        }
-    
-        private void ExecuteThreads()
-        {
-            var begin = threads.Begin;
-            var end = threads.End;
-            while (begin < end)
-            {
-                currentThread = begin;
-                if (!IsInAwait(begin))
-                {
-                    Task result;
-                    while (begin->ExecuteNext(out result))
-                    {
-                        if (result == null)
-                            continue;
-
-                        AddToAwait(result, begin);
-                        break;
-                    }
-
-                    if (result == null)
-                        Unregister(*begin);
-                }
-            
-                begin++;
-            }
-        }
-
-        public void AddToAwait(Task result, VirtualMachineThreadPtr pointer) => 
-            threadsAreAwait.Add(((IntPtr)UnsafeUtilities.ReferenceToPointer(result), pointer));
-    
-        public bool IsInAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
-        {
-            var begin = threadsAreAwait.Begin;
-            var end = threadsAreAwait.End;
-            while (begin < end)
-            {
-                if (begin->pointer.value == virtualMachineThreadPointer.value)
-                    return true;
-            
-                begin++;
-            }
-
-            return false;
-        }
-
-        public void RemoveFromAwait(VirtualMachineThreadPtr virtualMachineThreadPointer)
-        {
-            var begin = threadsAreAwait.Begin;
-            var end = threadsAreAwait.End;
-            var i = 0;
-            while (begin < end)
-            {
-                if (begin->pointer.value == virtualMachineThreadPointer.value)
-                {
-                    threadsAreAwait.RemoveAt(i);
-                    return;
-                }
-            
-                begin++;
-                i++;
-            }
-        }
-
-        public VirtualMachineThreadPtr Register(VirtualMachineThread thread)
-        {
+            var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata);
+        
             threads.Add(thread);
             var ptr = threads.End - 1;
             return new VirtualMachineThreadPtr(ptr);
         }
-
-        public void Unregister(VirtualMachineThread thread) => 
-            threads.Remove(thread);
+        
+        public VirtualMachineThreadPtr RunThreadFromSerialized(ScriptDataPtr scriptData, VirtualMachineSerializedThreadPtr serializedThread)
+        {
+            var data = serializedThread.value;
+            var regionData = scriptData.value->GetRegionData(data->regionName);
+            if (regionData == null)
+                throw new Exception($"Region with name {data->regionName} not found in script \"{scriptData.value->name}\"!");
+            
+            var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata)
+            {
+                offset = data->savePoint,
+                savePoint = data->savePoint,
+                stack = data->stack,
+                registers = data->registers
+            };
+        
+            threads.Add(thread);
+            var ptr = threads.End - 1;
+            return new VirtualMachineThreadPtr(ptr);
+        }
     }
 }

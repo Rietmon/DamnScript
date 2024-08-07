@@ -8,10 +8,10 @@ namespace DamnScript.Parsings.Compilings
 {
     public static unsafe class CompiledScriptParser
     {
-        public static void ParseCompiledScript(byte* scriptCode, int length, StringWrapper scriptName,
+        public static void ParseCompiledScript(byte* scriptCode, int length, String32 scriptName,
             ScriptData* scriptData)
         {
-            scriptData->name = scriptName.ToString32();
+            scriptData->name = scriptName;
 
             var regions = new NativeList<RegionData>(16);
 

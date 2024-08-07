@@ -4,7 +4,6 @@ using System.Reflection;
 using DamnScript.Parsings;
 using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes.Cores.Types;
-using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Serializations;
 using DamnScript.Runtimes.VirtualMachines;
@@ -20,6 +19,24 @@ namespace DamnScript.Runtimes
         private static readonly String32 defaultRegionName32 = new(DefaultRegionName);
         
         private static VirtualMachine _main = new(16);
+        
+        /// <summary>
+        /// Will register native method in the virtual machine.
+        /// It supports methods with return value and async methods.
+        /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
+        /// </summary>
+        /// <param name="d">Delegate to method</param>
+        public static void RegisterNativeMethod(Delegate d) => 
+            VirtualMachineData.RegisterNativeMethod(d, new StringWrapper(d.Method.Name).ToString32());
+        
+        /// <summary>
+        /// Will register native method in the virtual machine.
+        /// It supports methods with return value and async methods.
+        /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
+        /// </summary>
+        /// <param name="method">Method info</param>
+        public static void RegisterNativeMethod(MethodInfo method) => 
+            VirtualMachineData.RegisterNativeMethod(method, new StringWrapper(method.Name).ToString32());
 
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -28,8 +45,12 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="d">Delegate to method</param>
         /// <param name="name">Override method name</param>
-        public static void RegisterNativeMethod(Delegate d, StringWrapper name = default) => 
+        public static void RegisterNativeMethod(Delegate d, String32 name) => 
             VirtualMachineData.RegisterNativeMethod(d, name);
+        
+        /// <inheritdoc cref="RegisterNativeMethod(Delegate, String32)"/>
+        public static void RegisterNativeMethod(Delegate d, StringWrapper name) => 
+            VirtualMachineData.RegisterNativeMethod(d, name.ToString32());
 
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -38,8 +59,12 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="method">Method info</param>
         /// <param name="name">Override method name</param>
-        public static void RegisterNativeMethod(MethodInfo method, StringWrapper name = default) => 
+        public static void RegisterNativeMethod(MethodInfo method, String32 name) => 
             VirtualMachineData.RegisterNativeMethod(method, name);
+        
+        /// <inheritdoc cref="RegisterNativeMethod(MethodInfo, String32)"/>
+        public static void RegisterNativeMethod(MethodInfo method, StringWrapper name) => 
+            VirtualMachineData.RegisterNativeMethod(method, name.ToString32());
     
         /// <summary>
         /// Load script from provided stream.
@@ -49,8 +74,12 @@ namespace DamnScript.Runtimes
         /// <param name="input">Stream with script code. Should be a text code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
         /// <returns>Pointer to script data</returns>
-        public static ScriptDataPtr LoadScript(Stream input, StringWrapper name) => 
+        public static ScriptDataPtr LoadScript(Stream input, String32 name) => 
             ScriptsDataManager.LoadScript(input, name);
+        
+        /// <inheritdoc cref="LoadScript(Stream, String32)"/>
+        public static ScriptDataPtr LoadScript(Stream input, StringWrapper name) => 
+            ScriptsDataManager.LoadScript(input, name.ToString32());
     
         /// <summary>
         /// Load compiled script from provided stream.
@@ -60,8 +89,12 @@ namespace DamnScript.Runtimes
         /// <param name="input">Stream with compiled script code. Should be a byte code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
         /// <returns>Pointer to script data</returns>
-        public static ScriptDataPtr LoadCompiledScript(Stream input, StringWrapper name) => 
+        public static ScriptDataPtr LoadCompiledScript(Stream input, String32 name) => 
             ScriptsDataManager.LoadCompiledScript(input, name);
+        
+        /// <inheritdoc cref="LoadCompiledScript(Stream, String32)"/>
+        public static ScriptDataPtr LoadCompiledScript(Stream input, StringWrapper name) => 
+            ScriptsDataManager.LoadCompiledScript(input, name.ToString32());
 
         /// <summary>
         /// Run thread with provided region name from script data.
@@ -71,19 +104,17 @@ namespace DamnScript.Runtimes
         /// <param name="scriptData">Pointer to script data</param>
         /// <param name="regionName">Region which should be run. By default, it's "Main" region</param>
         /// <returns>Pointer to thread</returns>
-        public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, StringWrapper regionName = default)
+        public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, String32 regionName) => 
+            _main.RunThread(scriptData, regionName);
+        
+        /// <inheritdoc cref="RunThread(ScriptDataPtr, String32)"/>
+        public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, StringWrapper regionName)
         {
             var name = regionName.type == StringWrapper.ConstStringType.Invalid 
                 ? defaultRegionName32
                 : regionName.ToString32();
-        
-            var regionData = scriptData.value->GetRegionData(name);
-            if (regionData == null)
-                throw new Exception($"Region with name {regionName} not found in script \"{name}\"!");
             
-            var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata);
-            var ptr = _main.Register(thread);
-            return ptr;
+            return _main.RunThread(scriptData, name);
         }
 
         /// <summary>
@@ -101,17 +132,13 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="scriptName">Name of the script</param>
         /// <returns>Pointer to script data</returns>
-        public static ScriptDataPtr GetScriptDataFromCache(StringWrapper scriptName) => 
-            ScriptsDataManager.GetScriptData(scriptName);
-    
-        /// <summary>
-        /// Return script data from cache by provided name if it's present.
-        /// If it's not present, it will return default.
-        /// </summary>
-        /// <param name="scriptName">Name of the script</param>
-        /// <returns>Pointer to script data</returns>
         public static ScriptDataPtr GetScriptDataFromCache(String32 scriptName) => 
             ScriptsDataManager.GetScriptData(scriptName);
+    
+        /// <inheritdoc cref="GetScriptDataFromCache(String32)"/>
+        /// <inheritdoc cref="GetScriptDataFromCache(String32)"/>
+        public static ScriptDataPtr GetScriptDataFromCache(StringWrapper scriptName) => 
+            ScriptsDataManager.GetScriptData(scriptName.ToString32());
     
         /// <summary>
         /// Unload script from cache by provided pointer.
@@ -121,12 +148,25 @@ namespace DamnScript.Runtimes
         public static void UnloadScript(ScriptDataPtr scriptData) => 
             ScriptsDataManager.UnloadScript(scriptData);
         
+        /// <summary>
+        /// Returns the current thread executing right now.
+        /// </summary>
+        /// <returns>Pointer to thread</returns>
         public static VirtualMachineThreadPtr GetCurrentThread() => 
             _main.currentThread;
 
+        /// <summary>
+        /// Serialize the Main virtual machine to bytes then return it.
+        /// </summary>
+        /// <returns>Serialization stream with bytes</returns>
         public static SerializationStream SerializeToSerializationStream() => 
             VirtualMachineSerialization.SerializeToSerializationStream(_main);
 
+        /// <summary>
+        /// Deserialize the Main virtual machine from provided stream.
+        /// </summary>
+        /// <param name="stream">Stream with bytes</param>
+        /// <exception cref="Exception">If any, using script is not loaded yet</exception>
         public static void DeserializeFromSerializationStream(SerializationStream stream)
         {
             var threads = VirtualMachineSerialization.DeserializeFromSerializationStream(stream);
@@ -138,18 +178,7 @@ namespace DamnScript.Runtimes
                 if (scriptData.value == null)
                     throw new Exception($"Script data with hash {begin->scriptName} not found in cache!");
                 
-                var thread = new VirtualMachineThread(
-                    &scriptData.value->name, 
-                    scriptData.value->GetRegionData(begin->regionName),
-                    &scriptData.value->metadata)
-                {
-                    offset = begin->savePoint,
-                    savePoint = begin->savePoint,
-                    stack = begin->stack,
-                    registers = begin->registers
-                };
-                
-                _main.Register(thread);
+                _main.RunThreadFromSerialized(scriptData, begin);
                 begin++;
             }
             

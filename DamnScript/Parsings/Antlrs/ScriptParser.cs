@@ -12,7 +12,7 @@ namespace DamnScript.Parsings.Antlrs
 {
     public static unsafe class ScriptParser
     {
-        public static void ParseScript(Stream input, StringWrapper name, ScriptData* scriptData)
+        public static void ParseScript(Stream input, String32 name, ScriptData* scriptData)
         {
             var charStream = new AntlrInputStream(input);
             var lexer = new DamnScriptLexer(charStream);
@@ -21,7 +21,7 @@ namespace DamnScript.Parsings.Antlrs
             
             var program = parser.program();
 
-            scriptData->name = name.ToString32();
+            scriptData->name = name;
 
             var regions = new NativeList<RegionData>(16);
 

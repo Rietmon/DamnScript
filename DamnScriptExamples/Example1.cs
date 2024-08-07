@@ -20,11 +20,11 @@ namespace DamnScriptExamples
             // Load the script data from the stream and set it the name "Example1"
             var scriptData = ScriptEngine.LoadScript(memoryStream, "Example1");
             Shared.PrintDisassembly(scriptData);
-            // Run the script thread, which is going to start execute region with the name "Main"
-            var thread = ScriptEngine.RunThread(scriptData);
+            // Run the script thread, which is going to start to execute a region with the name "Main"
+            var thread = ScriptEngine.RunThread(scriptData, "Main");
         
             Console.Write("\n");
-            // Execute the scheduler until the thread is finished
+            // Execute the scheduler until the thread is finished,
             // ScriptEngine.ExecuteScheduler() should be placed in the game loop or in the main loop of the application
             while (ScriptEngine.ExecuteScheduler())
                 Thread.Sleep(15);
