@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
@@ -39,13 +38,16 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 
         public bool isDisposed;
 
-        public VirtualMachineThread(String32* scriptName, RegionData* regionData, ScriptMetadata* metadata) : this()
+        public VirtualMachineThread(String32* scriptName, RegionData* regionData, ScriptMetadata* metadata)
         {
             this.scriptName = scriptName;
             this.regionData = regionData;
             this.metadata = metadata;
             stack = new VirtualMachineThreadStack();
             registers = new VirtualMachineRegisters();
+            offset = 0;
+            savePoint = 0;
+            isDisposed = false;
         }
     
         /// <summary>
@@ -125,13 +127,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteNativeCall(NativeCall nativeCall, out Task result)
+        public void ExecuteNativeCall(NativeCall nativeCall, out Task result)
         {
             result = null;
             var methodName = nativeCall.name;
             var argumentsCount = nativeCall.argumentsCount;
             if (!VirtualMachineData.TryGetNativeMethod(methodName, argumentsCount, out var method))
-                return false;
+                throw new Exception($"Method \"{methodName}\" with {argumentsCount} arguments not found!");
         
             var argumentsStack = stackalloc ScriptValue[method.argumentsCount];
             for (var i = method.argumentsCount - 1; i >= 0; i--)
@@ -148,19 +150,16 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         
             if (method.hasReturnValue)
                 StackPush(returnValue);
-        
-            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecutePushToStack(PushToStack pushToStack)
+        public void ExecutePushToStack(PushToStack pushToStack)
         {
             StackPush(pushToStack.value);
-            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteExpressionCall(ExpressionCall expressionCall)
+        public void ExecuteExpressionCall(ExpressionCall expressionCall)
         {
             switch (expressionCall.type)
             {
@@ -236,15 +235,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 case ExpressionCall.ExpressionCallType.Test: StackPush(StackPop() != 0 ? 1 : 0); break;
                 default: throw new ArgumentOutOfRangeException($"{nameof(expressionCall)} == {expressionCall.type}");
             }
-
-            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteSetSavePoint()
+        public void ExecuteSetSavePoint()
         {
             savePoint = offset;
-            return true;
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -275,7 +271,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecutePushStringToStack(PushStringToStack pushStringToStack)
+        public void ExecutePushStringToStack(PushStringToStack pushStringToStack)
         {
             var hash = pushStringToStack.hash;
             var str = metadata->GetUnsafeString(hash);
@@ -283,39 +279,34 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 throw new Exception($"String not found with hash: {hash}");
         
             StackPush(str);
-            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteSetThreadParameters(SetThreadParameters setThreadParameters)
+        public void ExecuteSetThreadParameters(SetThreadParameters setThreadParameters)
         {
             throw new NotImplementedException();
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteStoreToRegister(StoreToRegister storeToRegister)
+        public void ExecuteStoreToRegister(StoreToRegister storeToRegister)
         {
             var registerIndex = storeToRegister.register;
             registers[registerIndex] = StackPop().longValue;
-            return true;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteLoadFromRegister(LoadFromRegister loadFromRegister)
+        public void ExecuteLoadFromRegister(LoadFromRegister loadFromRegister)
         {
             var registerIndex = loadFromRegister.register;
             StackPush(registers[registerIndex]);
-            return true;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteDuplicateStack(DuplicateStack duplicateStack)
+        public void ExecuteDuplicateStack(DuplicateStack duplicateStack)
         {
             var value = StackPop();
             StackPush(value);
             StackPush(value);
-
-            return true;
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
