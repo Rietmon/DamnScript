@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores.Pins;
+using DamnScript.Runtimes.Debugs;
 
 #if UNITY_5_3_OR_NEWER
 using Unity.Collections.LowLevel.Unsafe;
@@ -11,14 +12,28 @@ namespace DamnScript.Runtimes.Cores
 {
     public static unsafe class UnsafeUtilities
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* Alloc(int size) => Marshal.AllocHGlobal(size).ToPointer();
+	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+	    public static void* Alloc(int size)
+	    {
+		    var ptr = Marshal.AllocHGlobal(size).ToPointer();
+		    if (ptr != null)
+			    return ptr;
+		    
+		    throw new OutOfMemoryException($"Failed to allocate {size.ToString()} bytes!");
+	    }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T* Alloc<T>() where T : unmanaged => (T*)Alloc(sizeof(T));
-    
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* ReAlloc(void* ptr, int size) => Marshal.ReAllocHGlobal(new IntPtr(ptr), new IntPtr(size)).ToPointer();
+        public static void* ReAlloc(void* ptr, int size)
+        {
+	        var newPtr = Marshal.ReAllocHGlobal(new IntPtr(ptr), new IntPtr(size)).ToPointer();
+	        if (newPtr != null)
+		        return newPtr;
+		    
+	        throw new OutOfMemoryException($"Failed to reallocate {size.ToString()} bytes!");
+        }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Free(void* ptr) => Marshal.FreeHGlobal(new IntPtr(ptr));
@@ -55,10 +70,13 @@ namespace DamnScript.Runtimes.Cores
             return true;
         }
 
-        public struct PointerToReferenceCastHelper
+#if UNITY_5_3_OR_NEWER
+        [StructLayout(LayoutKind.Sequential)]
+        private struct PointerToReferenceCastHelper
         {
             public object value;
         }
+#endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void* ReferenceToPointer<T>(T value) where T : class
@@ -72,11 +90,13 @@ namespace DamnScript.Runtimes.Cores
 #endif
         }
 
-        [StructLayout(LayoutKind.Sequential, Size = 8)]
+#if UNITY_5_3_OR_NEWER
+        [StructLayout(LayoutKind.Sequential)]
         private struct ReferenceToPointerCastHelper<T>
         {
             public T value;
         }
+#endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T PointerToReference<T>(void* ptr) where T : class

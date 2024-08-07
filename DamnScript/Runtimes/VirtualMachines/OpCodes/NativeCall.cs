@@ -4,7 +4,7 @@ using DamnScript.Runtimes.Cores.Types;
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct NativeCall
+    public struct NativeCall
     {
         public const int OpCode = 0x1;
         public readonly int opCode;

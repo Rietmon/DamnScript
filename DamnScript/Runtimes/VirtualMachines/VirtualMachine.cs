@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.Serializations;
@@ -44,7 +45,11 @@ namespace DamnScript.Runtimes.VirtualMachines
         {
             var regionData = scriptData.value->GetRegionData(regionName);
             if (regionData == null)
-                throw new Exception($"Region with name {regionName} not found in script \"{scriptData.value->name}\"!");
+            {
+                Debugging.LogError($"[{nameof(VirtualMachine)}] ({nameof(RunThread)}) " +
+                                   $"Region with name {regionName} not found in script \"{scriptData.value->name}\"!");
+                return default;
+            }
             
             var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata);
         
@@ -58,7 +63,11 @@ namespace DamnScript.Runtimes.VirtualMachines
             var data = serializedThread.value;
             var regionData = scriptData.value->GetRegionData(data->regionName);
             if (regionData == null)
-                throw new Exception($"Region with name {data->regionName} not found in script \"{scriptData.value->name}\"!");
+            {
+                Debugging.LogError($"[{nameof(VirtualMachine)}] ({nameof(RunThread)}) " +
+                                   $"Region with name {data->regionName} not found in script \"{scriptData.value->name}\"!");
+                return default;
+            }
             
             var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata)
             {

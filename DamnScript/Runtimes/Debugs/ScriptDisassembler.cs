@@ -58,7 +58,12 @@ namespace DamnScript.Runtimes.Debugs
                         offset += sizeof(JumpIfEquals);
                         break;
                     case SetThreadParameters.OpCode:
-                        // Rietmon: Not implemented
+                        var setThreadParameters = *(SetThreadParameters*)byteCode;
+                        sb.Append($"{offset.ToString()}: STP ");
+                        if ((setThreadParameters.parameters & SetThreadParameters.ThreadParameters.NoAwait) != 0)
+                            sb.Append("ASYNC");
+                        else
+                            sb.Append("NOTHING");
                         offset += sizeof(SetThreadParameters);
                         break;
                     case StoreToRegister.OpCode:
@@ -76,7 +81,7 @@ namespace DamnScript.Runtimes.Debugs
                         offset += sizeof(DuplicateStack);
                         break;
                     default:
-                        throw new Exception($"Invalid OpCode: {opCode}");
+                        throw new NotSupportedException($"Invalid OpCode: {opCode}");
                 }
             }
 

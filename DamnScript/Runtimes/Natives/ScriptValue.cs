@@ -15,7 +15,7 @@ namespace DamnScript.Runtimes.Natives
     public unsafe struct ScriptValue
     {
         private static readonly string ExceptionMessageInvalidTypeForPointers = 
-            $"Invalid type! Expected {nameof(ValueType.Pointer)}, " +
+            $"Unsupported type! Expected {nameof(ValueType.Pointer)}, " +
             $"{nameof(ValueType.ReferenceSafePointer)} or " +
             $"{nameof(ValueType.ReferenceUnsafePointer)}!";
         
@@ -174,7 +174,7 @@ namespace DamnScript.Runtimes.Natives
                     return value;
                 }
                 default:
-                    throw new Exception(ExceptionMessageInvalidTypeForPointers);
+                    throw new NotSupportedException(ExceptionMessageInvalidTypeForPointers);
             }
         }
 
@@ -188,7 +188,7 @@ namespace DamnScript.Runtimes.Natives
             {
                 ValueType.Primitive => longValue.ToString(),
                 ValueType.Pointer or ValueType.ReferenceUnsafePointer or ValueType.ReferenceSafePointer => GetSafeString(),
-                _ => throw new Exception("Type is invalid!")
+                _ => throw new Exception("ValueType is invalid!")
             };
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace DamnScript.Runtimes.Natives
             {
                 ValueType.Primitive => longValue.ToString(),
                 ValueType.Pointer or ValueType.ReferenceUnsafePointer or ValueType.ReferenceSafePointer => GetSafeString().ToString(),
-                _ => throw new Exception("Type is invalid!")
+                _ => throw new Exception("ValueType is invalid!")
             };
 
         

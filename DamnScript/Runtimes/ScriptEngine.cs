@@ -4,6 +4,7 @@ using System.Reflection;
 using DamnScript.Parsings;
 using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Serializations;
 using DamnScript.Runtimes.VirtualMachines;
@@ -136,7 +137,6 @@ namespace DamnScript.Runtimes
             ScriptsDataManager.GetScriptData(scriptName);
     
         /// <inheritdoc cref="GetScriptDataFromCache(String32)"/>
-        /// <inheritdoc cref="GetScriptDataFromCache(String32)"/>
         public static ScriptDataPtr GetScriptDataFromCache(StringWrapper scriptName) => 
             ScriptsDataManager.GetScriptData(scriptName.ToString32());
     
@@ -176,7 +176,13 @@ namespace DamnScript.Runtimes
             {
                 var scriptData = GetScriptDataFromCache(begin->scriptName);
                 if (scriptData.value == null)
-                    throw new Exception($"Script data with hash {begin->scriptName} not found in cache!");
+                {
+                    Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(DeserializeFromSerializationStream)}) " +
+                                    $"Attempt to deserialize thread with script which is not present in cache! " +
+                                    $"Name: {begin->scriptName.ToString()}");
+                    begin++;
+                    continue;
+                }
                 
                 _main.RunThreadFromSerialized(scriptData, begin);
                 begin++;

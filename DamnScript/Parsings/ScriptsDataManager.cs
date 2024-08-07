@@ -65,7 +65,7 @@ namespace DamnScript.Parsings
                     return LoadCompiledScriptWithStackAlloc(input, name);
             }
 
-            if (_buffer == null || _bufferSize < length)
+            if (_bufferSize < length)
             {
                 _bufferSize = (int)length;
                 if (_buffer != null)

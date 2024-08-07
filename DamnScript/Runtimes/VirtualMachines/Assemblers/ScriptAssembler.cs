@@ -1,7 +1,6 @@
 ﻿using System;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
-using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
@@ -18,11 +17,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
 
         public NativeList<UnsafeStringPair> constantStrings;
     
-        public ScriptAssembler(int _) : this()
+        public ScriptAssembler(int _)
         {
             byteCode = (byte*)UnsafeUtilities.Alloc(DefaultSize);
             UnsafeUtilities.Memset(byteCode, 0, DefaultSize);
             size = DefaultSize;
+            offset = 0;
             constantStrings = new NativeList<UnsafeStringPair>(16);
         }
     
@@ -69,8 +69,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
             {
                 size *= 2;
                 var newByteCode = (byte*)UnsafeUtilities.ReAlloc(byteCode, size);
-                if (newByteCode == null)
-                    throw new OutOfMemoryException("Failed to reallocate memory for ScriptAssembler.");
                 byteCode = newByteCode;
             }
         

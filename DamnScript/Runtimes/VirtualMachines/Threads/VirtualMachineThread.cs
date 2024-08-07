@@ -120,7 +120,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                     offset += sizeof(DuplicateStack);
                     break;
                 default:
-                    throw new Exception($"Invalid OpCode: {opCode}");
+                    throw new NotSupportedException($"Invalid OpCode: {opCode}");
             }
 
             return true;
