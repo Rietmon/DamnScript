@@ -59,7 +59,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public ScriptAssembler DuplicateStack() =>
             Add(new DuplicateStack(0));
 
-        private ScriptAssembler Add<T>(T value) where T : unmanaged
+        public ScriptAssembler Add<T>(T value) where T : unmanaged
         {
             var length = sizeof(T);
             if (offset + length > size)

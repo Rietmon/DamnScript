@@ -12,7 +12,7 @@ namespace DamnScript.Runtimes.Natives
     /// It has a fixed size and can be used in the virtual machine.
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 12)]
-    public unsafe struct ScriptValue
+    public unsafe struct ScriptValue : IEquatable<ScriptValue>
     {
         private static readonly string ExceptionMessageInvalidTypeForPointers = 
             $"Unsupported type! Expected {nameof(ValueType.Pointer)}, " +
@@ -29,7 +29,7 @@ namespace DamnScript.Runtimes.Natives
         [FieldOffset(4)] public double doubleValue;
         [FieldOffset(4)] public char charValue;
         [FieldOffset(4)] public void* pointerValue;
-        [FieldOffset(4)] public DSObjectPin safeValue;
+        [FieldOffset(4)] public ObjectPin safeValue;
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(ValueType type, long value) : this()
@@ -70,7 +70,7 @@ namespace DamnScript.Runtimes.Natives
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(DSObjectPin value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
+        public ScriptValue(ObjectPin value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
         
         /// <summary>
         /// Create a new ScriptValue from a reference type and pin it. Safest way to handle references.
@@ -329,7 +329,7 @@ namespace DamnScript.Runtimes.Natives
         public static implicit operator ScriptValue(void* value) => new(value, ValueType.Pointer);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(DSObjectPin value) => new(value);
+        public static implicit operator ScriptValue(ObjectPin value) => new(value);
     
         public enum ValueType
         {

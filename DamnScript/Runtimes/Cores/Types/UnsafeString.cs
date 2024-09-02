@@ -28,7 +28,7 @@ namespace DamnScript.Runtimes.Cores.Types
     public unsafe struct UnsafeString
     {
         private static string _buffer;
-        private static DSObjectPin _gcHandleBuffer;
+        private static ObjectPin _gcHandleBuffer;
         private static UnmanagedString* _bufferPtr;
 
         public ref char this[int index]
@@ -37,7 +37,7 @@ namespace DamnScript.Runtimes.Cores.Types
         }
 
         public int length;
-        public fixed char data[1];
+        public fixed char data[0];
 
         public static UnsafeString* Alloc(int length)
         {

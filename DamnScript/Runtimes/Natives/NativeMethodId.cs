@@ -3,7 +3,7 @@ using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.Natives
 {
-    public readonly struct NativeMethodId
+    public readonly struct NativeMethodId : IEquatable<NativeMethodId>
     {
         public readonly String32 name;
         public readonly int argumentsCount;

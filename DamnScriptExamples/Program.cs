@@ -1,5 +1,7 @@
 ﻿using DamnScript.Runtimes;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 
 namespace DamnScriptExamples

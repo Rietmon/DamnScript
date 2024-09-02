@@ -170,7 +170,7 @@ namespace DamnScript.Runtimes
         public static void DeserializeFromSerializationStream(SerializationStream stream)
         {
             var threads = VirtualMachineSerialization.DeserializeFromSerializationStream(stream);
-            var begin = threads.Begin;
+            var begin = threads.First;
             var end = threads.End;
             while (begin < end)
             {

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Text;
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
 #endif
 
 namespace DamnScript.Runtimes.Debugs
 {
-    public static class Debugging
+    public static unsafe class Debugging
     {
         public static void Log(string message) =>
 #if UNITY_5_3_OR_NEWER
@@ -25,6 +26,19 @@ namespace DamnScript.Runtimes.Debugs
 #else
             WriteToConsole(message, ConsoleColor.Red);
 #endif
+	    
+	    public static string DumpMemory(void* start, int length)
+	    {
+		    var memory = (byte*)start;
+		    var dump = new StringBuilder();
+		    for (var i = 0; i < length; i++)
+		    {
+			    if (i % 16 == 0)
+				    dump.Append('\n');
+			    dump.Append($"{memory[i]:X2} ");
+		    }
+		    return dump.ToString();
+	    }
     
         private static void WriteToConsole(string message, ConsoleColor color)
         {

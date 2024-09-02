@@ -28,7 +28,7 @@ namespace DamnScript.Runtimes.Metadatas
 
         public RegionData* GetRegionData(int hash)
         {
-            var begin = regions.Begin;
+            var begin = regions.First;
             var end = regions.End;
 
             while (begin < end)

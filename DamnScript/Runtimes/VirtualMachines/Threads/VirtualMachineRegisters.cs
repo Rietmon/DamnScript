@@ -19,20 +19,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             {
                 switch (index)
                 {
-                    case 0:
-                        loopIdentifier0 = value;
-                        break;
-                    case 1:
-                        loopIdentifier1 = value;
-                        break;
-                    case 2:
-                        loopIdentifier2 = value;
-                        break;
-                    case 3:
-                        loopIdentifier3 = value;
-                        break;
-                    default:
-                        throw new IndexOutOfRangeException();
+                    case 0: loopIdentifier0 = value; break;
+                    case 1: loopIdentifier1 = value; break;
+                    case 2: loopIdentifier2 = value; break;
+                    case 3: loopIdentifier3 = value; break;
+                    default: throw new IndexOutOfRangeException();
                 }
             }
         }

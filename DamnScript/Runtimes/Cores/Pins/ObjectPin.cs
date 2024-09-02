@@ -1,6 +1,6 @@
 ﻿namespace DamnScript.Runtimes.Cores.Pins
 {
-    public readonly unsafe struct DSObjectPin
+    public readonly unsafe struct ObjectPin
     {
         public object Target => PinHelper.GetTarget(this);
         
@@ -8,7 +8,7 @@
         
         public readonly long hash;
         
-        public DSObjectPin(long hash) => this.hash = hash;
+        public ObjectPin(long hash) => this.hash = hash;
         
         public void Free() => PinHelper.Free(this);
         

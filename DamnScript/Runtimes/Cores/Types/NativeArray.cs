@@ -6,40 +6,44 @@ namespace DamnScript.Runtimes.Cores.Types
     public unsafe struct NativeArray<T> : IDisposable where T : unmanaged
     {
         public int Length { get; }
+        
+        public T* Begin => First - 1;
     
-        public T* Begin { get; }
+        public T* First { get; }
     
-        public T* End => Begin + Length;
+        public T* Last => First + Length - 1;
+        
+        public T* End => First + Length;
 
-        public bool IsValid => Begin != null;
+        public bool IsValid => First != null;
 
         public ref T this[int index]
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref Begin[index];
+            [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref First[index];
         }
     
         public NativeArray(int length)
         {
             Length = length;
-            Begin = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
+            First = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
         }
     
-        public NativeArray(int length, T* begin)
+        public NativeArray(int length, T* first)
         {
             Length = length;
-            Begin = begin;
+            First = first;
         }
     
         public NativeList<T> ToListAlloc()
         {
             var list = new NativeList<T>(Length);
-            list.AddRange(Begin, Length);
+            list.AddRange(First, Length);
             return list;
         }
     
         public void Dispose()
         {
-            UnsafeUtilities.Free(Begin);
+            UnsafeUtilities.Free(First);
             this = default;
         }
     }

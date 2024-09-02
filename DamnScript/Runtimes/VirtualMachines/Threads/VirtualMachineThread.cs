@@ -72,55 +72,81 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             switch (opCode)
             {
                 case NativeCall.OpCode:
+                {
                     ExecuteNativeCall(*(NativeCall*)byteCode, out result);
                     offset += sizeof(NativeCall);
                     break;
+                }
                 case PushToStack.OpCode:
+                {
                     ExecutePushToStack(*(PushToStack*)byteCode);
                     offset += sizeof(PushToStack);
                     break;
+                }
                 case ExpressionCall.OpCode:
+                {
                     ExecuteExpressionCall(*(ExpressionCall*)byteCode);
                     offset += sizeof(ExpressionCall);
                     break;
+                }
                 case SetSavePoint.OpCode:
+                {
                     ExecuteSetSavePoint();
                     offset += sizeof(SetSavePoint);
                     break;
+                }
                 case JumpNotEquals.OpCode:
+                {
                     if (ExecuteJumpNotEquals(*(JumpNotEquals*)byteCode))
                         offset += sizeof(JumpNotEquals);
                     break;
+                }
                 case JumpIfEquals.OpCode:
+                {
                     if (ExecuteJumpIfEquals(*(JumpIfEquals*)byteCode))
                         offset += sizeof(JumpIfEquals);
                     break;
+                }
                 case Jump.OpCode:
+                {
                     if (ExecuteJump(*(Jump*)byteCode))
                         offset += sizeof(Jump);
                     break;
+                }
                 case PushStringToStack.OpCode:
+                {
                     ExecutePushStringToStack(*(PushStringToStack*)byteCode);
                     offset += sizeof(JumpIfEquals);
                     break;
+                }
                 case SetThreadParameters.OpCode:
+                {
                     ExecuteSetThreadParameters(*(SetThreadParameters*)byteCode);
                     offset += sizeof(SetThreadParameters);
                     break;
+                }
                 case StoreToRegister.OpCode:
+                {
                     ExecuteStoreToRegister(*(StoreToRegister*)byteCode);
                     offset += sizeof(StoreToRegister);
                     break;
+                }
                 case LoadFromRegister.OpCode:
+                {
                     ExecuteLoadFromRegister(*(LoadFromRegister*)byteCode);
                     offset += sizeof(LoadFromRegister);
                     break;
+                }
                 case DuplicateStack.OpCode:
+                {
                     ExecuteDuplicateStack(*(DuplicateStack*)byteCode);
                     offset += sizeof(DuplicateStack);
                     break;
+                }
                 default:
+                {
                     throw new NotSupportedException($"Invalid OpCode: {opCode}");
+                }
             }
 
             return true;

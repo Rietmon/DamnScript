@@ -1,5 +1,6 @@
 ﻿using System;
 using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Parsings.Serializations
 {
@@ -66,6 +67,20 @@ namespace DamnScript.Parsings.Serializations
             length += count;
         }
 
+        public void WriteUnsafeStringArray(NativeArray<UnsafeStringPtr> array)
+        {
+            Write(array.Length);
+            var begin = array.First;
+            var end = array.End;
+            while (begin < end)
+            {
+                var str = begin->value;
+                Write(str->length);
+                CustomWrite(str->data, str->length);
+                begin++;
+            }
+        }
+        
         public T Read<T>() where T : unmanaged
         {
             var size = sizeof(T);
@@ -94,6 +109,24 @@ namespace DamnScript.Parsings.Serializations
 
             UnsafeUtilities.Memcpy(start + length, ptr, count);
             length += count;
+        }
+
+        public NativeArray<UnsafeStringPtr> ReadUnsafeStringArray()
+        {
+            var arrayLength = Read<int>();
+            if (arrayLength == 0)
+                throw new Exception("Invalid array length!");
+            
+            var result = new NativeArray<UnsafeStringPtr>(arrayLength);
+            for (var i = 0; i < arrayLength; i++)
+            {
+                var strLength = Read<int>();
+                var str = UnsafeString.Alloc(strLength);
+                CustomRead(str, strLength);
+                result.First[i] = new UnsafeStringPtr(str);
+            }
+            
+            return result;
         }
 
         public void Dispose()

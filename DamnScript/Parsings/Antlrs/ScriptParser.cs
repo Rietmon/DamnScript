@@ -380,8 +380,13 @@ namespace DamnScript.Parsings.Antlrs
         
         public static int AddStringToConstantsIfNotExists(NativeList<UnsafeStringPtr>* strings, string value)
         {
-            var str = UnsafeString.Alloc(value);
-            var index = strings->IndexOf((p) => UnsafeUtilities.Memcmp(p.value, str));
+            var offset = value[0] == '"' ? 1 : 0;
+            var length = value.Length - offset * 2;
+            var str = UnsafeString.Alloc(value, offset, length);
+            var index = strings->IndexOf((p) => 
+                p.value->length == str->length 
+                && UnsafeUtilities.Memcmp(p.value, str, p.value->length));
+            
             if (index == -1)
             {
                 strings->Add(new UnsafeStringPtr(str));

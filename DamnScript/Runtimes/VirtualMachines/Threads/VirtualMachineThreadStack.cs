@@ -7,7 +7,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
     {
         private static readonly int sizeOfScriptValue = sizeof(ScriptValue);
     
-        private const int StackSize = 128;
+        private const int StackSize = 384;
         private fixed byte _stack[StackSize];
         private int _stackOffset;
     

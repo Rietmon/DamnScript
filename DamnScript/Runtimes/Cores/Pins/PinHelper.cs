@@ -6,14 +6,14 @@ namespace DamnScript.Runtimes.Cores.Pins
     {
         private static readonly HashSet<(long hash, object target)> pinnedObjects = new(32);
         
-        public static DSObjectPin Pin(object obj)
+        public static ObjectPin Pin(object obj)
         {
             var hash = obj.GetHashCode() + pinnedObjects.Count;
             pinnedObjects.Add((hash, obj));
-            return new DSObjectPin(hash);
+            return new ObjectPin(hash);
         }
         
-        public static void* GetAddress(DSObjectPin pin)
+        public static void* GetAddress(ObjectPin pin)
         {
             foreach (var obj in pinnedObjects)
             {
@@ -23,7 +23,7 @@ namespace DamnScript.Runtimes.Cores.Pins
             return null;
         }
         
-        public static object GetTarget(DSObjectPin pin)
+        public static object GetTarget(ObjectPin pin)
         {
             foreach (var obj in pinnedObjects)
             {
@@ -33,7 +33,7 @@ namespace DamnScript.Runtimes.Cores.Pins
             return null;
         }
         
-        public static void Free(DSObjectPin pin)
+        public static void Free(ObjectPin pin)
         {
             foreach (var obj in pinnedObjects)
             {
@@ -45,7 +45,7 @@ namespace DamnScript.Runtimes.Cores.Pins
             }
         }
         
-        public static object FreeAndGetTarget(DSObjectPin pin)
+        public static object FreeAndGetTarget(ObjectPin pin)
         {
             foreach (var obj in pinnedObjects)
             {

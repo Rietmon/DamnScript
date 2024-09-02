@@ -21,7 +21,7 @@ namespace DamnScript.Parsings.Compilings
             stream.Write(Version);
             stream.Write(scriptData.value->regions.Length);
             {
-                var begin = scriptData.value->regions.Begin;
+                var begin = scriptData.value->regions.First;
                 var end = scriptData.value->regions.End;
                 while (begin < end)
                 {
@@ -32,29 +32,10 @@ namespace DamnScript.Parsings.Compilings
             }
             
             var constants = scriptData.value->metadata.constants;
-            stream.Write(constants.strings.Length);
-            {
-                var begin = constants.strings.Begin;
-                var end = constants.strings.End;
-                while (begin < end)
-                {
-                    stream.Write(begin->value->length);
-                    stream.CustomWrite(begin->value->data, begin->value->length);
-                    begin++;
-                }
-            }
             
-            stream.Write(constants.methods.Length);
-            {
-                var begin = constants.methods.Begin;
-                var end = constants.methods.End;
-                while (begin < end)
-                {
-                    stream.Write(begin->value->length);
-                    stream.CustomWrite(begin->value->data, begin->value->length);
-                    begin++;
-                }
-            }
+            stream.WriteUnsafeStringArray(constants.strings);
+            
+            stream.WriteUnsafeStringArray(constants.methods);
 
             var span = new ReadOnlySpan<byte>(stream.start, stream.length);
             output.Write(span);

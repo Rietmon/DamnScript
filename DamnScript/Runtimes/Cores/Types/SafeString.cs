@@ -15,7 +15,7 @@ namespace DamnScript.Runtimes.Cores.Types
         public bool IsManaged => type is SafeStringType.Managed or SafeStringType.ManagedAlreadyPinned;
     
         [FieldOffset(0)] public SafeStringType type;
-        [FieldOffset(4)] public DSObjectPin safeValue;
+        [FieldOffset(4)] public ObjectPin safeValue;
         [FieldOffset(4)] public UnsafeString* unsafeValue;
 
         public SafeString(string value) : this()
@@ -24,7 +24,7 @@ namespace DamnScript.Runtimes.Cores.Types
             safeValue = UnsafeUtilities.Pin(value);
         }
 
-        public SafeString(DSObjectPin value) : this()
+        public SafeString(ObjectPin value) : this()
         {
             type = SafeStringType.ManagedAlreadyPinned;
             safeValue = value;
@@ -56,7 +56,7 @@ namespace DamnScript.Runtimes.Cores.Types
         }
 
         public static implicit operator SafeString(string value) => new(value);
-        public static implicit operator SafeString(DSObjectPin value) => new(value);
+        public static implicit operator SafeString(ObjectPin value) => new(value);
         public static implicit operator SafeString(UnsafeString* value) => new(value);
     
         public enum SafeStringType

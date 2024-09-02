@@ -85,16 +85,56 @@ namespace DamnScript.Runtimes.Cores
         public static bool Memcmp<T>(T* ptr1, T* ptr2) where T : unmanaged => Memcmp(ptr1, ptr2, sizeof(T));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Memcmp(void* ptr1, void* ptr2, int size)
+        public static bool Memcmp(void* left, void* right, int size)
         {
-            var ptr1Byte = (byte*)ptr1;
-            var ptr2Byte = (byte*)ptr2;
-            for (var i = 0; i < size; i++)
-            {
-                if (ptr1Byte[i] != ptr2Byte[i])
-                    return false;
-            }
-            return true;
+	        static bool Memcmp64(long* left, long* right, int size)
+	        {
+		        for (var i = 0; i < size; i++)
+		        {
+			        if (left[i] != right[i])
+				        return false;
+		        }
+
+		        return true;
+	        }
+	        static bool Memcmp32(int* left, int* right, int size)
+	        {
+		        for (var i = 0; i < size; i++)
+		        {
+			        if (left[i] != right[i])
+				        return false;
+		        }
+
+		        return true;
+	        }
+	        static bool Memcmp16(short* left, short* right, int size)
+	        {
+		        for (var i = 0; i < size; i++)
+		        {
+			        if (left[i] != right[i])
+				        return false;
+		        }
+
+		        return true;
+	        }
+	        static bool Memcmp8(sbyte* left, sbyte* right, int size)
+	        {
+		        for (var i = 0; i < size; i++)
+		        {
+			        if (left[i] != right[i])
+				        return false;
+		        }
+
+		        return true;
+	        }
+
+	        return (size & 7) switch
+	        {
+		        0 => Memcmp64((long*)left, (long*)right, size >> 3),
+		        2 or 6 => Memcmp16((short*)left, (short*)right, size >> 1),
+		        4 => Memcmp32((int*)left, (int*)right, size >> 2),
+		        _ => Memcmp8((sbyte*)left, (sbyte*)right, size)
+	        };
         }
 
 #if UNITY_5_3_OR_NEWER
@@ -138,18 +178,18 @@ namespace DamnScript.Runtimes.Cores
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DSObjectPin Pin<T>(T value) where T : class
+        public static ObjectPin Pin<T>(T value) where T : class
         {
             return PinHelper.Pin(value);
         }
 
-        public static void* AddressOfPinned(DSObjectPin value)
+        public static void* AddressOfPinned(ObjectPin value)
         {
             return PinHelper.GetAddress(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Unpin<T>(DSObjectPin handle) where T : class
+        public static T Unpin<T>(ObjectPin handle) where T : class
         {
             var value = (T)handle.Target;
             handle.Free();

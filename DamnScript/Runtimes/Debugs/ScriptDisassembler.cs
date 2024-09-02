@@ -21,7 +21,9 @@ namespace DamnScript.Runtimes.Debugs
                     {
                         var nativeCall = *(NativeCall*)byteCode;
                         sb.AppendLine(
-                            $"{offset.ToString()}: CALL {nativeCall.methodIndex} ({metadata.GetMethodName(nativeCall.methodIndex)->ToString32()}) {nativeCall.argumentsCount.ToString()}");
+                            $"{offset.ToString()}: CALL {nativeCall.methodIndex} " +
+                            $"({metadata.GetMethodName(nativeCall.methodIndex)->ToString32()}) " +
+                            $"{nativeCall.argumentsCount.ToString()}");
                         offset += sizeof(NativeCall);
                         break;
                     }
