@@ -1,6 +1,7 @@
 using System.IO;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
@@ -25,12 +26,14 @@ namespace DamnScript.Parsings.Antlrs
 
             var regions = new NativeList<RegionData>(16);
 
-            var strings = new NativeList<UnsafeStringPair>(16);
+            var strings = new NativeList<UnsafeStringPtr>(16);
+            var methods = new NativeList<UnsafeStringPtr>(16);
             var context = new ScriptParserContext();
             for (var i = 0; i < program.ChildCount; i++)
             {
                 var assembler = new ScriptAssembler(0);
                 context.strings = &strings;
+                context.methods = &methods;
                 context.assembler = &assembler;
 
                 var regionContext = program.GetChild(i) as DamnScriptParser.RegionContext;
@@ -57,7 +60,7 @@ namespace DamnScript.Parsings.Antlrs
             scriptData->regions = regions.ToArrayAlloc();
             regions.Dispose();
 
-            scriptData->metadata = new ScriptMetadata(new ConstantsData(strings.ToArrayAlloc()));
+            scriptData->metadata = new ScriptMetadata(new ConstantsData(strings.ToArrayAlloc(), methods.ToArrayAlloc()));
             strings.Dispose();
         }
 
@@ -109,7 +112,8 @@ namespace DamnScript.Parsings.Antlrs
                 }
             }
 
-            context->assembler->NativeCall(functionName, argumentCount);
+            var index = AddStringToConstantsIfNotExists(context->methods, functionName);
+            context->assembler->NativeCall(index, argumentCount);
         }
         
         public static void ParseIfStatement(DamnScriptParser.IfStatementContext ifStatement, ScriptParserContext* context)
@@ -346,17 +350,16 @@ namespace DamnScript.Parsings.Antlrs
                 }
             }
 
-            context->assembler->NativeCall(functionName, arguments?.ChildCount ?? 0);
+            var index = AddStringToConstantsIfNotExists(context->methods, functionName);
+            context->assembler->NativeCall(index, arguments?.ChildCount ?? 0);
         }
         
         public static void AssemblyString(DamnScriptParser.StringContext stringContext, ScriptParserContext* context)
         {
             var text = stringContext.GetText();
-            var unsafeString = UnsafeString.Alloc(text);
-            var hash = unsafeString->GetHashCode();
             
-            context->strings->Add(new UnsafeStringPair(hash, unsafeString));
-            context->assembler->PushStringToStack(hash);
+            var index = AddStringToConstantsIfNotExists(context->strings, text);
+            context->assembler->PushStringToStack(index);
         }
         
         public static void AssemblyVariable(DamnScriptParser.VariableContext variable, ScriptParserContext* context)
@@ -373,6 +376,20 @@ namespace DamnScript.Parsings.Antlrs
             }
             
             context->assembler->LoadFromRegister(registerIndex);
+        }
+        
+        public static int AddStringToConstantsIfNotExists(NativeList<UnsafeStringPtr>* strings, string value)
+        {
+            var str = UnsafeString.Alloc(value);
+            var index = strings->IndexOf((p) => UnsafeUtilities.Memcmp(p.value, str));
+            if (index == -1)
+            {
+                strings->Add(new UnsafeStringPtr(str));
+                return strings->Count - 1;
+            }
+
+            UnsafeUtilities.Free(str);
+            return index;
         }
     }
 }

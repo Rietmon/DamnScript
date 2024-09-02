@@ -8,13 +8,13 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     {
         public const int OpCode = 0x1;
         public readonly int opCode;
-        public String32 name;
+        public readonly int methodIndex;
         public readonly int argumentsCount;
 
-        public NativeCall(String32 name, int argumentsCount)
+        public NativeCall(int methodIndex, int argumentsCount)
         {
             opCode = OpCode;
-            this.name = name;
+            this.methodIndex = methodIndex;
             this.argumentsCount = argumentsCount;
         }
     }

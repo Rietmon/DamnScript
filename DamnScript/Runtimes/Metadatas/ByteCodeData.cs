@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using DamnScript.Runtimes.Cores;
 
 namespace DamnScript.Runtimes.Metadatas
 {

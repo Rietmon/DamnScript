@@ -8,12 +8,12 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         public const int OpCode = 0x8;
 
         public readonly int opCode;
-        public readonly int hash;
+        public readonly int index;
 
-        public PushStringToStack(int hash)
+        public PushStringToStack(int index)
         {
             opCode = OpCode;
-            this.hash = hash;
+            this.index = index;
         }
     }
 }

@@ -6,32 +6,22 @@ namespace DamnScript.Runtimes.Metadatas
 {
     public unsafe struct ScriptMetadata : IDisposable
     {
-        private ConstantsData _constants;
+        public ConstantsData constants;
 
         public ScriptMetadata(ConstantsData constants)
         {
-            _constants = constants;
+            this.constants = constants;
         }
 
-        public UnsafeString* GetUnsafeString(int hash)
-        {
-            var begin = _constants.strings.Begin;
-            var end = _constants.strings.End;
-
-            while (begin < end)
-            {
-                if (begin->hash == hash)
-                    return begin->value;
-
-                begin++;
-            }
-
-            return null;
-        }
+        public UnsafeString* GetUnsafeString(int index) => 
+            constants.strings[index].value;
+        
+        public UnsafeString* GetMethodName(int index) => 
+            constants.methods[index].value;
 
         public void Dispose()
         {
-            _constants.Dispose();
+            constants.Dispose();
         }
     }
 }

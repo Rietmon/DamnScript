@@ -35,20 +35,29 @@ namespace DamnScript.Parsings.Compilings
             }
 
             var constantStringsLength = stream.Read<int>();
-            var constantStrings = new NativeArray<UnsafeStringPair>(constantStringsLength);
+            var constantStrings = new NativeArray<UnsafeStringPtr>(constantStringsLength);
             for (var i = 0; i < constantStringsLength; i++)
             {
                 var constantStringLength = stream.Read<int>();
                 var constantString = UnsafeString.Alloc(constantStringLength);
                 stream.CustomRead(constantString, constantStringLength);
-                var hash = constantString->GetHashCode();
-                constantStrings.Begin[i] = new UnsafeStringPair(hash, constantString);
+                constantStrings.Begin[i] = new UnsafeStringPtr(constantString);
+            }
+            
+            var methodNamesLength = stream.Read<int>();
+            var methodNames = new NativeArray<UnsafeStringPtr>(methodNamesLength);
+            for (var i = 0; i < methodNamesLength; i++)
+            {
+                var methodNameLength = stream.Read<int>();
+                var methodName = UnsafeString.Alloc(methodNameLength);
+                stream.CustomRead(methodName, methodNameLength);
+                methodNames.Begin[i] = new UnsafeStringPtr(methodName);
             }
 
             scriptData->regions = regions.ToArrayAlloc();
             regions.Dispose();
 
-            scriptData->metadata = new ScriptMetadata(new ConstantsData(constantStrings));
+            scriptData->metadata = new ScriptMetadata(new ConstantsData(constantStrings, methodNames));
             constantStrings.Dispose();
         }
     }

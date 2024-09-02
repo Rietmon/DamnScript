@@ -14,8 +14,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public byte* byteCode;
         public int size;
         public int offset;
-
-        public NativeList<UnsafeStringPair> constantStrings;
     
         public ScriptAssembler(int _)
         {
@@ -23,14 +21,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
             UnsafeUtilities.Memset(byteCode, 0, DefaultSize);
             size = DefaultSize;
             offset = 0;
-            constantStrings = new NativeList<UnsafeStringPair>(16);
         }
     
         public ScriptAssembler PushToStack(ScriptValue value) =>
             Add(new PushToStack(value.longValue));
     
-        public ScriptAssembler NativeCall(StringWrapper name, int argumentsCount) =>
-            Add(new NativeCall(name.ToString32(), argumentsCount));
+        public ScriptAssembler NativeCall(int methodIndex, int argumentsCount) =>
+            Add(new NativeCall(methodIndex, argumentsCount));
     
         public ScriptAssembler ExpressionCall(ExpressionCall.ExpressionCallType type) =>
             Add(new ExpressionCall(type));
@@ -50,8 +47,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public ScriptAssembler SetThreadParameters(SetThreadParameters.ThreadParameters parameters) =>
             Add(new SetThreadParameters(parameters));
     
-        public ScriptAssembler PushStringToStack(int hash) =>
-            Add(new PushStringToStack(hash));
+        public ScriptAssembler PushStringToStack(int index) =>
+            Add(new PushStringToStack(index));
         
         public ScriptAssembler StoreToRegister(int register) =>
             Add(new StoreToRegister(register));
@@ -93,7 +90,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public void Dispose()
         {
             UnsafeUtilities.Free(byteCode);
-            constantStrings.Dispose();
             this = default;
         }
     }

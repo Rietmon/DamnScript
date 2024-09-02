@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores.Pins;
@@ -15,7 +16,14 @@ namespace DamnScript.Runtimes.Cores
 	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	    public static void* Alloc(int size)
 	    {
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+		    Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(Alloc)}) Allocating {size.ToString()} bytes.");
+#endif
 		    var ptr = Marshal.AllocHGlobal(size).ToPointer();
+		    
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+		    Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(Alloc)}) Allocated at {new IntPtr(ptr):X}.");
+#endif
 		    if (ptr != null)
 			    return ptr;
 		    
@@ -28,15 +36,34 @@ namespace DamnScript.Runtimes.Cores
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void* ReAlloc(void* ptr, int size)
         {
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+	        Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(ReAlloc)}) Reallocating at {new IntPtr(ptr):X} to {size.ToString()} bytes.");
+#endif
+
 	        var newPtr = Marshal.ReAllocHGlobal(new IntPtr(ptr), new IntPtr(size)).ToPointer();
+	        
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+	        Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(ReAlloc)}) Reallocated at {new IntPtr(newPtr):X}.");
+#endif
 	        if (newPtr != null)
 		        return newPtr;
 		    
 	        throw new OutOfMemoryException($"Failed to reallocate {size.ToString()} bytes!");
         }
-    
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Free(void* ptr) => Marshal.FreeHGlobal(new IntPtr(ptr));
+        public static void Free(void* ptr)
+        {
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+	        Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(Free)}) Freeing at {new IntPtr(ptr):X}.");
+#endif
+	        
+	        Marshal.FreeHGlobal(new IntPtr(ptr));
+	        
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+	        Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(Free)}) Freed.");
+#endif
+        }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Memcpy(void* src, void* dest, int size) => 

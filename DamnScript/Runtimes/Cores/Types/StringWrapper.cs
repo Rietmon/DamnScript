@@ -29,7 +29,7 @@ namespace DamnScript.Runtimes.Cores.Types
     
         public String32 ToString32() => IsManaged
             ? new String32(managedStringValue) 
-            : new String32(unmanagedStringValue->data, unmanagedStringValue->length);
+            : unmanagedStringValue->ToString32();
     
         public UnsafeString* ToUnsafeString() => IsManaged
             ? UnsafeString.Alloc(managedStringValue) 

@@ -6,11 +6,13 @@ namespace DamnScript.Runtimes.Metadatas
 {
     public struct ConstantsData : IDisposable
     {
-        public NativeArray<UnsafeStringPair> strings;
+        public NativeArray<UnsafeStringPtr> strings;
+        public NativeArray<UnsafeStringPtr> methods;
 
-        public ConstantsData(NativeArray<UnsafeStringPair> strings)
+        public ConstantsData(NativeArray<UnsafeStringPtr> strings, NativeArray<UnsafeStringPtr> methods)
         {
             this.strings = strings;
+            this.methods = methods;
         }
 
         public void Dispose()

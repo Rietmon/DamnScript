@@ -55,7 +55,7 @@ namespace DamnScript.Runtimes.VirtualMachines
 					}
 
 					if (result == null)
-						threads.RemoveAt((int)(end - begin));
+						threads.RemoveAt((int)(end - 1 - begin));
 				}
             
 				begin++;

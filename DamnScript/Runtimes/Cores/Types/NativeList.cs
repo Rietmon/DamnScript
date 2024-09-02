@@ -96,6 +96,44 @@ namespace DamnScript.Runtimes.Cores.Types
             UnsafeUtilities.Memcpy(Begin + index + 1, Begin + index, (Count - index - 1) * sizeof(T));
             Count--;
         }
+        
+        public int IndexOf(T value)
+        {
+            if (Begin == null)
+                throw new NullReferenceException("NativeList is not initialized.");
+        
+            var begin = Begin;
+            var end = End;
+            var i = 0;
+            while (begin < end)
+            {
+                if (UnsafeUtilities.Memcmp(begin, &value))
+                    return i;
+                begin++;
+                i++;
+            }
+        
+            return -1;
+        }
+        
+        public int IndexOf(Func<T, bool> predicate)
+        {
+            if (Begin == null)
+                throw new NullReferenceException("NativeList is not initialized.");
+        
+            var begin = Begin;
+            var end = End;
+            var i = 0;
+            while (begin < end)
+            {
+                if (predicate(*begin))
+                    return i;
+                begin++;
+                i++;
+            }
+        
+            return -1;
+        }
     
         public void Clear()
         {

@@ -130,7 +130,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public void ExecuteNativeCall(NativeCall nativeCall, out Task result)
         {
             result = null;
-            var methodName = nativeCall.name;
+            var methodName = metadata->GetMethodName(nativeCall.methodIndex)->ToString32();
             var argumentsCount = nativeCall.argumentsCount;
             if (!VirtualMachineData.TryGetNativeMethod(methodName, argumentsCount, out var method))
                 throw new Exception($"Method \"{methodName}\" with {argumentsCount} arguments not found!");
@@ -273,10 +273,10 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ExecutePushStringToStack(PushStringToStack pushStringToStack)
         {
-            var hash = pushStringToStack.hash;
-            var str = metadata->GetUnsafeString(hash);
+            var index = pushStringToStack.index;
+            var str = metadata->GetUnsafeString(index);
             if (str == null)
-                throw new Exception($"String not found with hash: {hash}");
+                throw new Exception($"String not found by index: {index}");
         
             StackPush(str);
         }

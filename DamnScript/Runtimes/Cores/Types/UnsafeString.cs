@@ -9,16 +9,15 @@ using DamnScript.Runtimes.Cores.Pins;
 
 namespace DamnScript.Runtimes.Cores.Types
 {
-    public unsafe struct UnsafeStringPair
+    public readonly unsafe struct UnsafeStringPtr
     {
-        public readonly int hash;
         public readonly UnsafeString* value;
     
-        public UnsafeStringPair(int hash, UnsafeString* value)
-        {
-            this.hash = hash;
-            this.value = value;
-        }
+        public UnsafeStringPtr(UnsafeString* value) => this.value = value;
+
+        public static implicit operator UnsafeStringPtr(UnsafeString* value) => new(value);
+    
+        public static implicit operator UnsafeString*(UnsafeStringPtr ptr) => ptr.value;
     }
 
     /// <summary>
@@ -26,7 +25,7 @@ namespace DamnScript.Runtimes.Cores.Types
     /// Can be used for fast string manipulation.
     /// Might be converted to managed string.
     /// </summary>
-    public unsafe struct UnsafeString : IDisposable
+    public unsafe struct UnsafeString
     {
         private static string _buffer;
         private static DSObjectPin _gcHandleBuffer;
@@ -70,6 +69,15 @@ namespace DamnScript.Runtimes.Cores.Types
             fixed (char* ptr = data)
                 return new string(ptr, 0, length);
         }
+        
+        public String32 ToString32()
+        {
+            if (length > String32.Length)
+                throw new ArgumentException("String length must be less than or equal to 32.");
+        
+            fixed (char* ptr = data)
+                return new String32(ptr, length);
+        }
 
         public string ToTempStringNonAlloc()
         {
@@ -93,14 +101,6 @@ namespace DamnScript.Runtimes.Cores.Types
             for (var i = 0; i < length; i++)
                 hash = 31 * hash + data[i];
             return hash;
-        }
-    
-        public void Dispose()
-        {
-            fixed (UnsafeString* ptr = &this)
-                UnsafeUtilities.Free(ptr);
-        
-            this = default;
         }
 
         public static void ReleaseTempStringNonAlloc()
