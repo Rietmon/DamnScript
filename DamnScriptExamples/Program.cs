@@ -10,9 +10,7 @@ namespace DamnScriptExamples
     {
         public static void Print(ScriptValue value)
         {
-            var str = value.ToSafeString();
-            var safeStr = str.ToString();
-            Console.WriteLine($"DAMN SCRIPT: {safeStr}");
+            Console.WriteLine($"DAMN SCRIPT: {value.ToString()}");
         }
     
         public static void Main()

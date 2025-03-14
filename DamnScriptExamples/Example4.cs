@@ -37,7 +37,7 @@ namespace DamnScriptExamples
         // But you can pass it as a pointer, but you should be careful with it, especially for .NET Core.
         public static ScriptValue GetObject(ScriptValue index)
         {
-            return ScriptValue.FromReferencePin(objects[index.longValue]);
+            return ScriptValue.FromReferenceUnsafe(objects[index.longValue]);
         }
     
         public static void Run()

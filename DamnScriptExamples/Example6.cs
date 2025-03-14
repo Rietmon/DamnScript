@@ -18,9 +18,9 @@ namespace DamnScriptExamples
         }
 ";
 
-        private static int counter;
-        public static ScriptValue CanHandle() => ++counter < 10;
-        public static ScriptValue GetCounter() => counter;
+        private static int _counter;
+        public static ScriptValue CanHandle() => ++_counter < 10;
+        public static ScriptValue GetCounter() => _counter;
     
         public static void Run()
         {
@@ -31,6 +31,7 @@ namespace DamnScriptExamples
             var scriptData = ScriptEngine.LoadScript(memoryStream, "Example6");
             Shared.PrintDisassembly(scriptData);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
+            _counter = 0;
         
             Console.Write("\n");
             while (ScriptEngine.ExecuteScheduler())

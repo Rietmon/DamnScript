@@ -200,7 +200,7 @@ namespace DamnScript.Runtimes.Natives
             type switch
             {
                 ValueType.Primitive => longValue.ToString(),
-                ValueType.Pointer or ValueType.ReferenceUnsafePointer or ValueType.ReferenceSafePointer => GetSafeString().ToString(),
+                ValueType.Pointer or ValueType.ReferenceUnsafePointer or ValueType.ReferenceSafePointer => ToSafeString().ToString(),
                 _ => throw new Exception("ValueType is invalid!")
             };
 
