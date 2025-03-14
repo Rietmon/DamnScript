@@ -6,10 +6,10 @@ namespace DamnScript.Runtimes.Metadatas
 {
     public struct ConstantsData : IDisposable
     {
-        public NativeArray<UnsafeStringPtr> strings;
-        public NativeArray<UnsafeStringPtr> methods;
+        public NativeArray<NativeStringPtr> strings;
+        public NativeArray<NativeStringPtr> methods;
 
-        public ConstantsData(NativeArray<UnsafeStringPtr> strings, NativeArray<UnsafeStringPtr> methods)
+        public ConstantsData(NativeArray<NativeStringPtr> strings, NativeArray<NativeStringPtr> methods)
         {
             this.strings = strings;
             this.methods = methods;

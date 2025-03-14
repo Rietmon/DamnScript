@@ -160,7 +160,7 @@ namespace DamnScript.Runtimes.Natives
             {
                 case ValueType.Pointer:
                 {
-                    var value = (UnsafeString*)pointerValue;
+                    var value = (NativeString*)pointerValue;
                     return value;
                 }
                 case ValueType.ReferenceUnsafePointer:

@@ -301,7 +301,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public void ExecutePushStringToStack(PushStringToStack pushStringToStack)
         {
             var index = pushStringToStack.index;
-            var str = metadata->GetUnsafeString(index);
+            var str = metadata->GetNativeString(index);
             if (str == null)
                 throw new Exception($"String not found by index: {index}");
         

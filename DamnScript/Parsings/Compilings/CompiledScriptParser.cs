@@ -34,8 +34,8 @@ namespace DamnScript.Parsings.Compilings
                 regions.Add(new RegionData(regionName, byteCode));
             }
 
-            var constantStrings = stream.ReadUnsafeStringArray();
-            var methodNames = stream.ReadUnsafeStringArray();
+            var constantStrings = stream.ReadNativeStringArray();
+            var methodNames = stream.ReadNativeStringArray();
 
             scriptData->regions = regions.ToArrayAlloc();
             regions.Dispose();

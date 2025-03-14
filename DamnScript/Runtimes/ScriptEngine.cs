@@ -28,7 +28,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="d">Delegate to method</param>
         public static void RegisterNativeMethod(Delegate d) => 
-            VirtualMachineData.RegisterNativeMethod(d, new StringWrapper(d.Method.Name).AsString32);
+            VirtualMachineData.RegisterNativeMethod(d, d.Method.Name);
         
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -37,7 +37,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="method">Method info</param>
         public static void RegisterNativeMethod(MethodInfo method) => 
-            VirtualMachineData.RegisterNativeMethod(method, new StringWrapper(method.Name).AsString32);
+            VirtualMachineData.RegisterNativeMethod(method, method.Name);
 
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -48,10 +48,6 @@ namespace DamnScript.Runtimes
         /// <param name="name">Override method name</param>
         public static void RegisterNativeMethod(Delegate d, String32 name) => 
             VirtualMachineData.RegisterNativeMethod(d, name);
-        
-        /// <inheritdoc cref="RegisterNativeMethod(Delegate, String32)"/>
-        public static void RegisterNativeMethod(Delegate d, StringWrapper name) => 
-            VirtualMachineData.RegisterNativeMethod(d, name.AsString32);
 
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -62,10 +58,6 @@ namespace DamnScript.Runtimes
         /// <param name="name">Override method name</param>
         public static void RegisterNativeMethod(MethodInfo method, String32 name) => 
             VirtualMachineData.RegisterNativeMethod(method, name);
-        
-        /// <inheritdoc cref="RegisterNativeMethod(MethodInfo, String32)"/>
-        public static void RegisterNativeMethod(MethodInfo method, StringWrapper name) => 
-            VirtualMachineData.RegisterNativeMethod(method, name.AsString32);
     
         /// <summary>
         /// Load script from provided stream.
@@ -77,10 +69,6 @@ namespace DamnScript.Runtimes
         /// <returns>Pointer to script data</returns>
         public static ScriptDataPtr LoadScript(Stream input, String32 name) => 
             ScriptsDataManager.LoadScript(input, name);
-        
-        /// <inheritdoc cref="LoadScript(Stream, String32)"/>
-        public static ScriptDataPtr LoadScript(Stream input, StringWrapper name) => 
-            ScriptsDataManager.LoadScript(input, name.AsString32);
     
         /// <summary>
         /// Load compiled script from provided stream.
@@ -92,10 +80,6 @@ namespace DamnScript.Runtimes
         /// <returns>Pointer to script data</returns>
         public static ScriptDataPtr LoadCompiledScript(Stream input, String32 name) => 
             ScriptsDataManager.LoadCompiledScript(input, name);
-        
-        /// <inheritdoc cref="LoadCompiledScript(Stream, String32)"/>
-        public static ScriptDataPtr LoadCompiledScript(Stream input, StringWrapper name) => 
-            ScriptsDataManager.LoadCompiledScript(input, name.AsString32);
 
         /// <summary>
         /// Run thread with provided region name from script data.
@@ -107,16 +91,6 @@ namespace DamnScript.Runtimes
         /// <returns>Pointer to thread</returns>
         public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, String32 regionName) => 
             _main.RunThread(scriptData, regionName);
-        
-        /// <inheritdoc cref="RunThread(ScriptDataPtr, String32)"/>
-        public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, StringWrapper regionName)
-        {
-            var name = regionName.type == StringWrapper.ConstStringType.Invalid 
-                ? defaultRegionName32
-                : regionName.AsString32;
-            
-            return _main.RunThread(scriptData, name);
-        }
 
         /// <summary>
         /// Execute all threads that are present in the main scheduler.
@@ -135,10 +109,6 @@ namespace DamnScript.Runtimes
         /// <returns>Pointer to script data</returns>
         public static ScriptDataPtr GetScriptDataFromCache(String32 scriptName) => 
             ScriptsDataManager.GetScriptData(scriptName);
-    
-        /// <inheritdoc cref="GetScriptDataFromCache(String32)"/>
-        public static ScriptDataPtr GetScriptDataFromCache(StringWrapper scriptName) => 
-            ScriptsDataManager.GetScriptData(scriptName.AsString32);
     
         /// <summary>
         /// Unload script from cache by provided pointer.

@@ -13,10 +13,10 @@ namespace DamnScript.Runtimes.Metadatas
             this.constants = constants;
         }
 
-        public UnsafeString* GetUnsafeString(int index) => 
+        public NativeString* GetNativeString(int index) => 
             constants.strings[index].value;
         
-        public UnsafeString* GetMethodName(int index) => 
+        public NativeString* GetMethodName(int index) => 
             constants.methods[index].value;
 
         public void Dispose()

@@ -9,15 +9,15 @@ using DamnScript.Runtimes.Cores.Pins;
 
 namespace DamnScript.Runtimes.Cores.Types
 {
-    public readonly unsafe struct UnsafeStringPtr
+    public readonly unsafe struct NativeStringPtr
     {
-        public readonly UnsafeString* value;
+        public readonly NativeString* value;
     
-        public UnsafeStringPtr(UnsafeString* value) => this.value = value;
+        public NativeStringPtr(NativeString* value) => this.value = value;
 
-        public static implicit operator UnsafeStringPtr(UnsafeString* value) => new(value);
+        public static implicit operator NativeStringPtr(NativeString* value) => new(value);
     
-        public static implicit operator UnsafeString*(UnsafeStringPtr ptr) => ptr.value;
+        public static implicit operator NativeString*(NativeStringPtr ptr) => ptr.value;
     }
 
     /// <summary>
@@ -25,7 +25,7 @@ namespace DamnScript.Runtimes.Cores.Types
     /// Can be used for fast string manipulation.
     /// Might be converted to managed string.
     /// </summary>
-    public unsafe struct UnsafeString
+    public unsafe struct NativeString
     {
         private static string _buffer;
         private static ObjectPin _gcHandleBuffer;
@@ -39,15 +39,15 @@ namespace DamnScript.Runtimes.Cores.Types
         public int length;
         public fixed char data[1];
 
-        public static UnsafeString* Alloc(int length)
+        public static NativeString* Alloc(int length)
         {
-            var str = (UnsafeString*)UnsafeUtilities.Alloc((length + 1) * sizeof(char) + sizeof(int));
+            var str = (NativeString*)UnsafeUtilities.Alloc((length + 1) * sizeof(char) + sizeof(int));
             str->length = length;
             str->data[length - 1] = '\0';
             return str;
         }
     
-        public static UnsafeString* Alloc(string value)
+        public static NativeString* Alloc(string value)
         {
             var length = value.Length;
             var str = Alloc(length);
@@ -56,7 +56,7 @@ namespace DamnScript.Runtimes.Cores.Types
             return str;
         }
     
-        public static UnsafeString* Alloc(string value, int start, int length)
+        public static NativeString* Alloc(string value, int start, int length)
         {
             var str = Alloc(length);
             fixed (char* ptr = value)
@@ -114,7 +114,7 @@ namespace DamnScript.Runtimes.Cores.Types
         {
             public void* methodVTable;
 #if MONO
-        public void* syncRoot;
+            public void* syncRoot;
 #endif
             public int length;
             public fixed char data[1];

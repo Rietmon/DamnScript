@@ -6,7 +6,7 @@ namespace DamnScript.Runtimes.Cores.Types
     /// <summary>
     /// String buffer with fixed length of 32, without last null terminator.
     /// </summary>
-    public unsafe struct String32
+    public unsafe struct String32 : IEquatable<String32>
     {
         public const int Length = 32;
 
@@ -74,5 +74,9 @@ namespace DamnScript.Runtimes.Cores.Types
             fixed (char* ptr = data)
                 return UnsafeUtilities.HashString(ptr, Length);
         }
+        
+        public static implicit operator string(String32 value) => value.ToString();
+        public static implicit operator String32(string value) => new(value);
+        public static implicit operator String32(NativeString* value) => value->ToString32();
     }
 }

@@ -8,8 +8,8 @@ namespace DamnScript.Parsings.Antlrs
     {
         public String32 name;
         
-        public NativeList<UnsafeStringPtr>* strings;
-        public NativeList<UnsafeStringPtr>* methods;
+        public NativeList<NativeStringPtr>* strings;
+        public NativeList<NativeStringPtr>* methods;
         public ScriptAssembler* assembler;
 
         public String32 loopRegisterIdentifier0;

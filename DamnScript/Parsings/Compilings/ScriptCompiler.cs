@@ -8,9 +8,6 @@ namespace DamnScript.Parsings.Compilings
     public static unsafe class ScriptCompiler
     {
         public const int Version = 1;
-
-        public static void Compile(Stream input, StringWrapper name, Stream output) =>
-            Compile(input, name.AsString32, output);
         
         public static void Compile(Stream input, String32 name, Stream output)
         {
@@ -33,9 +30,9 @@ namespace DamnScript.Parsings.Compilings
             
             var constants = scriptData.value->metadata.constants;
             
-            stream.WriteUnsafeStringArray(constants.strings);
+            stream.WriteNativeStringArray(constants.strings);
             
-            stream.WriteUnsafeStringArray(constants.methods);
+            stream.WriteNativeStringArray(constants.methods);
 
             var span = new ReadOnlySpan<byte>(stream.start, stream.length);
             output.Write(span);

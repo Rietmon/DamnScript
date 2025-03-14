@@ -26,8 +26,8 @@ namespace DamnScript.Parsings.Antlrs
 
             var regions = new NativeList<RegionData>(16);
 
-            var strings = new NativeList<UnsafeStringPtr>(16);
-            var methods = new NativeList<UnsafeStringPtr>(16);
+            var strings = new NativeList<NativeStringPtr>(16);
+            var methods = new NativeList<NativeStringPtr>(16);
             var context = new ScriptParserContext();
             for (var i = 0; i < program.ChildCount; i++)
             {
@@ -378,18 +378,18 @@ namespace DamnScript.Parsings.Antlrs
             context->assembler->LoadFromRegister(registerIndex);
         }
         
-        public static int AddStringToConstantsIfNotExists(NativeList<UnsafeStringPtr>* strings, string value)
+        public static int AddStringToConstantsIfNotExists(NativeList<NativeStringPtr>* strings, string value)
         {
             var offset = value[0] == '"' ? 1 : 0;
             var length = value.Length - offset * 2;
-            var str = UnsafeString.Alloc(value, offset, length);
+            var str = NativeString.Alloc(value, offset, length);
             var index = strings->IndexOf((p) => 
                 p.value->length == str->length 
                 && UnsafeUtilities.Memcmp(p.value, str, p.value->length));
             
             if (index == -1)
             {
-                strings->Add(new UnsafeStringPtr(str));
+                strings->Add(new NativeStringPtr(str));
                 return strings->Count - 1;
             }
 

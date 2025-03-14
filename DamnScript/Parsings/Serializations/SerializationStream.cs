@@ -67,7 +67,7 @@ namespace DamnScript.Parsings.Serializations
             length += count;
         }
 
-        public void WriteUnsafeStringArray(NativeArray<UnsafeStringPtr> array)
+        public void WriteNativeStringArray(NativeArray<NativeStringPtr> array)
         {
             Write(array.Length);
             var begin = array.First;
@@ -111,19 +111,19 @@ namespace DamnScript.Parsings.Serializations
             length += count;
         }
 
-        public NativeArray<UnsafeStringPtr> ReadUnsafeStringArray()
+        public NativeArray<NativeStringPtr> ReadNativeStringArray()
         {
             var arrayLength = Read<int>();
             if (arrayLength == 0)
                 throw new Exception("Invalid array length!");
             
-            var result = new NativeArray<UnsafeStringPtr>(arrayLength);
+            var result = new NativeArray<NativeStringPtr>(arrayLength);
             for (var i = 0; i < arrayLength; i++)
             {
                 var strLength = Read<int>();
-                var str = UnsafeString.Alloc(strLength);
+                var str = NativeString.Alloc(strLength);
                 CustomRead(str, strLength);
-                result.First[i] = new UnsafeStringPtr(str);
+                result.First[i] = new NativeStringPtr(str);
             }
             
             return result;
