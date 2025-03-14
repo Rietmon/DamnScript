@@ -382,19 +382,20 @@ namespace DamnScript.Parsings.Antlrs
         {
             var offset = value[0] == '"' ? 1 : 0;
             var length = value.Length - offset * 2;
-            var str = NativeString.Alloc(value, offset, length);
-            var index = strings->IndexOf((p) => 
-                p.value->length == str->length 
-                && UnsafeUtilities.Memcmp(p.value, str, p.value->length));
-            
-            if (index == -1)
+            var unmanagedString = (NativeString.UnmanagedString*)UnsafeUtilities.ReferenceToPointer(value);
+            for (var i = 0; i < strings->Count; i++)
             {
-                strings->Add(new NativeStringPtr(str));
-                return strings->Count - 1;
+                var p = strings->Begin[i];
+                if (p.value->length != length
+                    || !UnsafeUtilities.Memcmp(p.value->data, unmanagedString->data + offset, p.value->length)) 
+                    continue;
+                
+                return i;
             }
 
-            UnsafeUtilities.Free(str);
-            return index;
+            var str = NativeString.Alloc(value, offset, length);
+            strings->Add(new NativeStringPtr(str));
+            return strings->Count - 1;
         }
     }
 }

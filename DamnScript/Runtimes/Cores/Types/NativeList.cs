@@ -9,6 +9,8 @@ namespace DamnScript.Runtimes.Cores.Types
         public int Count { get; private set; }
         public int Capacity { get; private set; }
         public T* Begin { get; private set; }
+    
+        public T* Last => End - 1;
         public T* End => Begin + Count;
 
         public ref T this[int index]

@@ -10,30 +10,13 @@ namespace DamnScript.Runtimes.VirtualMachines
 	{
 		public bool ExecuteNext()
 		{
-			ExecuteAwaitsThreads();
 			ExecuteThreads();
         
 			return HasThreads || HasThreadsAwaiting;
 		}
-    
-		private void ExecuteAwaitsThreads()
-		{
-			var begin = threadsAreAwait.Begin;
-			var end = threadsAreAwait.End;
-			while (begin < end)
-			{
-				currentThread = begin->pointer;
-				var result = UnsafeUtilities.PointerToReference<IAsyncResult>(begin->result.ToPointer());
-				if (result.IsCompleted)
-				{
-					RemoveFromAwait(begin->pointer);
-					if (result is Task<ScriptValue> task)
-						begin->pointer.value->StackPush(task.Result.longValue);
-				}
-            
-				begin++;
-			}
-		}
+		
+		public bool IsInAwait(VirtualMachineThreadPtr virtualMachineThreadPointer) => 
+			virtualMachineThreadPointer.value->awaitTaskPin != default;
     
 		private void ExecuteThreads()
 		{
@@ -44,18 +27,28 @@ namespace DamnScript.Runtimes.VirtualMachines
 				currentThread = begin;
 				if (!IsInAwait(begin))
 				{
-					Task result;
-					while (begin->ExecuteNext(out result))
+					while (true)
 					{
-						if (result == null)
-							continue;
-
-						AddToAwait(result, begin);
-						break;
+						if (!begin->ExecuteNext())
+							break;
+						
+						if (begin->awaitTaskPin != default)
+							break;
 					}
-
-					if (result == null)
+					
+					if (begin->awaitTaskPin == default)
 						threads.RemoveAt((int)(end - 1 - begin));
+				}
+				else
+				{
+					var result = (Task)begin->awaitTaskPin.Target;
+					if (result.IsCompleted)
+					{
+						begin->awaitTaskPin.Free();
+						begin->awaitTaskPin = default;
+						if (result is Task<ScriptValue> task)
+							begin->StackPush(task.Result);
+					}
 				}
             
 				begin++;

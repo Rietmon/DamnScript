@@ -18,7 +18,7 @@ namespace DamnScript.Parsings.Compilings
             stream.Write(Version);
             stream.Write(scriptData.value->regions.Length);
             {
-                var begin = scriptData.value->regions.First;
+                var begin = scriptData.value->regions.Begin;
                 var end = scriptData.value->regions.End;
                 while (begin < end)
                 {

@@ -15,10 +15,6 @@ namespace DamnScript.Runtimes
 {
     public static unsafe class ScriptEngine
     {
-        private const string DefaultRegionName = "Main";
-        
-        private static readonly String32 defaultRegionName32 = new(DefaultRegionName);
-        
         private static VirtualMachine _main = new(16);
         
         /// <summary>
@@ -140,7 +136,7 @@ namespace DamnScript.Runtimes
         public static void DeserializeFromSerializationStream(SerializationStream stream)
         {
             var threads = VirtualMachineSerialization.DeserializeFromSerializationStream(stream);
-            var begin = threads.First;
+            var begin = threads.Begin;
             var end = threads.End;
             while (begin < end)
             {

@@ -183,21 +183,8 @@ namespace DamnScript.Runtimes.Cores
             return PinHelper.Pin(value);
         }
 
-        public static void* AddressOfPinned(ObjectPin value)
-        {
-            return PinHelper.GetAddress(value);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Unpin<T>(ObjectPin handle) where T : class
-        {
-            var value = (T)handle.Target;
-            handle.Free();
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* AsPointer<T>(ref T value) where T : unmanaged =>
+        public static void* ToPointer<T>(ref T value) where T : unmanaged =>
 #if UNITY_5_3_OR_NEWER
             UnsafeUtility.AddressOf(ref value);
 #else

@@ -3,6 +3,7 @@ using PinHandle = System.Runtime.InteropServices.GCHandle;
 #else
 #endif
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores.Pins;
@@ -25,6 +26,7 @@ namespace DamnScript.Runtimes.Cores.Types
     /// Can be used for fast string manipulation.
     /// Might be converted to managed string.
     /// </summary>
+    [DebuggerDisplay("{ToString()}")]
     public unsafe struct NativeString
     {
         private static string _buffer;
@@ -85,7 +87,7 @@ namespace DamnScript.Runtimes.Cores.Types
             {
                 _buffer = new string('\0', 1024);
                 _gcHandleBuffer = UnsafeUtilities.Pin(_buffer);
-                _bufferPtr = (UnmanagedString*)PinHelper.GetAddress(_gcHandleBuffer);
+                _bufferPtr = (UnmanagedString*)_gcHandleBuffer.GetAddress();
             }
         
             _bufferPtr->length = length;
@@ -110,7 +112,8 @@ namespace DamnScript.Runtimes.Cores.Types
             _bufferPtr = null;
         }
 
-        private struct UnmanagedString
+        [DebuggerDisplay("{ToString()}")]
+        public struct UnmanagedString
         {
             public void* methodVTable;
 #if MONO
@@ -119,12 +122,18 @@ namespace DamnScript.Runtimes.Cores.Types
             public int length;
             public fixed char data[1];
 
-            public UnmanagedString(void* methodVTable, int length, char* data)
+            public UnmanagedString(void* methodVTable, int length, char* data) : this()
             {
                 this.methodVTable = methodVTable;
                 this.length = length;
                 fixed (char* ptr = this.data)
                     UnsafeUtilities.Memcpy(data, ptr, length * sizeof(char));
+            }
+
+            public override string ToString()
+            {
+                fixed (char* ptr = data)
+                    return new string(ptr, 0, length);
             }
         }
     }

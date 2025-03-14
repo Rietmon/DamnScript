@@ -70,7 +70,7 @@ namespace DamnScript.Parsings.Serializations
         public void WriteNativeStringArray(NativeArray<NativeStringPtr> array)
         {
             Write(array.Length);
-            var begin = array.First;
+            var begin = array.Begin;
             var end = array.End;
             while (begin < end)
             {
@@ -123,7 +123,7 @@ namespace DamnScript.Parsings.Serializations
                 var strLength = Read<int>();
                 var str = NativeString.Alloc(strLength);
                 CustomRead(str, strLength);
-                result.First[i] = new NativeStringPtr(str);
+                result.Begin[i] = new NativeStringPtr(str);
             }
             
             return result;

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Pins;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
@@ -35,6 +37,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
     
         public int offset;
         public int savePoint;
+        
+        public ObjectPin awaitTaskPin;
 
         public bool isDisposed;
 
@@ -47,20 +51,17 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             registers = new VirtualMachineRegisters();
             offset = 0;
             savePoint = 0;
+            awaitTaskPin = default;
             isDisposed = false;
         }
     
         /// <summary>
         /// Begin handle thread. Will work until the end of the bytecode, or until it invokes async method.
-        /// In the second case, it will return "out Task".
         /// </summary>
-        /// <param name="result">Is invoked async method?</param>
         /// <returns>Is the end of the bytecode or thread disposed?</returns>
         /// <exception cref="Exception">Invalid opcode</exception>
-        public bool ExecuteNext(out Task result)
+        public bool ExecuteNext()
         {
-            result = null;
-        
             if (isDisposed)
                 return false;
         
@@ -73,7 +74,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             {
                 case NativeCall.OpCode:
                 {
-                    ExecuteNativeCall(*(NativeCall*)byteCode, out result);
+                    ExecuteNativeCall(*(NativeCall*)byteCode);
                     offset += sizeof(NativeCall);
                     break;
                 }
@@ -154,9 +155,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecuteNativeCall(NativeCall nativeCall, out Task result)
+        public void ExecuteNativeCall(NativeCall nativeCall)
         {
-            result = null;
             var methodName = metadata->GetMethodName(nativeCall.methodIndex)->ToString32();
             var argumentsCount = nativeCall.argumentsCount;
             if (!VirtualMachineData.TryGetNativeMethod(methodName, argumentsCount, out var method))
@@ -166,7 +166,10 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             for (var i = method.argumentsCount - 1; i >= 0; i--)
                 argumentsStack[i] = StackPop();
         
-            var returnValue = VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out result);
+            var returnValue = VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out var result);
+
+            if (result != null)
+                awaitTaskPin = UnsafeUtilities.Pin(result);
         
             for (var i = 0; i < method.argumentsCount; i++)
             {

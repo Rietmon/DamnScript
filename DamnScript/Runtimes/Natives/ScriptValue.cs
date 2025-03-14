@@ -103,7 +103,7 @@ namespace DamnScript.Runtimes.Natives
         public static ScriptValue FromStructAlloc<T>(T value) where T : unmanaged
         {
             var allocate = UnsafeUtilities.Alloc(sizeof(T));
-            UnsafeUtilities.Memcpy(UnsafeUtilities.AsPointer(ref value), allocate, sizeof(T));
+            UnsafeUtilities.Memcpy(&value, allocate, sizeof(T));
             return new ScriptValue(allocate, ValueType.Pointer);
         }
 
@@ -228,7 +228,7 @@ namespace DamnScript.Runtimes.Natives
         public void* GetInstanceForVirtualMachine() => type switch
         {
             ValueType.Pointer or ValueType.ReferenceUnsafePointer => pointerValue,
-            ValueType.ReferenceSafePointer => UnsafeUtilities.AddressOfPinned(safeValue),
+            ValueType.ReferenceSafePointer => safeValue.GetAddress(),
             _ => throw new Exception(ExceptionMessageInvalidTypeForPointers)
         };
     
