@@ -6,9 +6,8 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public struct DuplicateStack
     {
-        public const int OpCode = 0xC;
-    
-        public readonly int opCode;
+        public const OpCodes OpCode = OpCodes.DuplicateStack;
+        public readonly OpCodes opCode;
 
         public DuplicateStack(int _)
         {

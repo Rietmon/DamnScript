@@ -5,8 +5,8 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public struct JumpNotEquals
     {
-        public const int OpCode = 0x5;
-        public readonly int opCode;
+        public const OpCodes OpCode = OpCodes.JumpNotEquals;
+        public readonly OpCodes opCode;
         public readonly int jumpOffset;
     
         public JumpNotEquals(int jumpOffset)

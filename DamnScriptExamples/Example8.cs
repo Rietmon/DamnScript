@@ -27,6 +27,7 @@ namespace DamnScriptExamples
 			var stream = File.Open("Example8.save", FileMode.OpenOrCreate);
 			stream.Write(new ReadOnlySpan<byte>(data.start, data.length));
 			stream.Flush();
+			stream.Close();
 		}
 		
 		private static async Task Await(ScriptValue ms)

@@ -2,6 +2,7 @@
 
 namespace DamnScript.Runtimes.Cores.Pins
 {
+    // Rietmon: Rewrite to a real hash set system
     public static unsafe class PinHelper
     {
         private static readonly HashSet<(long hash, object target)> pinnedObjects = new(32);

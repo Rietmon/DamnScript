@@ -6,8 +6,8 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public struct SetSavePoint
     {
-        public const int OpCode = 0x4;
-        public readonly int opCode;
+        public const OpCodes OpCode = OpCodes.SetSavePoint;
+        public readonly OpCodes opCode;
     
         public SetSavePoint(int _) 
         { 

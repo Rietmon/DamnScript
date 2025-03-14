@@ -5,8 +5,8 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public struct ExpressionCall
     {
-        public const int OpCode = 0x3;
-        public readonly int opCode;
+        public const OpCodes OpCode = OpCodes.ExpressionCall;
+        public readonly OpCodes opCode;
         public readonly ExpressionCallType type;
 
         public ExpressionCall(ExpressionCallType type)

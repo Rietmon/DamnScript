@@ -12,40 +12,31 @@ namespace DamnScript.Runtimes.Cores.Types
         public bool IsManaged => type == ConstStringType.Managed;
     
         public ConstStringType type;
-        public string managedStringValue;
-        public UnsafeString* unmanagedStringValue;
+        public void* stringPointer;
+        
+        public string AsManagedString => UnsafeUtilities.PointerToReference<string>(stringPointer);
+        public UnsafeString* AsUnsafeString => (UnsafeString*)stringPointer;
+        public String32 AsString32 => IsManaged ? new String32(AsManagedString) : AsUnsafeString->ToString32();
 
         public StringWrapper(string value) : this()
         {
             type = ConstStringType.Managed;
-            managedStringValue = value;
+            stringPointer = UnsafeUtilities.ReferenceToPointer(value);
         }
 
         public StringWrapper(UnsafeString* value) : this()
         {
             type = ConstStringType.Unmanaged;
-            unmanagedStringValue = value;
+            stringPointer = value;
         }
-    
-        public String32 ToString32() => IsManaged
-            ? new String32(managedStringValue) 
-            : unmanagedStringValue->ToString32();
-    
-        public UnsafeString* ToUnsafeString() => IsManaged
-            ? UnsafeString.Alloc(managedStringValue) 
-            : unmanagedStringValue;
-    
-        public override string ToString() => IsManaged
-            ? managedStringValue 
-            : unmanagedStringValue->ToString();
 
         public static implicit operator StringWrapper(string value) => new(value);
         public static implicit operator StringWrapper(UnsafeString* value) => new(value);
 
         public static bool operator ==(StringWrapper l, StringWrapper r) =>
-            l.type == r.type && l.unmanagedStringValue == r.unmanagedStringValue;
+            l.type == r.type && l.stringPointer == r.stringPointer;
         public static bool operator !=(StringWrapper l, StringWrapper r) =>
-            !(l.type == r.type && l.unmanagedStringValue == r.unmanagedStringValue);
+            !(l.type == r.type && l.stringPointer == r.stringPointer);
     
         public enum ConstStringType
         {

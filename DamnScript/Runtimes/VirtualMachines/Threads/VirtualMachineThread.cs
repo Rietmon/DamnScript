@@ -68,7 +68,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 return false;
         
             var byteCode = ByteCode;
-            var opCode = *(int*)byteCode;
+            var opCode = *(OpCodes.OpCodes*)byteCode;
             switch (opCode)
             {
                 case NativeCall.OpCode:
@@ -101,10 +101,10 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                         offset += sizeof(JumpNotEquals);
                     break;
                 }
-                case JumpIfEquals.OpCode:
+                case JumpEquals.OpCode:
                 {
-                    if (ExecuteJumpIfEquals(*(JumpIfEquals*)byteCode))
-                        offset += sizeof(JumpIfEquals);
+                    if (ExecuteJumpIfEquals(*(JumpEquals*)byteCode))
+                        offset += sizeof(JumpEquals);
                     break;
                 }
                 case Jump.OpCode:
@@ -116,7 +116,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 case PushStringToStack.OpCode:
                 {
                     ExecutePushStringToStack(*(PushStringToStack*)byteCode);
-                    offset += sizeof(JumpIfEquals);
+                    offset += sizeof(JumpEquals);
                     break;
                 }
                 case SetThreadParameters.OpCode:
@@ -143,6 +143,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                     offset += sizeof(DuplicateStack);
                     break;
                 }
+                case OpCodes.OpCodes.Invalid:
                 default:
                 {
                     throw new NotSupportedException($"Invalid OpCode: {opCode}");
@@ -280,12 +281,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteJumpIfEquals(JumpIfEquals jumpIfEquals)
+        public bool ExecuteJumpIfEquals(JumpEquals jumpEquals)
         {
             if (StackPop() != StackPop())
                 return true;
         
-            offset = jumpIfEquals.jumpOffset;
+            offset = jumpEquals.jumpOffset;
             return false;
         }
 

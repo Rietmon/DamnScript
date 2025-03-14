@@ -6,8 +6,8 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public struct NativeCall
     {
-        public const int OpCode = 0x1;
-        public readonly int opCode;
+        public const OpCodes OpCode = OpCodes.NativeCall;
+        public readonly OpCodes opCode;
         public readonly int methodIndex;
         public readonly int argumentsCount;
 

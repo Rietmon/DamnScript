@@ -14,7 +14,7 @@ namespace DamnScript.Runtimes.Debugs
             while (data.IsInRange(offset))
             {
                 var byteCode = data.start + offset;
-                var opCode = *(int*)byteCode;
+                var opCode = *(OpCodes*)byteCode;
                 switch (opCode)
                 {
                     case NativeCall.OpCode:
@@ -54,11 +54,11 @@ namespace DamnScript.Runtimes.Debugs
                         offset += sizeof(JumpNotEquals);
                         break;
                     }
-                    case JumpIfEquals.OpCode:
+                    case JumpEquals.OpCode:
                     {
-                        var jumpIfEquals = *(JumpIfEquals*)byteCode;
+                        var jumpIfEquals = *(JumpEquals*)byteCode;
                         sb.AppendLine($"{offset.ToString()}: JEQ {jumpIfEquals.jumpOffset.ToString()}");
-                        offset += sizeof(JumpIfEquals);
+                        offset += sizeof(JumpEquals);
                         break;
                     }
                     case Jump.OpCode:
@@ -74,7 +74,7 @@ namespace DamnScript.Runtimes.Debugs
                         var str = metadata.GetUnsafeString(pushStringToStack.index);
                         sb.AppendLine(
                             $"{offset.ToString()}: PUSHSTR {pushStringToStack.index.ToString()} ({str->ToString()})");
-                        offset += sizeof(JumpIfEquals);
+                        offset += sizeof(JumpEquals);
                         break;
                     }
                     case SetThreadParameters.OpCode:

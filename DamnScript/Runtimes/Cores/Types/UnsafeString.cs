@@ -37,7 +37,7 @@ namespace DamnScript.Runtimes.Cores.Types
         }
 
         public int length;
-        public fixed char data[0];
+        public fixed char data[1];
 
         public static UnsafeString* Alloc(int length)
         {

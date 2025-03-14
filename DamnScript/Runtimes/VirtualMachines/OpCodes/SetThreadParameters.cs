@@ -6,8 +6,8 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public struct SetThreadParameters
     {
-        public const int OpCode = 0x7;
-        public readonly int opCode;
+        public const OpCodes OpCode = OpCodes.SetThreadParameters;
+        public readonly OpCodes opCode;
         public ThreadParameters parameters;
 
         public SetThreadParameters(ThreadParameters parameters)

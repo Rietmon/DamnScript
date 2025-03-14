@@ -3,13 +3,13 @@
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct JumpIfEquals
+    public struct JumpEquals
     {
-        public const int OpCode = 0x6;
-        public readonly int opCode;
+        public const OpCodes OpCode = OpCodes.JumpEquals;
+        public readonly OpCodes opCode;
         public readonly int jumpOffset;
     
-        public JumpIfEquals(int jumpOffset)
+        public JumpEquals(int jumpOffset)
         {
             opCode = OpCode;
             this.jumpOffset = jumpOffset;

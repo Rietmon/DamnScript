@@ -10,7 +10,7 @@ namespace DamnScript.Parsings.Compilings
         public const int Version = 1;
 
         public static void Compile(Stream input, StringWrapper name, Stream output) =>
-            Compile(input, name.ToString32(), output);
+            Compile(input, name.AsString32, output);
         
         public static void Compile(Stream input, String32 name, Stream output)
         {

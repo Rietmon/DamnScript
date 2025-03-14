@@ -1,6 +1,7 @@
 ﻿using System;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
@@ -39,7 +40,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
             Add(new JumpNotEquals(jumpOffset));
     
         public ScriptAssembler JumpIfEquals(int jumpOffset) =>
-            Add(new JumpIfEquals(jumpOffset));
+            Add(new JumpEquals(jumpOffset));
     
         public ScriptAssembler Jump(int jumpOffset) =>
             Add(new Jump(jumpOffset));
