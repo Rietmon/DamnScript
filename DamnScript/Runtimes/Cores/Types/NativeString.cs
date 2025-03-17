@@ -1,11 +1,6 @@
-﻿#if UNITY_5_3_OR_NEWER
-using PinHandle = System.Runtime.InteropServices.GCHandle;
-#else
-#endif
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores.Pins;
 
 namespace DamnScript.Runtimes.Cores.Types
@@ -114,7 +109,7 @@ namespace DamnScript.Runtimes.Cores.Types
         public struct UnmanagedString
         {
             public void* methodVTable;
-#if MONO
+#if DAMN_SCRIPT_ENBALE_MONO || UNITY_5_3_OR_NEWER
             public void* syncRoot;
 #endif
             public int length;

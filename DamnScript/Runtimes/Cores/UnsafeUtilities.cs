@@ -14,7 +14,7 @@ namespace DamnScript.Runtimes.Cores
 {
     public static unsafe class UnsafeUtilities
     {
-#if TARGET_32BIT
+#if DAMN_SCRIPT_ENBALE_TARGET_32BIT
 		public const int PointerSize = 4;
 #else
 	    public const int PointerSize = 8;

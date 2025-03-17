@@ -11,25 +11,33 @@ namespace DamnScript.Runtimes.Natives
     /// This struct is a wrapper to handle any type of value in the DamnScript.
     /// It has a fixed size and can be used in the virtual machine.
     /// </summary>
-    [StructLayout(LayoutKind.Explicit, Size = 12)]
+    [StructLayout(LayoutKind.Explicit, Size = Size)]
     public unsafe struct ScriptValue : IEquatable<ScriptValue>
     {
+#if DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12
+        public const int Size = 12;
+        public const int TypeSize = 4;
+#else
+        public const int Size = 16;
+        public const int TypeSize = 8;
+#endif
+        
         private static readonly string ExceptionMessageInvalidTypeForPointers = 
             $"Unsupported type! Expected {nameof(ValueType.Pointer)}, " +
             $"{nameof(ValueType.ReferenceSafePointer)} or " +
             $"{nameof(ValueType.ReferenceUnsafePointer)}!";
         
         [FieldOffset(0)] public ValueType type;
-        [FieldOffset(4)] public bool boolValue;
-        [FieldOffset(4)] public byte byteValue;
-        [FieldOffset(4)] public short shortValue;
-        [FieldOffset(4)] public int intValue;
-        [FieldOffset(4)] public long longValue;
-        [FieldOffset(4)] public float floatValue;
-        [FieldOffset(4)] public double doubleValue;
-        [FieldOffset(4)] public char charValue;
-        [FieldOffset(4)] public void* pointerValue;
-        [FieldOffset(4)] public ObjectPin safeValue;
+        [FieldOffset(TypeSize)] public bool boolValue;
+        [FieldOffset(TypeSize)] public byte byteValue;
+        [FieldOffset(TypeSize)] public short shortValue;
+        [FieldOffset(TypeSize)] public int intValue;
+        [FieldOffset(TypeSize)] public long longValue;
+        [FieldOffset(TypeSize)] public float floatValue;
+        [FieldOffset(TypeSize)] public double doubleValue;
+        [FieldOffset(TypeSize)] public char charValue;
+        [FieldOffset(TypeSize)] public void* pointerValue;
+        [FieldOffset(TypeSize)] public ObjectPin safeValue;
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(ValueType type, long value) : this()
