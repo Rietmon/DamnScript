@@ -1,6 +1,7 @@
 ﻿using System;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Debugs;
 
 namespace DamnScript.Parsings.Serializations
 {
@@ -31,7 +32,6 @@ namespace DamnScript.Parsings.Serializations
             {
                 capacity *= 2;
                 var newPtr = (byte*)UnsafeUtilities.ReAlloc(start, capacity);
-                UnsafeUtilities.Free(start);
                 start = newPtr;
             }
 
@@ -45,7 +45,6 @@ namespace DamnScript.Parsings.Serializations
             {
                 capacity *= 2;
                 var newPtr = (byte*)UnsafeUtilities.ReAlloc(start, capacity);
-                UnsafeUtilities.Free(start);
                 start = newPtr;
             }
 
@@ -59,7 +58,6 @@ namespace DamnScript.Parsings.Serializations
             {
                 capacity *= 2;
                 var newPtr = (byte*)UnsafeUtilities.ReAlloc(start, capacity);
-                UnsafeUtilities.Free(start);
                 start = newPtr;
             }
 
@@ -76,7 +74,7 @@ namespace DamnScript.Parsings.Serializations
             {
                 var str = begin->value;
                 Write(str->length);
-                CustomWrite(str->data, str->length);
+                CustomWrite(str->data, str->length * sizeof(char));
                 begin++;
             }
         }
@@ -114,15 +112,13 @@ namespace DamnScript.Parsings.Serializations
         public NativeArray<NativeStringPtr> ReadNativeStringArray()
         {
             var arrayLength = Read<int>();
-            if (arrayLength == 0)
-                throw new Exception("Invalid array length!");
             
             var result = new NativeArray<NativeStringPtr>(arrayLength);
             for (var i = 0; i < arrayLength; i++)
             {
                 var strLength = Read<int>();
                 var str = NativeString.Alloc(strLength);
-                CustomRead(str, strLength);
+                CustomRead(str->data, strLength * sizeof(char));
                 result.Begin[i] = new NativeStringPtr(str);
             }
             

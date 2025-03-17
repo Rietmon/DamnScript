@@ -31,7 +31,6 @@ namespace DamnScript.Runtimes.Cores.Types
     {
         private static string _buffer;
         private static ObjectPin _gcHandleBuffer;
-        private static UnmanagedString* _bufferPtr;
 
         public ref char this[int index]
         {
@@ -83,16 +82,16 @@ namespace DamnScript.Runtimes.Cores.Types
 
         public string ToTempStringNonAlloc()
         {
-            if (_bufferPtr == null)
+            if (_gcHandleBuffer == default)
             {
                 _buffer = new string('\0', 1024);
                 _gcHandleBuffer = UnsafeUtilities.Pin(_buffer);
-                _bufferPtr = (UnmanagedString*)_gcHandleBuffer.GetAddress();
             }
-        
-            _bufferPtr->length = length;
+
+            var stringPtr = (UnmanagedString*)_gcHandleBuffer.GetAddress();
+            stringPtr->length = length;
             fixed (char* ptr = data)
-                UnsafeUtilities.Memcpy(ptr, _bufferPtr->data, length * sizeof(char));
+                UnsafeUtilities.Memcpy(ptr, stringPtr->data, length * sizeof(char));
             return _buffer;
         }
     
@@ -107,9 +106,8 @@ namespace DamnScript.Runtimes.Cores.Types
 
         public static void ReleaseTempStringNonAlloc()
         {
-            _bufferPtr = null;
+            _buffer = null;
             _gcHandleBuffer.Free();
-            _bufferPtr = null;
         }
 
         [DebuggerDisplay("{ToString()}")]

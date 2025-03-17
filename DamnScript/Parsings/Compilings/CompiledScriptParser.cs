@@ -1,4 +1,5 @@
-﻿using DamnScript.Parsings.Serializations;
+﻿using System;
+using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
@@ -30,8 +31,10 @@ namespace DamnScript.Parsings.Compilings
             {
                 var regionName = stream.Read<String32>();
 
-                var byteCode = stream.Read<ByteCodeData>();
-                regions.Add(new RegionData(regionName, byteCode));
+                var size = stream.Read<int>();
+                var bytes = (byte*)UnsafeUtilities.Alloc(size);
+                stream.CustomRead(bytes, size);
+                regions.Add(new RegionData(regionName, new ByteCodeData(bytes, size)));
             }
 
             var constantStrings = stream.ReadNativeStringArray();
@@ -41,7 +44,6 @@ namespace DamnScript.Parsings.Compilings
             regions.Dispose();
 
             scriptData->metadata = new ScriptMetadata(new ConstantsData(constantStrings, methodNames));
-            constantStrings.Dispose();
         }
     }
 }

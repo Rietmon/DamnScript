@@ -94,7 +94,7 @@ namespace DamnScript.Runtimes
         /// Because of it, this method should be called in application life cycle loop.
         /// </summary>
         /// <returns>Does scheduler have other threads?</returns>
-        public static bool ExecuteScheduler() =>
+        public static bool ExecuteVirtualMachineNext() =>
             _main.ExecuteNext();
     
         /// <summary>

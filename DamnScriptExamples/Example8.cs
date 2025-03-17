@@ -58,7 +58,7 @@ namespace DamnScriptExamples
 			}
 
 			Console.Write("\n");
-			while (ScriptEngine.ExecuteScheduler())
+			while (ScriptEngine.ExecuteVirtualMachineNext())
 				Thread.Sleep(15);
 			Console.Write("\n");
         

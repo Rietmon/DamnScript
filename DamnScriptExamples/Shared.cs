@@ -7,7 +7,7 @@ namespace DamnScriptExamples
     {
         public static void PrintDisassembly(ScriptDataPtr scriptData)
         {
-            var disassembly = ScriptDisassembler.DisassembleToString(scriptData.RefValue.regions[0].byteCode, scriptData.RefValue.metadata);
+            var disassembly = ScriptDisassembler.DisassembleRegionToString(scriptData.RefValue.regions[0], scriptData.RefValue.metadata);
             Console.WriteLine(disassembly);
         }
     }

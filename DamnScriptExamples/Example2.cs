@@ -36,7 +36,7 @@ namespace DamnScriptExamples
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         
             Console.Write("\n");
-            ScriptEngine.ExecuteScheduler();
+            ScriptEngine.ExecuteVirtualMachineNext();
             Console.Write("\n");
         
             ScriptEngine.UnloadScript(scriptData);

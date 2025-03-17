@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -13,12 +14,19 @@ namespace DamnScript.Runtimes.Cores
 {
     public static unsafe class UnsafeUtilities
     {
+#if TARGET_32BIT
+		public const int PointerSize = 4;
+#else
+	    public const int PointerSize = 8;
+#endif
+	    
 	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	    public static void* Alloc(int size)
 	    {
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
 		    Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(Alloc)}) Allocating {size.ToString()} bytes.");
 #endif
+		    
 		    var ptr = Marshal.AllocHGlobal(size).ToPointer();
 		    
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
@@ -57,7 +65,7 @@ namespace DamnScript.Runtimes.Cores
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
 	        Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(Free)}) Freeing at {new IntPtr(ptr):X}.");
 #endif
-	        
+
 	        Marshal.FreeHGlobal(new IntPtr(ptr));
 	        
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
@@ -208,5 +216,14 @@ namespace DamnScript.Runtimes.Cores
             }
             return hash;
         }
+
+        public static bool IsDefault<T>(T value) where T : unmanaged => IsDefault(&value);
+        
+        public static bool IsDefault<T>(T* value) where T : unmanaged
+		{
+	        var size = sizeof(T);
+	        var def = default(T);
+	        return Memcmp(value, &def, size);
+		}
     }
 }

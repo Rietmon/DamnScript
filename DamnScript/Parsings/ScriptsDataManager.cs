@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using DamnScript.Parsings.Antlrs;
 using DamnScript.Parsings.Compilings;
 using DamnScript.Runtimes.Cores;
@@ -30,6 +31,7 @@ namespace DamnScript.Parsings
             {
                 if (begin->value->name == name)
                     return *begin;
+                
                 begin++;
             }
             return default;
@@ -73,6 +75,10 @@ namespace DamnScript.Parsings
                 else
                     _buffer = (byte*)UnsafeUtilities.Alloc(_bufferSize);
             }
+            if (input.Read(new Span<byte>(_buffer, _bufferSize)) != _bufferSize)
+                throw new IOException("Failed to read input stream!");
+                
+            input.Dispose();
             var scriptData = UnsafeUtilities.Alloc<ScriptData>();
             CompiledScriptParser.ParseCompiledScript(_buffer, _bufferSize, name, scriptData);
             var scriptDataPtr = new ScriptDataPtr(scriptData);
@@ -89,6 +95,10 @@ namespace DamnScript.Parsings
         
             var scriptData = UnsafeUtilities.Alloc<ScriptData>();
             var buffer = stackalloc byte[length];
+            if (input.Read(new Span<byte>(buffer, length)) != length)
+                throw new IOException("Failed to read input stream!");
+            
+            input.Dispose();
             CompiledScriptParser.ParseCompiledScript(buffer, length, name, scriptData);
             var scriptDataPtr = new ScriptDataPtr(scriptData);
             _scripts.Add(scriptDataPtr);

@@ -42,10 +42,11 @@ namespace DamnScript.Runtimes.Metadatas
             return null;
         }
 
-        internal void Dispose()
+        public void Dispose()
         {
             metadata.Dispose();
             regions.Dispose();
+            this = default;
         }
     }
 }

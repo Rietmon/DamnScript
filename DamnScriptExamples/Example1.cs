@@ -26,7 +26,7 @@ namespace DamnScriptExamples
             Console.Write("\n");
             // Execute the scheduler until the thread is finished,
             // ScriptEngine.ExecuteScheduler() should be placed in the game loop or in the main loop of the application
-            while (ScriptEngine.ExecuteScheduler())
+            while (ScriptEngine.ExecuteVirtualMachineNext())
                 Thread.Sleep(15);
             Console.Write("\n");
         

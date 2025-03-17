@@ -23,7 +23,9 @@ namespace DamnScript.Parsings.Compilings
                 while (begin < end)
                 {
                     stream.Write(begin->name);
-                    stream.Write(begin->byteCode);
+                    
+                    stream.Write(begin->byteCode.length);
+                    stream.CustomWrite(begin->byteCode.start, begin->byteCode.length);
                     begin++;
                 }
             }
@@ -36,6 +38,8 @@ namespace DamnScript.Parsings.Compilings
 
             var span = new ReadOnlySpan<byte>(stream.start, stream.length);
             output.Write(span);
+            output.Flush();
+            output.Dispose();
             stream.Dispose();
         }
     }

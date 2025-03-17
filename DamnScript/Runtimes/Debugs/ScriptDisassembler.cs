@@ -7,10 +7,27 @@ namespace DamnScript.Runtimes.Debugs
 {
     public static unsafe class ScriptDisassembler
     {
-        public static string DisassembleToString(ByteCodeData data, ScriptMetadata metadata)
+        public static string DisassembleScriptToString(ScriptDataPtr scriptData)
         {
             var sb = new StringBuilder();
+            for (var i = 0; i < scriptData.RefValue.regions.Length; i++)
+            {
+                var region = scriptData.RefValue.regions[i];
+                sb.AppendLine(DisassembleRegionToString(region, scriptData.RefValue.metadata));
+            }
+
+            return sb.ToString();
+        }
+        
+        public static string DisassembleRegionToString(RegionData region, ScriptMetadata metadata)
+        {
+            var sb = new StringBuilder();
+            sb.Append("           ");         
+            sb.Append(region.name.ToString());
+            sb.AppendLine(":");
+            
             var offset = 0;
+            var data = region.byteCode;
             while (data.IsInRange(offset))
             {
                 var byteCode = data.start + offset;
