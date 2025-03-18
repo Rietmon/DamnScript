@@ -46,4 +46,13 @@ namespace DamnScript.Runtimes.Cores.Types
             this = default;
         }
     }
+    
+    public static unsafe class NativeArrayExtensions
+    {
+        public static NativeArray<T> ReAlloc<T>(this NativeArray<T> array, int newLength) where T : unmanaged
+        {
+            UnsafeUtilities.ReAlloc(array.Begin, sizeof(T) * newLength);
+            return new NativeArray<T>(newLength, array.Begin);
+        }
+    }
 }

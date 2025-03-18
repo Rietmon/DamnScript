@@ -23,7 +23,7 @@ public class ObjectsControlTests
 		public async Task<ScriptValue> SimulateAsync(ScriptValue value1, ScriptValue value2, ScriptValue value3, ScriptValue value4, 
 			ScriptValue value5, ScriptValue value6, ScriptValue value7, ScriptValue value8, ScriptValue value9)
 		{
-			await Task.Delay(1000);
+			await Task.Delay(100);
 			Value += value1.intValue + value2.intValue + value3.intValue + value4.intValue +
 				value5.intValue + value6.intValue + value7.intValue + value8.intValue + value9.intValue;
 			return ScriptValue.FromReferenceUnsafe(this);

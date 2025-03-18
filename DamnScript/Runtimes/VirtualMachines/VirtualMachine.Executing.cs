@@ -11,7 +11,20 @@ namespace DamnScript.Runtimes.VirtualMachines
 		public bool ExecuteNext()
 		{
 			ExecuteThreads();
-        
+
+			HasThreads = false;
+			var begin = threads.Begin;
+			var end = threads.End;
+			while (begin < end)
+			{
+				if (begin->isAlive)
+				{
+					HasThreads = true;
+					break;
+				}
+
+				begin++;
+			}
 			return HasThreads;
 		}
 		
@@ -24,7 +37,15 @@ namespace DamnScript.Runtimes.VirtualMachines
 			var end = threads.End;
 			while (begin < end)
 			{
-				currentThread = begin;
+				if (!begin->isAlive)
+				{
+					begin++;
+					continue;
+				}
+
+				currentThread = begin; 
+				
+				executeThreadProcedure:
 				if (!IsInAwait(begin))
 				{
 					while (true)
@@ -35,9 +56,9 @@ namespace DamnScript.Runtimes.VirtualMachines
 						if (begin->awaitTaskPin != default)
 							break;
 					}
-					
+
 					if (begin->awaitTaskPin == default)
-						threads.RemoveAt((int)(end - 1 - begin));
+						begin->Dispose();
 				}
 				else
 				{
@@ -48,6 +69,7 @@ namespace DamnScript.Runtimes.VirtualMachines
 						begin->awaitTaskPin = default;
 						if (result is Task<ScriptValue> task)
 							begin->StackPush(task.Result);
+						goto executeThreadProcedure;
 					}
 				}
             

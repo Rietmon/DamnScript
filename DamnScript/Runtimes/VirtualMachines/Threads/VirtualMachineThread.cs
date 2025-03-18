@@ -40,7 +40,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public int offset;
         public int savePoint;
 
-        public bool isDisposed;
+        public bool isAlive;
 
         public VirtualMachineThread(String32* scriptName, RegionData* regionData, ScriptMetadata* metadata)
         {
@@ -52,7 +52,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             offset = 0;
             savePoint = 0;
             awaitTaskPin = default;
-            isDisposed = false;
+            isAlive = true;
         }
     
         /// <summary>
@@ -62,7 +62,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         /// <exception cref="Exception">Invalid opcode</exception>
         public bool ExecuteNextOpCode()
         {
-            if (isDisposed)
+            if (!isAlive)
                 return false;
         
             if (!regionData->byteCode.IsInRange(offset))
@@ -154,7 +154,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 
         public void Dispose()
         {
-            isDisposed = true;
+            isAlive = false;
         }
     }
 }

@@ -26,16 +26,18 @@ namespace DamnScript.Runtimes.VirtualMachines
     public unsafe partial struct VirtualMachine
     {
         public const int Version = 1;
-        public bool HasThreads => threads.Count > 0;
+        public bool HasThreads { get; private set; }
 
-        public NativeList<VirtualMachineThread> threads;
+        public NativeArray<VirtualMachineThread> threads;
 
         public VirtualMachineThread* currentThread;
 
         public VirtualMachine(int capacity)
         {
-            threads = new NativeList<VirtualMachineThread>(capacity);
+            threads = new NativeArray<VirtualMachineThread>(capacity);
+            UnsafeUtilities.Memset(threads.Begin, 0, threads.Length * sizeof(VirtualMachineThread));
             currentThread = null;
+            HasThreads = false;
         }
         
         public VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, String32 regionName)
@@ -50,8 +52,10 @@ namespace DamnScript.Runtimes.VirtualMachines
             
             var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata);
         
-            threads.Add(thread);
-            var ptr = threads.End - 1;
+            var slot = GetEmptySlotOrReAlloc();
+            threads[slot] = thread;
+            var ptr = threads.Begin + slot;
+            HasThreads = true;
             return new VirtualMachineThreadPtr(ptr);
         }
         
@@ -74,9 +78,43 @@ namespace DamnScript.Runtimes.VirtualMachines
                 registers = data->registers
             };
         
-            threads.Add(thread);
-            var ptr = threads.End - 1;
+            var slot = GetEmptySlotOrReAlloc();
+            threads[slot] = thread;
+            var ptr = threads.Begin + slot;
+            HasThreads = true;
             return new VirtualMachineThreadPtr(ptr);
+        }
+
+        private int GetEmptySlotOrReAlloc()
+        {
+            static int Find(VirtualMachine vm)
+            {
+                var begin = vm.threads.Begin;
+                var end = vm.threads.End;
+                while (begin < end)
+                {
+                    if (begin->isAlive)
+                    {
+                        begin++;
+                        continue;
+                    }
+
+                    var index = (int)(begin - vm.threads.Begin);
+                    return index;
+                }
+
+                return -1;
+            }
+            
+            var index = Find(this);
+            if (index == -1)
+                threads = threads.ReAlloc(threads.Length * 2);
+            
+            index = Find(this);
+            if (index == -1)
+                throw new Exception($"Failed to find empty slot in threads array even after realloc!");
+            
+            return index;
         }
     }
 }

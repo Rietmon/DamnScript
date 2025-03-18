@@ -36,8 +36,12 @@ public static class __Shared
 		var scriptData = ScriptEngine.LoadScript(stream, "Main");
 		stream.Dispose();
 		var thread = ScriptEngine.RunThread(scriptData, "Main");
-		while (ScriptEngine.ExecuteVirtualMachineNext()) 
+		while (ScriptEngine.ExecuteVirtualMachineNext())
+		{
+			Assert.That(thread.RefValue.awaitTaskPin.hash, Is.Not.EqualTo(0));
 			Thread.Sleep(10);
+		}
+		Assert.That(thread.RefValue.isAlive, Is.False);
 		ScriptEngine.UnloadScript(scriptData);
 		var value = thread.RefValue.StackPop();
 		Assert.That(thread.RefValue.stack.stackOffset, Is.EqualTo(0));
