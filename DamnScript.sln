@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DamnScript", "DamnScript\Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DamnScriptBenchmarks", "DamnScriptBenchmarks\DamnScriptBenchmarks.csproj", "{1DC4963D-358E-4EAF-A7CF-42FB71E5813E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DamnScriptTests", "DamnScriptTests\DamnScriptTests.csproj", "{51BCB815-37E6-41EE-98D1-8A59BF8B1D5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{1DC4963D-358E-4EAF-A7CF-42FB71E5813E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DC4963D-358E-4EAF-A7CF-42FB71E5813E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DC4963D-358E-4EAF-A7CF-42FB71E5813E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51BCB815-37E6-41EE-98D1-8A59BF8B1D5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51BCB815-37E6-41EE-98D1-8A59BF8B1D5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51BCB815-37E6-41EE-98D1-8A59BF8B1D5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51BCB815-37E6-41EE-98D1-8A59BF8B1D5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

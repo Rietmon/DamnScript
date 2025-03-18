@@ -60,7 +60,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         /// </summary>
         /// <returns>Is the end of the bytecode or thread disposed?</returns>
         /// <exception cref="Exception">Invalid opcode</exception>
-        public bool ExecuteNext()
+        public bool ExecuteNextOpCode()
         {
             if (isDisposed)
                 return false;
@@ -98,19 +98,19 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 }
                 case JumpNotEquals.OpCode:
                 {
-                    if (ExecuteJumpNotEquals(*(JumpNotEquals*)byteCode))
+                    if (!ExecuteJumpNotEquals(*(JumpNotEquals*)byteCode))
                         offset += JumpNotEquals.size;
                     break;
                 }
                 case JumpEquals.OpCode:
                 {
-                    if (ExecuteJumpIfEquals(*(JumpEquals*)byteCode))
+                    if (!ExecuteJumpIfEquals(*(JumpEquals*)byteCode))
                         offset += JumpEquals.size;
                     break;
                 }
                 case Jump.OpCode:
                 {
-                    if (ExecuteJump(*(Jump*)byteCode))
+                    if (!ExecuteJump(*(Jump*)byteCode))
                         offset += Jump.size;
                     break;
                 }

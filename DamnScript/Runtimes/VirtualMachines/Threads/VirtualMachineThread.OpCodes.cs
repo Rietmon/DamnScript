@@ -133,27 +133,27 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public bool ExecuteJumpNotEquals(JumpNotEquals jumpNotEquals)
         {
             if (StackPop() == StackPop()) 
-                return true;
+                return false;
         
             offset = jumpNotEquals.jumpOffset;
-            return false;
+            return true;
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ExecuteJumpIfEquals(JumpEquals jumpEquals)
         {
             if (StackPop() != StackPop())
-                return true;
+                return false;
         
             offset = jumpEquals.jumpOffset;
-            return false;
+            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool ExecuteJump(Jump jump)
         {
             offset = jump.jumpOffset;
-            return false;
+            return true;
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -188,11 +188,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecuteDuplicateStack(DuplicateStack duplicateStack)
+        public void ExecuteDuplicateStack(DuplicateStack _)
         {
-            var value = StackPop();
-            StackPush(value);
-            StackPush(value);
+            StackPush(StackPeek());
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -200,5 +198,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue StackPop() => stack.Pop();
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ScriptValue StackPeek() => stack.Peek();
 	}
 }

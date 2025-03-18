@@ -29,7 +29,7 @@ namespace DamnScript.Runtimes.VirtualMachines
 				{
 					while (true)
 					{
-						if (!begin->ExecuteNext())
+						if (!begin->ExecuteNextOpCode())
 							break;
 						
 						if (begin->awaitTaskPin != default)

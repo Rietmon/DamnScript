@@ -15,30 +15,41 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         private const int StackSize = 32 * ScriptValue.Size;
 #endif
         
-        private fixed byte _stack[StackSize];
-        private int _stackOffset;
+        public fixed byte stack[StackSize];
+        public int stackOffset;
     
         public void Push(ScriptValue value)
         {
-            if (_stackOffset + sizeOfScriptValue > StackSize)
+            if (stackOffset + sizeOfScriptValue > StackSize)
                 throw new InvalidOperationException("VirtualMachineThreadStack overflow!");
 
-            fixed (byte* pStack = _stack)
+            fixed (byte* pStack = stack)
             {
-                *(ScriptValue*)(pStack + _stackOffset) = value;
-                _stackOffset += sizeOfScriptValue;
+                *(ScriptValue*)(pStack + stackOffset) = value;
+                stackOffset += sizeOfScriptValue;
             }
         }
     
         public ScriptValue Pop()
         {
-            if (_stackOffset - sizeOfScriptValue < 0)
+            if (stackOffset - sizeOfScriptValue < 0)
                 throw new InvalidOperationException("VirtualMachineThreadStack underflow!");
         
-            fixed (byte* pStack = _stack)
+            fixed (byte* pStack = stack)
             {
-                _stackOffset -= sizeOfScriptValue;
-                return *(ScriptValue*)(pStack + _stackOffset);
+                stackOffset -= sizeOfScriptValue;
+                return *(ScriptValue*)(pStack + stackOffset);
+            }
+        }
+        
+        public ScriptValue Peek()
+        {
+            if (stackOffset - sizeOfScriptValue < 0)
+                throw new InvalidOperationException("VirtualMachineThreadStack underflow!");
+        
+            fixed (byte* pStack = stack)
+            {
+                return *(ScriptValue*)(pStack + stackOffset - sizeOfScriptValue);
             }
         }
     }

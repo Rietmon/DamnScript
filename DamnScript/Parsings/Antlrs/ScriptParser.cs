@@ -101,12 +101,15 @@ namespace DamnScript.Parsings.Antlrs
             var functionCall = callStatement.funcCall();
             var functionName = functionCall.name().GetText();
             var arguments = functionCall.arguments();
-            var argumentCount = arguments?.ChildCount ?? 0;
+            var argumentCount = arguments?.ChildCount / 2 + 1 ?? 0;
             if (argumentCount > 0)
             {
                 for (var i = 0; i < arguments!.ChildCount; i++)
                 {
                     var argument = arguments.GetChild<DamnScriptParser.ArgumentContext>(i);
+                    if (argument == null)
+                        continue;
+                    
                     var expression = argument.expression();
                     ParseExpression(expression, context);
                 }

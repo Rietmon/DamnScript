@@ -125,7 +125,7 @@ namespace DamnScript.Runtimes.Cores
 
 		        return true;
 	        }
-	        static bool Memcmp8(sbyte* left, sbyte* right, int size)
+	        static bool Memcmp8(byte* left, byte* right, int size)
 	        {
 		        for (var i = 0; i < size; i++)
 		        {
@@ -141,7 +141,7 @@ namespace DamnScript.Runtimes.Cores
 		        0 => Memcmp64((long*)left, (long*)right, size >> 3),
 		        2 or 6 => Memcmp16((short*)left, (short*)right, size >> 1),
 		        4 => Memcmp32((int*)left, (int*)right, size >> 2),
-		        _ => Memcmp8((sbyte*)left, (sbyte*)right, size)
+		        _ => Memcmp8((byte*)left, (byte*)right, size)
 	        };
         }
 
