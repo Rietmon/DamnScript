@@ -13,7 +13,7 @@ namespace DamnScript.Runtimes.Serializations
             
             stream.Write(VirtualMachine.Version);
             
-            var threadsCount = vm.threads.Count + vm.threadsAreAwait.Count;
+            var threadsCount = vm.threads.Count;
             stream.Write(threadsCount);
             
             var threadsBegin = vm.threads.Begin;
@@ -31,24 +31,6 @@ namespace DamnScript.Runtimes.Serializations
                 stream.Write(serializedThread);
                 
                 threadsBegin++;
-            }
-            
-            var waitsStart = vm.threadsAreAwait.Begin;
-            var waitsEnd = vm.threadsAreAwait.End;
-            while (waitsStart < waitsEnd)
-            {
-                var thread = waitsStart->pointer.value;
-                var serializedThread = new VirtualMachineSerializedThread
-                {
-                    scriptName = *thread->scriptName,
-                    regionName = thread->regionData->name,
-                    savePoint = thread->savePoint,
-                    stack = thread->stack,
-                    registers = thread->registers
-                };
-                stream.Write(serializedThread);
-                
-                waitsStart++;
             }
 
             return stream;

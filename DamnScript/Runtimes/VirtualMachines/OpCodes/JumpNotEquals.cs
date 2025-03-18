@@ -3,9 +3,11 @@
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct JumpNotEquals
+    public readonly unsafe struct JumpNotEquals
     {
         public const OpCodes OpCode = OpCodes.JumpNotEquals;
+        public static readonly int size = sizeof(JumpNotEquals);
+        
         public readonly OpCodes opCode;
         public readonly int jumpOffset;
     

@@ -15,7 +15,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
     {
         public readonly VirtualMachineThread* value; 
     
-        public ref VirtualMachineThread RefValue => ref *value;
+        public ref VirtualMachineThread RefValue => ref UnsafeUtilities.AsRef<VirtualMachineThread>(value);
     
         public VirtualMachineThreadPtr(VirtualMachineThread* value) => this.value = value;
 
@@ -28,17 +28,17 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
     {
         private byte* ByteCode => regionData->byteCode.start + offset;
 
+        public VirtualMachineThreadStack stack;
+        public VirtualMachineRegisters registers;
+
         public readonly String32* scriptName;
         public readonly RegionData* regionData;
         public readonly ScriptMetadata* metadata;
-
-        public VirtualMachineThreadStack stack;
-        public VirtualMachineRegisters registers;
+        
+        public ObjectPin awaitTaskPin;
     
         public int offset;
         public int savePoint;
-        
-        public ObjectPin awaitTaskPin;
 
         public bool isDisposed;
 
@@ -75,80 +75,78 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 case NativeCall.OpCode:
                 {
                     ExecuteNativeCall(*(NativeCall*)byteCode);
-                    offset += sizeof(NativeCall);
+                    offset += NativeCall.size;
                     break;
                 }
                 case PushToStack.OpCode:
                 {
                     ExecutePushToStack(*(PushToStack*)byteCode);
-                    offset += sizeof(PushToStack);
+                    offset += PushToStack.size;
                     break;
                 }
                 case ExpressionCall.OpCode:
                 {
                     ExecuteExpressionCall(*(ExpressionCall*)byteCode);
-                    offset += sizeof(ExpressionCall);
+                    offset += ExpressionCall.size;
                     break;
                 }
                 case SetSavePoint.OpCode:
                 {
                     ExecuteSetSavePoint();
-                    offset += sizeof(SetSavePoint);
+                    offset += SetSavePoint.size;
                     break;
                 }
                 case JumpNotEquals.OpCode:
                 {
                     if (ExecuteJumpNotEquals(*(JumpNotEquals*)byteCode))
-                        offset += sizeof(JumpNotEquals);
+                        offset += JumpNotEquals.size;
                     break;
                 }
                 case JumpEquals.OpCode:
                 {
                     if (ExecuteJumpIfEquals(*(JumpEquals*)byteCode))
-                        offset += sizeof(JumpEquals);
+                        offset += JumpEquals.size;
                     break;
                 }
                 case Jump.OpCode:
                 {
                     if (ExecuteJump(*(Jump*)byteCode))
-                        offset += sizeof(Jump);
+                        offset += Jump.size;
                     break;
                 }
                 case PushStringToStack.OpCode:
                 {
                     ExecutePushStringToStack(*(PushStringToStack*)byteCode);
-                    offset += sizeof(JumpEquals);
+                    offset += JumpEquals.size;
                     break;
                 }
                 case SetThreadParameters.OpCode:
                 {
                     ExecuteSetThreadParameters(*(SetThreadParameters*)byteCode);
-                    offset += sizeof(SetThreadParameters);
+                    offset += SetThreadParameters.size;
                     break;
                 }
                 case StoreToRegister.OpCode:
                 {
                     ExecuteStoreToRegister(*(StoreToRegister*)byteCode);
-                    offset += sizeof(StoreToRegister);
+                    offset += StoreToRegister.size;
                     break;
                 }
                 case LoadFromRegister.OpCode:
                 {
                     ExecuteLoadFromRegister(*(LoadFromRegister*)byteCode);
-                    offset += sizeof(LoadFromRegister);
+                    offset += LoadFromRegister.size;
                     break;
                 }
                 case DuplicateStack.OpCode:
                 {
                     ExecuteDuplicateStack(*(DuplicateStack*)byteCode);
-                    offset += sizeof(DuplicateStack);
+                    offset += DuplicateStack.size;
                     break;
                 }
                 case OpCodes.OpCodes.Invalid:
                 default:
-                {
                     throw new NotSupportedException($"Invalid OpCode: {opCode}");
-                }
             }
 
             return true;

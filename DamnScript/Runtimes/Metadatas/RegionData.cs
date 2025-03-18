@@ -1,4 +1,5 @@
-﻿using DamnScript.Runtimes.Cores;
+﻿using System;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.Metadatas
@@ -7,12 +8,13 @@ namespace DamnScript.Runtimes.Metadatas
     {
         public readonly RegionData* value;
 
-        public ref RegionData RefValue => ref *value;
+        public ref RegionData RefValue => ref UnsafeUtilities.AsRef<RegionData>(value);
 
         public RegionDataPtr(RegionData* value) => this.value = value;
 
-        public static implicit operator RegionDataPtr(RegionData* value) => new(value);
+        public RegionDataPtr(ref RegionData value) => this.value = UnsafeUtilities.AsPointer(ref value);
 
+        public static implicit operator RegionDataPtr(RegionData* value) => new(value);
         public static implicit operator RegionData*(RegionDataPtr ptr) => ptr.value;
     }
     

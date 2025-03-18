@@ -7,7 +7,7 @@ namespace DamnScript.Runtimes.Metadatas
     {
         public readonly ScriptData* value;
 
-        public ref ScriptData RefValue => ref *value;
+        public ref ScriptData RefValue => ref UnsafeUtilities.AsRef<ScriptData>(value);
 
         public ScriptDataPtr(ScriptData* value) => this.value = value;
 

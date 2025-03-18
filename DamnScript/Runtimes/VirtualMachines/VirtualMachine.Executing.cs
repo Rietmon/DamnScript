@@ -12,7 +12,7 @@ namespace DamnScript.Runtimes.VirtualMachines
 		{
 			ExecuteThreads();
         
-			return HasThreads || HasThreadsAwaiting;
+			return HasThreads;
 		}
 		
 		public bool IsInAwait(VirtualMachineThreadPtr virtualMachineThreadPointer) => 

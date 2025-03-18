@@ -14,7 +14,7 @@ namespace DamnScript.Runtimes.VirtualMachines
     {
         public readonly VirtualMachine* value;
     
-        public ref VirtualMachine RefValue => ref *value;
+        public ref VirtualMachine RefValue => ref UnsafeUtilities.AsRef<VirtualMachine>(value);
     
         public VirtualMachinePtr(VirtualMachine* value) => this.value = value;
 
@@ -27,17 +27,14 @@ namespace DamnScript.Runtimes.VirtualMachines
     {
         public const int Version = 1;
         public bool HasThreads => threads.Count > 0;
-        public bool HasThreadsAwaiting => threadsAreAwait.Count > 0;
 
         public NativeList<VirtualMachineThread> threads;
-        public NativeList<(IntPtr result, VirtualMachineThreadPtr pointer)> threadsAreAwait;
 
         public VirtualMachineThread* currentThread;
 
         public VirtualMachine(int capacity)
         {
             threads = new NativeList<VirtualMachineThread>(capacity);
-            threadsAreAwait = new NativeList<(IntPtr, VirtualMachineThreadPtr)>(capacity);
             currentThread = null;
         }
         

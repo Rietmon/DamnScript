@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using DamnScript.Runtimes.Metadatas;
 
 namespace DamnScript.Runtimes.Cores.Types
 {

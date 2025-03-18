@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using DamnScript.Parsings.Compilings;
@@ -14,11 +16,8 @@ namespace DamnScriptBenchmarks
     {
         public static void Main()
         {
-            Console.WriteLine(sizeof(void*));
-            Console.WriteLine(IntPtr.Size);
-            Console.WriteLine(UnsafeUtilities.PointerSize);
-            //BenchmarkRunner.Run<SimpleExternalCallBenchmark>();
-            //BenchmarkRunner.Run<LoadLargeScriptBenchmark>();
+            // BenchmarkRunner.Run<SimpleExternalCallBenchmark>();
+            // BenchmarkRunner.Run<LoadLargeScriptBenchmark>();
             // var benchmark = new LoadLargeScriptBenchmark();
             // benchmark.Initialize();
             // benchmark.LuaBenchmark();

@@ -34,7 +34,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                     argument.UnpinManagedPointer();
             }
         
-            if (method.hasReturnValue)
+            if (method.hasReturnValue && !method.isAsync)
                 StackPush(returnValue);
         }
 

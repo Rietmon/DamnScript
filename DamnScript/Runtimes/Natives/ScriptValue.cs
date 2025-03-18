@@ -233,7 +233,7 @@ namespace DamnScript.Runtimes.Natives
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exception">Will throw exception if you try to get safe string if ScriptValue is based on primitive or initialized incorrectly</exception>
-        public void* GetInstanceForVirtualMachine() => type switch
+        public void* GetReferencePointer() => type switch
         {
             ValueType.Pointer or ValueType.ReferenceUnsafePointer => pointerValue,
             ValueType.ReferenceSafePointer => safeValue.GetAddress(),
@@ -338,14 +338,19 @@ namespace DamnScript.Runtimes.Natives
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ScriptValue(ObjectPin value) => new(value);
-    
-        public enum ValueType
+
+        public enum ValueType :
+#if DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12
+            int
+#else
+            long
+#endif
         {
             /// <summary>
             /// Represent that ScriptValue initialized incorrectly.
             /// </summary>
             Invalid,
-        
+
             /// <summary>
             /// Represent that ScriptValue is a primitive type (byte, int, long, etc.)
             /// </summary>
@@ -354,7 +359,7 @@ namespace DamnScript.Runtimes.Natives
             /// Pointer to the ANY value.
             /// </summary>
             Pointer,
-        
+
             /// <summary>
             /// Unsafe pointer to the reference type.
             /// </summary>

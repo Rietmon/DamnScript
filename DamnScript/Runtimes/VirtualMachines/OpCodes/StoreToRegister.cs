@@ -4,11 +4,12 @@ using System.Runtime.InteropServices;
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct StoreToRegister
+    public readonly unsafe struct StoreToRegister
     {
         public const OpCodes OpCode = OpCodes.StoreToRegister;
+        public static readonly int size = sizeof(StoreToRegister);
         public readonly OpCodes opCode;
-        public int register;
+        public readonly int register;
 
         public StoreToRegister(int register)
         {

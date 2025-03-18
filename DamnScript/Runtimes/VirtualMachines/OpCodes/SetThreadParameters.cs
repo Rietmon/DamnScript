@@ -4,9 +4,11 @@ using System.Runtime.InteropServices;
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct SetThreadParameters
+    public unsafe struct SetThreadParameters
     {
         public const OpCodes OpCode = OpCodes.SetThreadParameters;
+        public static readonly int size = sizeof(SetThreadParameters);
+        
         public readonly OpCodes opCode;
         public ThreadParameters parameters;
 

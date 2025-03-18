@@ -3,6 +3,7 @@ using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.VirtualMachines.Threads;
 
 namespace DamnScriptExamples
 {

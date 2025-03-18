@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.VirtualMachines.Threads;
 
@@ -8,7 +9,8 @@ namespace DamnScript.Runtimes.Serializations
     public unsafe struct VirtualMachineSerializedThreadPtr
     {
         public VirtualMachineSerializedThread* value;
-        public ref VirtualMachineSerializedThread RefValue => ref *value;
+        
+        public ref VirtualMachineSerializedThread RefValue => ref UnsafeUtilities.AsRef<VirtualMachineSerializedThread>(value);
     
         public VirtualMachineSerializedThreadPtr(VirtualMachineSerializedThread* value) => this.value = value;
 

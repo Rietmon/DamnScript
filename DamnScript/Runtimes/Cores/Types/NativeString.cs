@@ -8,6 +8,8 @@ namespace DamnScript.Runtimes.Cores.Types
     public readonly unsafe struct NativeStringPtr
     {
         public readonly NativeString* value;
+        
+        public ref NativeString RefValue => ref UnsafeUtilities.AsRef<NativeString>(value);
     
         public NativeStringPtr(NativeString* value) => this.value = value;
 

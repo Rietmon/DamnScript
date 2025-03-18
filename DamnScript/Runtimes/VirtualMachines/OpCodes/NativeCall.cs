@@ -4,9 +4,11 @@ using DamnScript.Runtimes.Cores.Types;
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct NativeCall
+    public readonly unsafe struct NativeCall
     {
         public const OpCodes OpCode = OpCodes.NativeCall;
+        public static readonly int size = sizeof(NativeCall);
+        
         public readonly OpCodes opCode;
         public readonly int methodIndex;
         public readonly int argumentsCount;

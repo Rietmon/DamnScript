@@ -10,24 +10,25 @@ namespace DamnScript.Runtimes.Debugs
         public static string DisassembleScriptToString(ScriptDataPtr scriptData)
         {
             var sb = new StringBuilder();
+            sb.Append($"---{scriptData.RefValue.name.ToString()}---");
             for (var i = 0; i < scriptData.RefValue.regions.Length; i++)
             {
-                var region = scriptData.RefValue.regions[i];
-                sb.AppendLine(DisassembleRegionToString(region, scriptData.RefValue.metadata));
+                sb.AppendLine(DisassembleRegionToString(scriptData.value->regions.Begin + i, scriptData.RefValue.metadata));
             }
 
             return sb.ToString();
         }
         
-        public static string DisassembleRegionToString(RegionData region, ScriptMetadata metadata)
+        public static string DisassembleRegionToString(RegionDataPtr region, ScriptMetadata metadata)
         {
+            var ptr = region.value;
             var sb = new StringBuilder();
             sb.Append("           ");         
-            sb.Append(region.name.ToString());
+            sb.Append(ptr->name.ToString());
             sb.AppendLine(":");
             
             var offset = 0;
-            var data = region.byteCode;
+            var data = ptr->byteCode;
             while (data.IsInRange(offset))
             {
                 var byteCode = data.start + offset;

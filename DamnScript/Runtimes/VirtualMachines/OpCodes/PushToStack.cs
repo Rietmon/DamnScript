@@ -3,9 +3,11 @@
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
     [StructLayout(LayoutKind.Sequential)]
-    public readonly struct PushToStack
+    public readonly unsafe struct PushToStack
     {
         public const OpCodes OpCode = OpCodes.PushToStack;
+        public static readonly int size = sizeof(PushToStack);
+        
         public readonly OpCodes opCode;
         public readonly long value;
 

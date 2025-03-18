@@ -115,7 +115,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             var argumentsCount = method.argumentsCount;
             var methodPointer = method.methodPointer;
             
-            var objectInstance = a->GetInstanceForVirtualMachine();
+            var objectInstance = a->GetReferencePointer();
             switch (argumentsCount)
             {
                 case 0: ((delegate*<void>)methodPointer)
@@ -149,7 +149,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             var argumentsCount = method.argumentsCount;
             var methodPointer = method.methodPointer;
 
-            var objectInstance = a->GetInstanceForVirtualMachine();
+            var objectInstance = a->GetReferencePointer();
             return argumentsCount switch
             {
                 1 => ((delegate*<void*, T>)methodPointer)

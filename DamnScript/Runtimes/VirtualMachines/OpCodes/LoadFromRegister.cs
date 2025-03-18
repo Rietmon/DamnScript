@@ -4,11 +4,13 @@ using System.Runtime.InteropServices;
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct LoadFromRegister
+    public readonly unsafe struct LoadFromRegister
     {
         public const OpCodes OpCode = OpCodes.LoadFromRegister;
+        public static readonly int size = sizeof(LoadFromRegister);
+        
         public readonly OpCodes opCode;
-        public int register;
+        public readonly int register;
 
         public LoadFromRegister(int register)
         {
