@@ -17,13 +17,14 @@ namespace DamnScript.Runtimes.VirtualMachines
         public ref VirtualMachine RefValue => ref UnsafeUtilities.AsRef<VirtualMachine>(value);
     
         public VirtualMachinePtr(VirtualMachine* value) => this.value = value;
+        public VirtualMachinePtr(ref VirtualMachine value) => this.value = UnsafeUtilities.AsPointer(ref value);
 
         public static implicit operator VirtualMachinePtr(VirtualMachine* value) => new(value);
     
         public static implicit operator VirtualMachine*(VirtualMachinePtr ptr) => ptr.value;
     }
 
-    public unsafe partial struct VirtualMachine
+    public unsafe partial struct VirtualMachine : IDisposable
     {
         public const int Version = 1;
         public bool HasThreads { get; private set; }
@@ -32,15 +33,17 @@ namespace DamnScript.Runtimes.VirtualMachines
 
         public VirtualMachineThread* currentThread;
 
+        public bool IsAlive { get; private set; }
+
         public VirtualMachine(int capacity)
         {
-            threads = new NativeArray<VirtualMachineThread>(capacity);
-            UnsafeUtilities.Memset(threads.Begin, 0, threads.Length * sizeof(VirtualMachineThread));
-            currentThread = null;
             HasThreads = false;
+            threads = new NativeArray<VirtualMachineThread>(capacity, true);
+            currentThread = null;
+            IsAlive = true;
         }
         
-        public VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, String32 regionName)
+        public VirtualMachineThreadHandle RunThread(ScriptDataPtr scriptData, String32 regionName)
         {
             var regionData = scriptData.value->GetRegionData(regionName);
             if (regionData == null)
@@ -54,12 +57,11 @@ namespace DamnScript.Runtimes.VirtualMachines
         
             var slot = GetEmptySlotOrReAlloc();
             threads[slot] = thread;
-            var ptr = threads.Begin + slot;
             HasThreads = true;
-            return new VirtualMachineThreadPtr(ptr);
+            return new VirtualMachineThreadHandle(slot, new VirtualMachinePtr(ref this));
         }
         
-        public VirtualMachineThreadPtr RunThreadFromSerialized(ScriptDataPtr scriptData, VirtualMachineSerializedThreadPtr serializedThread)
+        public VirtualMachineThreadHandle RunThreadFromSerialized(ScriptDataPtr scriptData, VirtualMachineSerializedThreadPtr serializedThread)
         {
             var data = serializedThread.value;
             var regionData = scriptData.value->GetRegionData(data->regionName);
@@ -80,9 +82,8 @@ namespace DamnScript.Runtimes.VirtualMachines
         
             var slot = GetEmptySlotOrReAlloc();
             threads[slot] = thread;
-            var ptr = threads.Begin + slot;
             HasThreads = true;
-            return new VirtualMachineThreadPtr(ptr);
+            return new VirtualMachineThreadHandle(slot, new VirtualMachinePtr(ref this));
         }
 
         private int GetEmptySlotOrReAlloc()
@@ -107,14 +108,38 @@ namespace DamnScript.Runtimes.VirtualMachines
             }
             
             var index = Find(this);
-            if (index == -1)
-                threads = threads.ReAlloc(threads.Length * 2);
+            if (index != -1)
+                return index;
+                
+            var newThreads = new NativeArray<VirtualMachineThread>(threads.Length * 2, true);
+            UnsafeUtilities.Memcpy(threads.Begin, newThreads.Begin, sizeof(VirtualMachineThread) * threads.Length);
+            threads.Dispose();
+            threads = newThreads;
             
             index = Find(this);
             if (index == -1)
                 throw new Exception($"Failed to find empty slot in threads array even after realloc!");
             
             return index;
+        }
+
+        public void Dispose()
+        {
+            if (HasThreads)
+            {
+                var begin = threads.Begin;
+                var end = threads.End;
+                while (begin < end)
+                {
+                    if (begin->isAlive)
+                        begin->Dispose();
+
+                    begin++;
+                }
+            }
+
+            threads.Dispose();
+            this = default;
         }
     }
 }

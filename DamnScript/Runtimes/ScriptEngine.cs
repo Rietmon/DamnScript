@@ -15,6 +15,14 @@ namespace DamnScript.Runtimes
 {
     public static unsafe class ScriptEngine
     {
+        public static VirtualMachinePtr MainPtr => new(ref _main); 
+        
+        /// <summary>
+        /// Returns the current thread executing right now.
+        /// </summary>
+        /// <returns>Pointer to thread</returns>
+        public static VirtualMachineThreadPtr CurrentThreadPtr => _main.currentThread;
+        
         private static VirtualMachine _main = new(16);
         
         /// <summary>
@@ -85,7 +93,7 @@ namespace DamnScript.Runtimes
         /// <param name="scriptData">Pointer to script data</param>
         /// <param name="regionName">Region which should be run. By default, it's "Main" region</param>
         /// <returns>Pointer to thread</returns>
-        public static VirtualMachineThreadPtr RunThread(ScriptDataPtr scriptData, String32 regionName) => 
+        public static VirtualMachineThreadHandle RunThread(ScriptDataPtr scriptData, String32 regionName) => 
             _main.RunThread(scriptData, regionName);
 
         /// <summary>
@@ -113,13 +121,6 @@ namespace DamnScript.Runtimes
         /// <param name="scriptData">Name of the script</param>
         public static void UnloadScript(ScriptDataPtr scriptData) => 
             ScriptsDataManager.UnloadScript(scriptData);
-        
-        /// <summary>
-        /// Returns the current thread executing right now.
-        /// </summary>
-        /// <returns>Pointer to thread</returns>
-        public static VirtualMachineThreadPtr GetCurrentThread() => 
-            _main.currentThread;
 
         /// <summary>
         /// Serialize the Main virtual machine to bytes then return it.

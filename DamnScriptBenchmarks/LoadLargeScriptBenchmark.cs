@@ -1,5 +1,9 @@
 using System.Text;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Diagnosers;
+using BenchmarkDotNet.Loggers;
 using DamnScript.Parsings.Compilings;
 using DamnScript.Runtimes;
 using DamnScript.Runtimes.Natives;
@@ -7,6 +11,7 @@ using MoonSharp.Interpreter;
 
 namespace DamnScriptBenchmarks;
 
+[Config(typeof(BenchmarksConfig))]
 public class LoadLargeScriptBenchmark
 {
 	public static int result;

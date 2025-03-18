@@ -18,7 +18,7 @@ public static class __Shared
 {
 	public static void PushToStack(ScriptValue value)
 	{
-		ScriptEngine.GetCurrentThread().RefValue.StackPush(value);
+		ScriptEngine.CurrentThreadPtr.RefValue.StackPush(value);
 	}
 
 	public static ScriptValue Run(string method)
@@ -38,13 +38,13 @@ public static class __Shared
 		var thread = ScriptEngine.RunThread(scriptData, "Main");
 		while (ScriptEngine.ExecuteVirtualMachineNext())
 		{
-			Assert.That(thread.RefValue.awaitTaskPin.hash, Is.Not.EqualTo(0));
+			Assert.That(thread.Ptr.RefValue.awaitTaskPin.hash, Is.Not.EqualTo(0));
 			Thread.Sleep(10);
 		}
-		Assert.That(thread.RefValue.isAlive, Is.False);
+		Assert.That(thread.Ptr.RefValue.isAlive, Is.False);
 		ScriptEngine.UnloadScript(scriptData);
-		var value = thread.RefValue.StackPop();
-		Assert.That(thread.RefValue.stack.stackOffset, Is.EqualTo(0));
+		var value = thread.Ptr.RefValue.StackPop();
+		Assert.That(thread.Ptr.RefValue.stack.stackOffset, Is.EqualTo(0));
 		return value;
 	}
 }

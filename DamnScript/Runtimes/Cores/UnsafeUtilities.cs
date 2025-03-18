@@ -47,7 +47,7 @@ namespace DamnScript.Runtimes.Cores
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
 	        Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(ReAlloc)}) Reallocating at {new IntPtr(ptr):X} to {size.ToString()} bytes.");
 #endif
-
+	        
 	        var newPtr = Marshal.ReAllocHGlobal(new IntPtr(ptr), new IntPtr(size)).ToPointer();
 	        
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
@@ -220,14 +220,5 @@ namespace DamnScript.Runtimes.Cores
             }
             return hash;
         }
-
-        public static bool IsDefault<T>(T value) where T : unmanaged => IsDefault(&value);
-        
-        public static bool IsDefault<T>(T* value) where T : unmanaged
-		{
-	        var size = sizeof(T);
-	        var def = default(T);
-	        return Memcmp(value, &def, size);
-		}
     }
 }

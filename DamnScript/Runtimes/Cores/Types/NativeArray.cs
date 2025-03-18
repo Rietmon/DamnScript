@@ -21,10 +21,12 @@ namespace DamnScript.Runtimes.Cores.Types
             [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref Begin[index];
         }
     
-        public NativeArray(int length)
+        public NativeArray(int length, bool clear = false)
         {
             Length = length;
             Begin = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
+            if (clear)
+                UnsafeUtilities.Memset(Begin, 0, sizeof(T) * length);
         }
     
         public NativeArray(int length, T* begin)
@@ -44,15 +46,6 @@ namespace DamnScript.Runtimes.Cores.Types
         {
             UnsafeUtilities.Free(Begin);
             this = default;
-        }
-    }
-    
-    public static unsafe class NativeArrayExtensions
-    {
-        public static NativeArray<T> ReAlloc<T>(this NativeArray<T> array, int newLength) where T : unmanaged
-        {
-            UnsafeUtilities.ReAlloc(array.Begin, sizeof(T) * newLength);
-            return new NativeArray<T>(newLength, array.Begin);
         }
     }
 }

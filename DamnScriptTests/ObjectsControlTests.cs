@@ -30,11 +30,14 @@ public class ObjectsControlTests
 		}
 	}
 	
-	static ScriptValue Create() => ScriptValue.FromReferenceUnsafe(new TestClass() { Value = 5 });
+	private static ScriptValue Create() => ScriptValue.FromReferenceUnsafe(new TestClass() { Value = 5 });
 	
 	[Test]
 	public void CreationAndGetTest()
 	{
+		ScriptEngine.MainPtr.RefValue.Dispose();
+		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);
+
 		ScriptEngine.RegisterNativeMethod(Create);
 		
 		Assert.That(Run("Create();").GetReferenceUnsafe<TestClass>().Value, Is.EqualTo(5));
@@ -43,6 +46,9 @@ public class ObjectsControlTests
 	[Test]
 	public void MethodCallTest()
 	{
+		ScriptEngine.MainPtr.RefValue.Dispose();
+		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);
+		
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Add)));
 		
@@ -52,6 +58,9 @@ public class ObjectsControlTests
 	[Test]
 	public void MethodCallWithManyArgumentsTest()
 	{
+		ScriptEngine.MainPtr.RefValue.Dispose();
+		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);
+
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Simulate)));
 		
@@ -61,6 +70,9 @@ public class ObjectsControlTests
 	[Test]
 	public void MethodCallWithManyArgumentsAsyncTest()
 	{
+		ScriptEngine.MainPtr.RefValue.Dispose();
+		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);
+
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.SimulateAsync)));
 		

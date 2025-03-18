@@ -21,7 +21,7 @@ namespace DamnScriptExamples
 
 		private static unsafe void MakeSavePoint()
 		{
-			var thread = ScriptEngine.GetCurrentThread();
+			var thread = ScriptEngine.CurrentThreadPtr;
 			thread.RefValue.ExecuteSetSavePoint();
 			var data = ScriptEngine.SerializeToSerializationStream();
 			var stream = File.Open("Example8.save", FileMode.OpenOrCreate);
