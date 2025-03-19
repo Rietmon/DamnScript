@@ -6,8 +6,10 @@ public class ObjectsControlTests
 	{
 		public int Value { get; set; }
 		
-		public ScriptValue Add(ScriptValue value) 
+		public unsafe ScriptValue Add(ScriptValue value)
 		{
+			var thisValue = this;
+			Console.WriteLine($"Value={value.longValue}   This={new IntPtr(UnsafeUtilities.ReferenceToPointer(thisValue)).ToInt64()}");
 			Value += value.intValue;
 			return ScriptValue.FromReferenceUnsafe(this);
 		}
