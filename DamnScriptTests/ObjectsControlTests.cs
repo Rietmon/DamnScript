@@ -52,7 +52,7 @@ public class ObjectsControlTests
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Add)));
 		
-		Assert.That(Run("Add(Create(), 10);").GetReferenceUnsafe<TestClass>().Value, Is.EqualTo(15));
+		Assert.That(Run("Add(Create(), 10);").GetReferenceUnsafe<TestClass>()?.Value, Is.EqualTo(15));
 	}
 	
 	[Test]
@@ -64,7 +64,7 @@ public class ObjectsControlTests
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Simulate)));
 		
-		Assert.That(Run("Simulate(Create(), 1, 2, 3, 4, 5, 6, 7, 8, 9);").GetReferenceUnsafe<TestClass>().Value, Is.EqualTo(50));
+		Assert.That(Run("Simulate(Create(), 1, 2, 3, 4, 5, 6, 7, 8, 9);").GetReferenceUnsafe<TestClass>()?.Value, Is.EqualTo(50));
 	}
 	
 	[Test]
