@@ -4,10 +4,21 @@ namespace DamnScript.Runtimes.Cores.Pins
 {
     public readonly unsafe struct ObjectPin : IEquatable<ObjectPin>
     {
+        /// <summary>
+        /// Target reference of the object.
+        /// </summary>
         public object Target => PinHelper.GetTarget(this);
         
-        public bool IsAllocated => hash != 0;
+        /// <summary>
+        /// Return TEMPORARY address of the object.
+        /// !!! DO NOT CACHE THID VALUE IN .NET CORE!!! .NET CORE GC CAN MOVE OBJECTS IN MEMORY!!!
+        /// </summary>
+        /// <returns>Address of pinned reference</returns>
+        public void* Address => PinHelper.GetAddress(this);
         
+        /// <summary>
+        /// Hash of the object.
+        /// </summary>
         public readonly long hash;
         
         public ObjectPin(long hash) => this.hash = hash;
@@ -16,13 +27,6 @@ namespace DamnScript.Runtimes.Cores.Pins
         /// Let GC collect the object.
         /// </summary>
         public void Free() => PinHelper.Free(this);
-        
-        /// <summary>
-        /// Return TEMPORARY address of the object.
-        /// !!! DO NOT CACHE THID VALUE IN .NET CORE!!! .NET CORE GC CAN MOVE OBJECTS IN MEMORY!!!
-        /// </summary>
-        /// <returns></returns>
-        public void* GetAddress() => PinHelper.GetAddress(this);
         
         /// <summary>
         /// Return pinned object and free it.

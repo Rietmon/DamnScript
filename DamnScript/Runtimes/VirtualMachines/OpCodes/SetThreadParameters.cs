@@ -6,10 +6,10 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct SetThreadParameters
     {
-        public const OpCodes OpCode = OpCodes.SetThreadParameters;
+        public const OpCodeType OpCode = OpCodeType.SetThreadParameters;
         public static readonly int size = sizeof(SetThreadParameters);
         
-        public readonly OpCodes opCode;
+        public readonly OpCodeType opCode;
         public ThreadParameters parameters;
 
         public SetThreadParameters(ThreadParameters parameters)

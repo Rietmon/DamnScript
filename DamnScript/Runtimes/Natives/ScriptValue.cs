@@ -14,15 +14,10 @@ namespace DamnScript.Runtimes.Natives
     [StructLayout(LayoutKind.Explicit, Size = Size)]
     public unsafe struct ScriptValue : IEquatable<ScriptValue>
     {
-#if DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12
-        public const int Size = 12;
-        public const int TypeSize = 4;
-#else
-        public const int Size = 16;
-        public const int TypeSize = 8;
-#endif
+        public const int TypeSize = UnsafeUtilities.PointerSize;
+        public const int Size = TypeSize + 8;
         
-        private static readonly string ExceptionMessageInvalidTypeForPointers = 
+        private static readonly string exceptionMessageInvalidTypeForPointers = 
             $"Unsupported type! Expected {nameof(ValueType.Pointer)}, " +
             $"{nameof(ValueType.ReferenceSafePointer)} or " +
             $"{nameof(ValueType.ReferenceUnsafePointer)}!";
@@ -99,7 +94,6 @@ namespace DamnScript.Runtimes.Natives
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptValue FromReferenceUnsafe<T>(T value) where T : class => 
             new(UnsafeUtilities.ReferenceToPointer(value), ValueType.ReferenceUnsafePointer);
-    
     
         /// <summary>
         /// Alloc copy of the struct and create a new ScriptValue from it.
@@ -182,7 +176,7 @@ namespace DamnScript.Runtimes.Natives
                     return value;
                 }
                 default:
-                    throw new NotSupportedException(ExceptionMessageInvalidTypeForPointers);
+                    throw new NotSupportedException(exceptionMessageInvalidTypeForPointers);
             }
         }
 
@@ -236,8 +230,8 @@ namespace DamnScript.Runtimes.Natives
         public void* GetReferencePointer() => type switch
         {
             ValueType.Pointer or ValueType.ReferenceUnsafePointer => pointerValue,
-            ValueType.ReferenceSafePointer => safeValue.GetAddress(),
-            _ => throw new Exception(ExceptionMessageInvalidTypeForPointers)
+            ValueType.ReferenceSafePointer => safeValue.Address,
+            _ => throw new Exception(exceptionMessageInvalidTypeForPointers)
         };
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

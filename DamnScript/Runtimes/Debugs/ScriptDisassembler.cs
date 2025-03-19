@@ -32,7 +32,7 @@ namespace DamnScript.Runtimes.Debugs
             while (data.IsInRange(offset))
             {
                 var byteCode = data.start + offset;
-                var opCode = *(OpCodes*)byteCode;
+                var opCode = *(OpCodeType*)byteCode;
                 switch (opCode)
                 {
                     case NativeCall.OpCode:

@@ -6,10 +6,10 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public readonly unsafe struct SetSavePoint
     {
-        public const OpCodes OpCode = OpCodes.SetSavePoint;
+        public const OpCodeType OpCode = OpCodeType.SetSavePoint;
         public static readonly int size = sizeof(SetSavePoint);
         
-        public readonly OpCodes opCode;
+        public readonly OpCodeType opCode;
     
         public SetSavePoint(int _) 
         { 

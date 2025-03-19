@@ -1,10 +1,17 @@
-#define DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
 using System;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
+	/// <summary>
+	/// Virtual machine thread handle.
+	/// Because of reallocation of the thread array, this handle is a safe way to access the real thread pointer.
+	/// Please do not cache pointers to the thread, because it can be reallocated.
+	/// </summary>
 	public readonly unsafe struct VirtualMachineThreadHandle
 	{
+		/// <summary>
+		/// Pointer to the thread.
+		/// </summary>
 		public VirtualMachineThreadPtr Ptr => 
 #if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
 			virtualMachinePtr.value->IsAlive 

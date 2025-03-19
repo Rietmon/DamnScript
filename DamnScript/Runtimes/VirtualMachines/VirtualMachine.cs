@@ -47,11 +47,7 @@ namespace DamnScript.Runtimes.VirtualMachines
         {
             var regionData = scriptData.value->GetRegionData(regionName);
             if (regionData == null)
-            {
-                Debugging.LogError($"[{nameof(VirtualMachine)}] ({nameof(RunThread)}) " +
-                                   $"Region with name {regionName} not found in script \"{scriptData.value->name}\"!");
-                return default;
-            }
+                throw new Exception($"Region with name {regionName} not found in script \"{scriptData.value->name}\"!");
             
             var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata);
         
@@ -66,11 +62,7 @@ namespace DamnScript.Runtimes.VirtualMachines
             var data = serializedThread.value;
             var regionData = scriptData.value->GetRegionData(data->regionName);
             if (regionData == null)
-            {
-                Debugging.LogError($"[{nameof(VirtualMachine)}] ({nameof(RunThread)}) " +
-                                   $"Region with name {data->regionName} not found in script \"{scriptData.value->name}\"!");
-                return default;
-            }
+                throw new Exception($"Region with name {data->regionName} not found in script \"{scriptData.value->name}\"!");
             
             var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata)
             {
@@ -86,7 +78,7 @@ namespace DamnScript.Runtimes.VirtualMachines
             return new VirtualMachineThreadHandle(slot, new VirtualMachinePtr(ref this));
         }
 
-        private int GetEmptySlotOrReAlloc()
+        public int GetEmptySlotOrReAlloc()
         {
             static int Find(VirtualMachine vm)
             {
@@ -123,6 +115,9 @@ namespace DamnScript.Runtimes.VirtualMachines
             return index;
         }
 
+        /// <summary>
+        /// Dispose current virtual machine and stops all threads.
+        /// </summary>
         public void Dispose()
         {
             if (HasThreads)

@@ -5,10 +5,10 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public readonly unsafe struct ExpressionCall
     {
-        public const OpCodes OpCode = OpCodes.ExpressionCall;
+        public const OpCodeType OpCode = OpCodeType.ExpressionCall;
         public static readonly int size = sizeof(ExpressionCall);
         
-        public readonly OpCodes opCode;
+        public readonly OpCodeType opCode;
         public readonly ExpressionCallType type;
 
         public ExpressionCall(ExpressionCallType type)

@@ -6,10 +6,10 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public readonly unsafe struct NativeCall
     {
-        public const OpCodes OpCode = OpCodes.NativeCall;
+        public const OpCodeType OpCode = OpCodeType.NativeCall;
         public static readonly int size = sizeof(NativeCall);
         
-        public readonly OpCodes opCode;
+        public readonly OpCodeType opCode;
         public readonly int methodIndex;
         public readonly int argumentsCount;
 

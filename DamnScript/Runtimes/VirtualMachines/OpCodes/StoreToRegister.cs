@@ -6,9 +6,9 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
     [StructLayout(LayoutKind.Sequential)]
     public readonly unsafe struct StoreToRegister
     {
-        public const OpCodes OpCode = OpCodes.StoreToRegister;
+        public const OpCodeType OpCode = OpCodeType.StoreToRegister;
         public static readonly int size = sizeof(StoreToRegister);
-        public readonly OpCodes opCode;
+        public readonly OpCodeType opCode;
         public readonly int register;
 
         public StoreToRegister(int register)

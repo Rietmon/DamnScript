@@ -15,12 +15,14 @@ namespace DamnScript.Runtimes
 {
     public static unsafe class ScriptEngine
     {
+        /// <summary>
+        /// Pointer to the main virtual machine which is allocated by default.
+        /// </summary>
         public static VirtualMachinePtr MainPtr => new(ref _main); 
         
         /// <summary>
         /// Returns the current thread executing right now.
         /// </summary>
-        /// <returns>Pointer to thread</returns>
         public static VirtualMachineThreadPtr CurrentThreadPtr => _main.currentThread;
         
         private static VirtualMachine _main = new(16);

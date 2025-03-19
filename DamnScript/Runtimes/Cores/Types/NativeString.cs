@@ -85,7 +85,7 @@ namespace DamnScript.Runtimes.Cores.Types
                 _gcHandleBuffer = UnsafeUtilities.Pin(_buffer);
             }
 
-            var stringPtr = (UnmanagedString*)_gcHandleBuffer.GetAddress();
+            var stringPtr = (UnmanagedString*)_gcHandleBuffer.Address;
             stringPtr->length = length;
             fixed (char* ptr = data)
                 UnsafeUtilities.Memcpy(ptr, stringPtr->data, length * sizeof(char));

@@ -69,7 +69,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 return false;
         
             var byteCode = ByteCode;
-            var opCode = *(OpCodes.OpCodes*)byteCode;
+            var opCode = *(OpCodes.OpCodeType*)byteCode;
             switch (opCode)
             {
                 case NativeCall.OpCode:
@@ -117,7 +117,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 case PushStringToStack.OpCode:
                 {
                     ExecutePushStringToStack(*(PushStringToStack*)byteCode);
-                    offset += JumpEquals.size;
+                    offset += PushStringToStack.size;
                     break;
                 }
                 case SetThreadParameters.OpCode:
@@ -144,7 +144,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                     offset += DuplicateStack.size;
                     break;
                 }
-                case OpCodes.OpCodes.Invalid:
+                case OpCodes.OpCodeType.Invalid:
                 default:
                     throw new NotSupportedException($"Invalid OpCode: {opCode}");
             }
@@ -152,6 +152,10 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             return true;
         }
 
+        /// <summary>
+        /// Mark this thread as dead.
+        /// This call will not clear VM thread data, but it should be after the next ExecuteNext call
+        /// </summary>
         public void Dispose()
         {
             isAlive = false;
