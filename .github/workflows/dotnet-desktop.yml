@@ -12,7 +12,7 @@ jobs:
   build:
     strategy:
       matrix:
-        configuration: [Debug, Release]
+        configuration: [Release]
 
     runs-on: windows-latest  
 
@@ -27,7 +27,7 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '7.0.x'
+          dotnet-version: '8.0.x'
 
       # Setup MSBuild for building desktop applications
       - name: Set up MSBuild
@@ -41,11 +41,6 @@ jobs:
       - name: Build project
         run: dotnet build --configuration ${{ matrix.configuration }}
 
-      # Install NUnit Console if needed (optional)
-      - name: Install NUnit Console
-        run: dotnet tool install --global NUnit.ConsoleRunner --version 3.11.1
-
-      # Run unit tests using NUnit
-      - name: Run NUnit tests
-        run: |
-          nunit3-console ./_Binaries/${{ matrix.configuration }}/net7.0/net7.0/DamnScriptTests.dll
+      # Run unit tests
+      - name: Run tests
+        run: dotnet test --configuration ${{ matrix.configuration }} --no-build --verbosity normal
