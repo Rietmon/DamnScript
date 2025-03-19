@@ -144,7 +144,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                     offset += DuplicateStack.size;
                     break;
                 }
-                case OpCodes.OpCodeType.Invalid:
+                case OpCodeType.Invalid:
                 default:
                     throw new NotSupportedException($"Invalid OpCode: {opCode}");
             }

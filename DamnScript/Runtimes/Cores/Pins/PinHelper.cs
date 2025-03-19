@@ -10,7 +10,7 @@ namespace DamnScript.Runtimes.Cores.Pins
         
         public static ObjectPin Pin(object obj)
         {
-#if !DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
+#if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj), "Cannot pin a null object.");
 #endif
