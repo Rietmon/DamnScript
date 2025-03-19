@@ -11,7 +11,7 @@ public class ObjectsControlTests
 			var thisValue = this;
 			Console.WriteLine($"Value={value.longValue}   This={new IntPtr(UnsafeUtilities.ReferenceToPointer(thisValue)).ToInt64()}");
 			Value += value.intValue;
-			return ScriptValue.FromReferenceUnsafe(this);
+			return ScriptValue.FromReferenceUnsafe(thisValue);
 		}
 		
 		public ScriptValue Simulate(ScriptValue value1, ScriptValue value2, ScriptValue value3, ScriptValue value4, 
