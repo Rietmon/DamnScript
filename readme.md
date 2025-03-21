@@ -136,6 +136,7 @@ public static void TestRun()
 - ✅ Conditions, loops, serialization
 - ✅ Memory checks
 - ✅ Manual saves
+- ⏳ Unit Tests
 - ⏳ Auto-saves
 - ⏳ Unloading inactive metadata
 - ⏳ Migration when bytecode changes
