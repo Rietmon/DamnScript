@@ -16,9 +16,9 @@ namespace DamnScriptTests;
 
 public static class __Shared
 {
-	public static void PushToStack(ScriptValue value)
+	public static void PushToStack(ScriptValuePtr value)
 	{
-		ScriptEngine.CurrentThreadPtr.RefValue.StackPush(value);
+		ScriptEngine.CurrentThreadPtr.RefValue.StackPush(value.LongValue);
 	}
 
 	public static ScriptValue Run(string method)

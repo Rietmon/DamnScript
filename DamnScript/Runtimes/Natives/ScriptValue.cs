@@ -9,10 +9,20 @@ namespace DamnScript.Runtimes.Natives
 {
     public readonly unsafe struct ScriptValuePtr
     {
-        
-        public readonly ScriptValue* value;
+        public bool BoolValue => value->boolValue;
+        public byte ByteValue => value->byteValue;
+        public short ShortValue => value->shortValue;
+        public int IntValue => value->intValue;
+        public long LongValue => value->longValue;
+        public float FloatValue => value->floatValue;
+        public double DoubleValue => value->doubleValue;
+        public char CharValue => value->charValue;
+        public void* PointerValue => value->pointerValue;
+        public ObjectPin SafeValue => value->safeValue;
         
         public ref ScriptValue RefValue => ref UnsafeUtilities.AsRef<ScriptValue>(value);
+        
+        public readonly ScriptValue* value;
         
         public ScriptValuePtr(ScriptValue* value) => this.value = value;
         

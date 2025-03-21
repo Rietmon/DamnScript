@@ -12,9 +12,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
     public static unsafe class VirtualMachineData
     {
         private static readonly Type voidType = typeof(void);
-        private static readonly Type scriptValueType = typeof(ScriptValue);
+        private static readonly Type scriptValuePtrType = typeof(ScriptValuePtr);
         private static readonly Type taskType = typeof(Task);
-        private static readonly Type taskScriptValueType = typeof(Task<ScriptValue>);
+        private static readonly Type taskScriptValuePtrType = typeof(Task<ScriptValuePtr>);
         
         private static readonly Dictionary<NativeMethodId, NativeMethod> methods = new();
     
@@ -27,21 +27,18 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
             var argumentsCount = parameters.Length;
             foreach (var parameter in parameters)
             {
-                if (parameter.ParameterType == typeof(ScriptValue)) 
+                if (parameter.ParameterType == scriptValuePtrType) 
                     continue;
             
-                Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
-                                   $"Method \"{name}\" has invalid parameter type: {parameter.ParameterType}");
-                //return;
+                throw new Exception("Invalid parameter type for native method. Only ScriptValuePtr is supported.");
             }
         
             var returnType = method.ReturnType;
-            if (returnType!= voidType && returnType != scriptValueType && 
-                returnType != taskType && returnType != taskScriptValueType)
+            if (returnType!= voidType && returnType != scriptValuePtrType && 
+                returnType != taskType && returnType != taskScriptValuePtrType)
             {
-                Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
-                                   $"Method \"{name}\" has invalid return type: {returnType}");
-                //return;
+                throw new Exception("Invalid return type for native method. " +
+                                    "Only void, ScriptValuePtr, Task and Task<ScriptValuePtr> are supported.");
             }
             
             var methodPointer = method.MethodHandle.GetFunctionPointer().ToPointer();
@@ -49,13 +46,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
             var isStatic = method.IsStatic;
             if (!isStatic)
                 argumentsCount++;
+            
             var hasReturnValue = method.ReturnType != typeof(void) || method.ReturnType.IsGenericType;
             if (argumentsCount > 10)
             {
-                Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
-                                   $"The maximum number of arguments is 10 for native method. " +
-                                   "Probably it is 10 but you are using a non-static method which is add one more argument for object pointer.");
-                return;
+                throw new Exception("The maximum number of arguments is 10 for native method. " +
+                                    "Probably it is 10 but you are using a non-static method which is add one more argument for object pointer.");
             }
             
             var id = new NativeMethodId(name, argumentsCount);

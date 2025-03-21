@@ -6,33 +6,32 @@ public class ObjectsControlTests
 	{
 		public int Value { get; set; }
 		
-		public unsafe ScriptValue Add(ScriptValue value)
+		public ScriptValuePtr Add(ScriptValuePtr value)
 		{
 			var thisValue = this;
-			Console.WriteLine($"Value={value.longValue}   This={new IntPtr(UnsafeUtilities.ReferenceToPointer(thisValue)).ToInt64()}");
-			Value += value.intValue;
-			return ScriptValue.FromReferenceUnsafe(thisValue);
+			Value += value.IntValue;
+			return ScriptValue.FromReferenceUnsafe(thisValue).Return();
 		}
 		
-		public ScriptValue Simulate(ScriptValue value1, ScriptValue value2, ScriptValue value3, ScriptValue value4, 
-			ScriptValue value5, ScriptValue value6, ScriptValue value7, ScriptValue value8, ScriptValue value9)
+		public ScriptValuePtr Simulate(ScriptValuePtr value1, ScriptValuePtr value2, ScriptValuePtr value3, ScriptValuePtr value4, 
+			ScriptValuePtr value5, ScriptValuePtr value6, ScriptValuePtr value7, ScriptValuePtr value8, ScriptValuePtr value9)
 		{
-			Value += value1.intValue + value2.intValue + value3.intValue + value4.intValue +
-				value5.intValue + value6.intValue + value7.intValue + value8.intValue + value9.intValue;
-			return ScriptValue.FromReferenceUnsafe(this);
+			Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
+				value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
+			return ScriptValue.FromReferenceUnsafe(this).Return();
 		}
 		
-		public async Task<ScriptValue> SimulateAsync(ScriptValue value1, ScriptValue value2, ScriptValue value3, ScriptValue value4, 
-			ScriptValue value5, ScriptValue value6, ScriptValue value7, ScriptValue value8, ScriptValue value9)
+		public async Task<ScriptValuePtr> SimulateAsync(ScriptValuePtr value1, ScriptValuePtr value2, ScriptValuePtr value3, ScriptValuePtr value4, 
+			ScriptValuePtr value5, ScriptValuePtr value6, ScriptValuePtr value7, ScriptValuePtr value8, ScriptValuePtr value9)
 		{
+			Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
+			         value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
 			await Task.Delay(100);
-			Value += value1.intValue + value2.intValue + value3.intValue + value4.intValue +
-				value5.intValue + value6.intValue + value7.intValue + value8.intValue + value9.intValue;
-			return ScriptValue.FromReferenceUnsafe(this);
+			return ScriptValue.FromReferenceUnsafe(this).Return();
 		}
 	}
 	
-	private static ScriptValue Create() => ScriptValue.FromReferenceUnsafe(new TestClass() { Value = 5 });
+	private static ScriptValuePtr Create() => ScriptValue.FromReferenceUnsafe(new TestClass() { Value = 5 }).Return();
 	
 	[Test]
 	public void CreationAndGetTest()
