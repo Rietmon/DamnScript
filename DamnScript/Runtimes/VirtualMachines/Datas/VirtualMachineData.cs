@@ -32,7 +32,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
             
                 Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
                                    $"Method \"{name}\" has invalid parameter type: {parameter.ParameterType}");
-                return;
+                //return;
             }
         
             var returnType = method.ReturnType;
@@ -41,7 +41,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
             {
                 Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
                                    $"Method \"{name}\" has invalid return type: {returnType}");
-                return;
+                //return;
             }
             
             var methodPointer = method.MethodHandle.GetFunctionPointer().ToPointer();

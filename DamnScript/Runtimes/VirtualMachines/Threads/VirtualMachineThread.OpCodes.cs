@@ -11,242 +11,285 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
 	public unsafe partial struct VirtualMachineThread
 	{
-        private static void Print(string message) 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteNativeCall(NativeCall nativeCall)
+		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            => Debugging.Log(message);
-#else
-        { }
+            Debugging.Log($"Begin native call...");
 #endif
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecuteNativeCall(NativeCall nativeCall)
-        {
-            Print($"Begin native call...");
-            var methodName = metadata->GetMethodName(nativeCall.methodIndex)->ToString32();
-            var argumentsCount = nativeCall.argumentsCount;
-            if (!VirtualMachineData.TryGetNativeMethod(methodName, argumentsCount, out var method))
-                throw new Exception($"Method \"{methodName}\" with {argumentsCount} arguments not found!");
-        
-            Print($"Found native method \"{methodName}\" with {argumentsCount} arguments.");
-            var argumentsStack = stackalloc ScriptValue[method.argumentsCount];
-            for (var i = method.argumentsCount - 1; i >= 0; i--)
-                argumentsStack[i] = StackPop();
-        
-            var returnValue = VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out var result);
+			var methodName = metadata->GetMethodName(nativeCall.methodIndex)->ToString32();
+			var argumentsCount = nativeCall.argumentsCount;
+			if (!VirtualMachineData.TryGetNativeMethod(methodName, argumentsCount, out var method))
+				throw new Exception($"Method \"{methodName}\" with {argumentsCount} arguments not found!");
 
-            if (result != null)
-            {
-                Print($"Method is async, pin result...");
-                awaitTaskPin = UnsafeUtilities.Pin(result);
-            }
-        
-            for (var i = 0; i < method.argumentsCount; i++)
-            {
-                var argument = argumentsStack[i];
-                if (argument.type == ScriptValue.ValueType.ReferenceSafePointer)
-                    argument.UnpinManagedPointer();
-            }
-            Print($"Free arguments stack...");
-        
-            if (method.hasReturnValue && !method.isAsync)
-            {
-                Print($"Push return value ({returnValue.type}):({returnValue.longValue}) to stack...");
-                StackPush(returnValue);
-            }
-            Print($"End native call.");
-        }
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Found native method \"{methodName}\" with {argumentsCount} arguments.");
+#endif
+			var argumentsStack = stackalloc ScriptValue[method.argumentsCount];
+			for (var i = method.argumentsCount - 1; i >= 0; i--)
+				argumentsStack[i] = StackPop();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecutePushToStack(PushToStack pushToStack)
-        {
-            Print($"Push to stack ({pushToStack.value})");
-            StackPush(pushToStack.value);
-        }
+			ScriptValue.returnValuePtr = UnsafeUtilities.AsPointer(ref returnValue);
+			VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out var result);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecuteExpressionCall(ExpressionCall expressionCall)
-        {
-            Print($"Begin expression call ({expressionCall.type})...");
-            switch (expressionCall.type)
-            {
-                case ExpressionCall.ExpressionCallType.Add:
-                {
-                    var right = StackPop();
-                    var left = StackPop();
-                    StackPush(left + right);
-                    break;
-                }
-                case ExpressionCall.ExpressionCallType.Subtract:
-                {
-                    var right = StackPop();
-                    var left = StackPop();
-                    StackPush(left - right);
-                    break;
-                }
-                case ExpressionCall.ExpressionCallType.Multiply:
-                {
-                    var right = StackPop();
-                    var left = StackPop();
-                    StackPush(left * right);
-                    break;
-                }
-                case ExpressionCall.ExpressionCallType.Divide:
-                {
-                    var right = StackPop();
-                    var left = StackPop();
-                    StackPush(left / right);
-                    break;
-                }
-                case ExpressionCall.ExpressionCallType.Modulo:
-                {
-                    var right = StackPop();
-                    var left = StackPop();
-                    StackPush(left % right);
-                    break;
-                }
-                case ExpressionCall.ExpressionCallType.Negate: StackPush(-StackPop()); break;
-                case ExpressionCall.ExpressionCallType.Equal: StackPush(StackPop() == StackPop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.NotEqual: StackPush(StackPop() != StackPop() ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Greater:
-                {
-                    var right = StackPop();
-                    var left = StackPop();
-                    StackPush(left > right);
-                    break;
-                }
-                case ExpressionCall.ExpressionCallType.GreaterOrEqual:
-                {
-                    var right = StackPop();
-                    var left = StackPop();
-                    StackPush(left >= right);
-                    break;
-                }
-                case ExpressionCall.ExpressionCallType.Less:
-                {
-                    var right = StackPop();
-                    var left = StackPop();
-                    StackPush(left < right);
-                    break;
-                }
-                case ExpressionCall.ExpressionCallType.LessOrEqual:
-                {
-                    var right = StackPop();
-                    var left = StackPop();
-                    StackPush(left <= right);
-                    break;
-                }
-                case ExpressionCall.ExpressionCallType.And: StackPush(StackPop() != 0 && StackPop() != 0 ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Or: StackPush(StackPop() != 0 || StackPop() != 0 ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Not: StackPush(StackPop() == 0 ? 1 : 0); break;
-                case ExpressionCall.ExpressionCallType.Test: StackPush(StackPop() != 0 ? 1 : 0); break;
-                default: throw new ArgumentOutOfRangeException($"{nameof(expressionCall)} == {expressionCall.type}");
-            }
-            Print($"End expression call");
-        }
+			if (result != null)
+			{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+                Debugging.Log($"Method is async, pin result...");
+#endif
+				awaitTaskPin = UnsafeUtilities.Pin(result);
+			}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecuteSetSavePoint()
-        {
-            Print($"Set save point...");
-            savePoint = offset;
-        }
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteJumpNotEquals(JumpNotEquals jumpNotEquals)
-        {
-            Print($"Begin Jump not equals...");
-            if (StackPop() == StackPop()) 
-                return false;
-        
-            Print($"Jump to {offset}");
-            offset = jumpNotEquals.jumpOffset;
-            return true;
-        }
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ExecuteJumpIfEquals(JumpEquals jumpEquals)
-        {
-            Print($"Begin Jump equals...");
-            if (StackPop() != StackPop())
-                return false;
-        
-            Print($"Jump to {offset}");
-            offset = jumpEquals.jumpOffset;
-            return true;
-        }
+			for (var i = 0; i < method.argumentsCount; i++)
+			{
+				var argument = argumentsStack[i];
+				if (argument.type == ScriptValue.ValueType.ReferenceSafePointer)
+					argument.UnpinManagedPointer();
+			}
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Free arguments stack...");
+#endif
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool ExecuteJump(Jump jump)
-        {
-            Print($"Jump to {offset}");
-            offset = jump.jumpOffset;
-            return true;
-        }
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecutePushStringToStack(PushStringToStack pushStringToStack)
-        {
-            Print($"Push string to stack...");
-            var index = pushStringToStack.index;
-            var str = metadata->GetNativeString(index);
-            if (str == null)
-                throw new Exception($"String not found by index: {index}");
-        
-            StackPush(str);
-        }
+			if (method.hasReturnValue && !method.isAsync)
+			{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+                Debugging.Log($"Push return value ({returnValue.type}):({returnValue.longValue}) to stack...");
+#endif
+				StackPush(returnValue);
+			}
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"End native call.");
+#endif
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecuteSetThreadParameters(SetThreadParameters setThreadParameters)
-        {
-            throw new NotImplementedException();
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecuteStoreToRegister(StoreToRegister storeToRegister)
-        {
-            Print("Begin store to register...");
-            var registerIndex = storeToRegister.register;
-            Print($"Store to ({registerIndex}) register...");
-            registers[registerIndex] = StackPop().longValue;
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecuteLoadFromRegister(LoadFromRegister loadFromRegister)
-        {
-            Print("Begin load from register...");
-            var registerIndex = loadFromRegister.register;
-            Print($"Load from ({registerIndex}) register...");
-            StackPush(registers[registerIndex]);
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExecuteDuplicateStack(DuplicateStack _)
-        {
-            Print("Begin duplicate stack...");
-            StackPush(StackPeek());
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecutePushToStack(PushToStack pushToStack)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Push to stack ({pushToStack.value})");
+#endif
+			StackPush(pushToStack.value);
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void StackPush(ScriptValue value)
-        {
-            Print($"STACK: Push value ({value.type}):({value.longValue}) to stack...");
-            stack.Push(value);
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteExpressionCall(ExpressionCall expressionCall)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Begin expression call ({expressionCall.type})...");
+#endif
+			switch (expressionCall.type)
+			{
+				case ExpressionCall.ExpressionCallType.Add:
+				{
+					var right = StackPop();
+					var left = StackPop();
+					StackPush(left + right);
+					break;
+				}
+				case ExpressionCall.ExpressionCallType.Subtract:
+				{
+					var right = StackPop();
+					var left = StackPop();
+					StackPush(left - right);
+					break;
+				}
+				case ExpressionCall.ExpressionCallType.Multiply:
+				{
+					var right = StackPop();
+					var left = StackPop();
+					StackPush(left * right);
+					break;
+				}
+				case ExpressionCall.ExpressionCallType.Divide:
+				{
+					var right = StackPop();
+					var left = StackPop();
+					StackPush(left / right);
+					break;
+				}
+				case ExpressionCall.ExpressionCallType.Modulo:
+				{
+					var right = StackPop();
+					var left = StackPop();
+					StackPush(left % right);
+					break;
+				}
+				case ExpressionCall.ExpressionCallType.Negate: StackPush(-StackPop()); break;
+				case ExpressionCall.ExpressionCallType.Equal: StackPush(StackPop() == StackPop() ? 1 : 0); break;
+				case ExpressionCall.ExpressionCallType.NotEqual: StackPush(StackPop() != StackPop() ? 1 : 0); break;
+				case ExpressionCall.ExpressionCallType.Greater:
+				{
+					var right = StackPop();
+					var left = StackPop();
+					StackPush(left > right);
+					break;
+				}
+				case ExpressionCall.ExpressionCallType.GreaterOrEqual:
+				{
+					var right = StackPop();
+					var left = StackPop();
+					StackPush(left >= right);
+					break;
+				}
+				case ExpressionCall.ExpressionCallType.Less:
+				{
+					var right = StackPop();
+					var left = StackPop();
+					StackPush(left < right);
+					break;
+				}
+				case ExpressionCall.ExpressionCallType.LessOrEqual:
+				{
+					var right = StackPop();
+					var left = StackPop();
+					StackPush(left <= right);
+					break;
+				}
+				case ExpressionCall.ExpressionCallType.And:
+					StackPush(StackPop() != 0 && StackPop() != 0 ? 1 : 0); break;
+				case ExpressionCall.ExpressionCallType.Or: StackPush(StackPop() != 0 || StackPop() != 0 ? 1 : 0); break;
+				case ExpressionCall.ExpressionCallType.Not: StackPush(StackPop() == 0 ? 1 : 0); break;
+				case ExpressionCall.ExpressionCallType.Test: StackPush(StackPop() != 0 ? 1 : 0); break;
+				default: throw new ArgumentOutOfRangeException($"{nameof(expressionCall)} == {expressionCall.type}");
+			}
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"End expression call");
+#endif
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue StackPop()
-        {
-            var value = stack.Pop();
-            Print($"STACK: Pop value ({value.type}):({value.longValue}) from stack...");
-            return value;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteSetSavePoint()
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Set save point...");
+#endif
+			savePoint = offset;
+		}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue StackPeek()
-        {
-            var value = stack.Peek();
-            Print($"STACK: Peek value ({value.type}):({value.longValue}) from stack...");
-            return value;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool ExecuteJumpNotEquals(JumpNotEquals jumpNotEquals)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Begin Jump not equals...");
+#endif
+			if (StackPop() == StackPop())
+				return false;
+
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Jump to {offset}");
+#endif
+			offset = jumpNotEquals.jumpOffset;
+			return true;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool ExecuteJumpIfEquals(JumpEquals jumpEquals)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Begin Jump equals...");
+#endif
+			if (StackPop() != StackPop())
+				return false;
+
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Jump to {offset}");
+#endif
+			offset = jumpEquals.jumpOffset;
+			return true;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private bool ExecuteJump(Jump jump)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Jump to {offset}");
+#endif
+			offset = jump.jumpOffset;
+			return true;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecutePushStringToStack(PushStringToStack pushStringToStack)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Push string to stack...");
+#endif
+			var index = pushStringToStack.index;
+			var str = metadata->GetNativeString(index);
+			if (str == null)
+				throw new Exception($"String not found by index: {index}");
+
+			StackPush(str);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteSetThreadParameters(SetThreadParameters setThreadParameters)
+		{
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteStoreToRegister(StoreToRegister storeToRegister)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log("Begin store to register...");
+#endif
+			var registerIndex = storeToRegister.register;
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Store to ({registerIndex}) register...");
+#endif
+			registers[registerIndex] = StackPop().longValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteLoadFromRegister(LoadFromRegister loadFromRegister)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log("Begin load from register...");
+#endif
+			var registerIndex = loadFromRegister.register;
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"Load from ({registerIndex}) register...");
+#endif
+			StackPush(registers[registerIndex]);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteDuplicateStack(DuplicateStack _)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log("Begin duplicate stack...");
+#endif
+			StackPush(StackPeek());
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void StackPush(ScriptValue value)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"STACK: Push value ({value.type}):({value.longValue}) to stack...");
+#endif
+			stack.Push(value);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public ScriptValue StackPop()
+		{
+			var value = stack.Pop();
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"STACK: Pop value ({value.type}):({value.longValue}) from stack...");
+#endif
+			return value;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public ScriptValue StackPeek()
+		{
+			var value = stack.Peek();
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"STACK: Peek value ({value.type}):({value.longValue}) from stack...");
+#endif
+			return value;
+		}
 	}
 }

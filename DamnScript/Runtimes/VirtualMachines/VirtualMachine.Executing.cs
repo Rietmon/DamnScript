@@ -67,8 +67,8 @@ namespace DamnScript.Runtimes.VirtualMachines
 					{
 						begin->awaitTaskPin.Free();
 						begin->awaitTaskPin = default;
-						if (result is Task<ScriptValue> task)
-							begin->StackPush(task.Result);
+						if (result is Task<ScriptValuePtr> task)
+							begin->StackPush(*task.Result.value);
 						goto executeThreadProcedure;
 					}
 				}

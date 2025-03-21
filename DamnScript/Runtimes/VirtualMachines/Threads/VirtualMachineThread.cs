@@ -31,6 +31,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public VirtualMachineThreadStack stack;
         public VirtualMachineRegisters registers;
 
+        public ScriptValue returnValue;
+
         public readonly String32* scriptName;
         public readonly RegionData* regionData;
         public readonly ScriptMetadata* metadata;
@@ -44,14 +46,20 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 
         public VirtualMachineThread(String32* scriptName, RegionData* regionData, ScriptMetadata* metadata)
         {
+            stack = new VirtualMachineThreadStack();
+            registers = new VirtualMachineRegisters();
+            
+            returnValue = new ScriptValue();
+            
             this.scriptName = scriptName;
             this.regionData = regionData;
             this.metadata = metadata;
-            stack = new VirtualMachineThreadStack();
-            registers = new VirtualMachineRegisters();
+            
+            awaitTaskPin = default;
+            
             offset = 0;
             savePoint = 0;
-            awaitTaskPin = default;
+            
             isAlive = true;
         }
     

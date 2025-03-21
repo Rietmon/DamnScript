@@ -7,6 +7,19 @@ using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.Natives
 {
+    public readonly unsafe struct ScriptValuePtr
+    {
+        
+        public readonly ScriptValue* value;
+        
+        public ref ScriptValue RefValue => ref UnsafeUtilities.AsRef<ScriptValue>(value);
+        
+        public ScriptValuePtr(ScriptValue* value) => this.value = value;
+        
+        public static implicit operator ScriptValuePtr(ScriptValue* value) => new(value);
+        public static implicit operator ScriptValue*(ScriptValuePtr ptr) => ptr.value;
+    }
+    
     /// <summary>
     /// This struct is a wrapper to handle any type of value in the DamnScript.
     /// It has a fixed size and can be used in the virtual machine.
@@ -16,6 +29,8 @@ namespace DamnScript.Runtimes.Natives
     {
         public const int TypeSize = UnsafeUtilities.PointerSize;
         public const int Size = TypeSize + 8;
+        
+        public static ScriptValue* returnValuePtr;
         
         private static readonly string exceptionMessageInvalidTypeForPointers = 
             $"Unsupported type! Expected {nameof(ValueType.Pointer)}, " +
@@ -74,6 +89,12 @@ namespace DamnScript.Runtimes.Natives
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(ObjectPin value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
+
+        public ScriptValuePtr Return()
+        {
+            *returnValuePtr = this;
+            return new ScriptValuePtr(returnValuePtr);
+        }
         
         /// <summary>
         /// Create a new ScriptValue from a reference type and pin it. Safest way to handle references.
