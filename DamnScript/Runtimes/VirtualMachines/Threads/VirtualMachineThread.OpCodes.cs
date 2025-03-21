@@ -1,3 +1,4 @@
+#define DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 using System;
 using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Cores;

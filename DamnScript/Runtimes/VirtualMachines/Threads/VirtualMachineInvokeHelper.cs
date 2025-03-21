@@ -23,9 +23,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 }
                 else
                 {
-                    task = method.hasReturnValue
-                        ? InvokeStaticValue<Task<SV>>(method, arguments)
-                        : InvokeStaticValue<Task>(method, arguments);
+                    task = InvokeStaticValue<Task>(method, arguments);
                 }
             }
             else
@@ -43,9 +41,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 else
                 {
                     var taskPtr = InvokeValue(method, arguments);
-                    task = method.hasReturnValue 
-                        ? UnsafeUtilities.PointerToReference<Task<SV>>(taskPtr) 
-                        : UnsafeUtilities.PointerToReference<Task>(taskPtr);
+                    task = UnsafeUtilities.PointerToReference<Task>(taskPtr);
                 }
             }
 
