@@ -29,6 +29,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         private byte* ByteCode => regionData->byteCode.start + offset;
 
         public VirtualMachineThreadStack stack;
+        public VirtualMachineThreadParametersStack parametersStack;
         public VirtualMachineRegisters registers;
 
         public ScriptValue returnValue;
@@ -47,6 +48,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public VirtualMachineThread(String32* scriptName, RegionData* regionData, ScriptMetadata* metadata)
         {
             stack = new VirtualMachineThreadStack();
+            parametersStack = new VirtualMachineThreadParametersStack();
             registers = new VirtualMachineRegisters();
             
             returnValue = new ScriptValue();

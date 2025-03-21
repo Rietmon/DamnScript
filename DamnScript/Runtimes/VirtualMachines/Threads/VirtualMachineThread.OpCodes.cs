@@ -24,7 +24,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
             Debugging.Log($"Found native method \"{methodName}\" with {argumentsCount} arguments.");
 #endif
-			var argumentsStack = stackalloc ScriptValue[method.argumentsCount];
+			var argumentsStack = parametersStack.BeginPtr;
 			for (var i = method.argumentsCount - 1; i >= 0; i--)
 				argumentsStack[i] = StackPop();
 
