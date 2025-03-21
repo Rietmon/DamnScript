@@ -35,9 +35,9 @@ namespace DamnScriptExamples
     
         // As I said before, the safest way to pass the object to the script, is to pass it as a pinned reference.
         // But you can pass it as a pointer, but you should be careful with it, especially for .NET Core.
-        public static ScriptValue GetObject(ScriptValue index)
+        public static ScriptValuePtr GetObject(ScriptValuePtr index)
         {
-            return ScriptValue.FromReferenceUnsafe(objects[index.longValue]);
+            return ScriptValue.FromReferenceUnsafe(objects[index.LongValue]).Return();
         }
     
         public static void Run()

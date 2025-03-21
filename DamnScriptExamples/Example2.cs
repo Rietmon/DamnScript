@@ -21,9 +21,9 @@ namespace DamnScriptExamples
         // ScriptValue.ToSafeString() is a safe way to get the string from the ScriptValue.
         // If it is pinned will auto unpin it.
         // P.S. Every value used from stack will be unpinned automatically.
-        public static ScriptValue GetString()
+        public static ScriptValuePtr GetString()
         {
-            return ScriptValue.FromReferenceUnsafe("Hello from C#!");
+            return ScriptValue.FromReferenceUnsafe("Hello from C#!").Return();
         }
     
         public static void Run()

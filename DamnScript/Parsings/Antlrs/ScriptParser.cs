@@ -50,13 +50,12 @@ namespace DamnScript.Parsings.Antlrs
 
             if (context.isError)
             {
-                Debugging.LogError($"[{nameof(ScriptParser)}] ({nameof(ParseScript)}) " +
-                                   $"Error while parsing script {scriptData->name}!");
                 scriptData->Dispose();
                 *scriptData = default;
                 regions.Dispose();
                 strings.Dispose();
-                return;
+                
+                throw new Exception($"Error while parsing script {scriptData->name}!");
             }
 
             scriptData->regions = regions.ToArrayAlloc();
@@ -374,7 +373,7 @@ namespace DamnScript.Parsings.Antlrs
             var registerIndex = context->GetRegisterIndex(str32);
             if (registerIndex == -1)
             {
-                Debugging.LogError($"[{nameof(ScriptParser)}] ({nameof(AssemblyVariable)}) " +
+                Debugging.LogError($"[{nameof(ScriptParser)}] ({nameof(AssemblyVariable)}) PARSING:" +
                                    $"Variable {variableName} not found!");
                 context->isError = true;
                 return;

@@ -15,39 +15,10 @@ namespace DamnScriptExamples
             Console.WriteLine($"DAMN SCRIPT: {value.RefValue.ToString()}");
         }
         
-        public static ScriptValuePtr MakeString(ScriptValuePtr value)
-        {
-            return ScriptValue.FromReferenceUnsafe("Hello, " + value.RefValue).Return();
-        }
-        
-        public static async Task<ScriptValuePtr> MakeStringAsync(ScriptValuePtr value)
-        {
-            var result = "HELLO, " + value.RefValue;
-            await Task.Delay(1000);
-            result += "!!!";
-            return ScriptValue.FromReferenceUnsafe(result).Return();
-        }
-    
         public static void Main()
         {
             ScriptEngine.RegisterNativeMethod(Print);
-            ScriptEngine.RegisterNativeMethod(MakeString);
-            ScriptEngine.RegisterNativeMethod(MakeStringAsync);
-
-            var code = @"
-                        region Main {
-                            Print(MakeString(""WORLD""));
-                            Print(MakeStringAsync(""WORLD""));
-                        }
-                        ";
-            var stream = new MemoryStream(Encoding.UTF8.GetBytes(code));
-            var scriptData = ScriptEngine.LoadScript(stream, "Main");
-            var thread = ScriptEngine.RunThread(scriptData, "Main");
-            while (ScriptEngine.ExecuteVirtualMachineNext())
-                Thread.Sleep(10);
-            ScriptEngine.UnloadScript(scriptData);
-            return;
-
+            
             Begin();
         }
 

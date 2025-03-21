@@ -19,8 +19,8 @@ namespace DamnScriptExamples
 ";
 
         private static int _counter;
-        public static ScriptValue CanHandle() => ++_counter < 10;
-        public static ScriptValue GetCounter() => _counter;
+        public static ScriptValuePtr CanHandle() => new ScriptValue(++_counter < 10).Return();
+        public static ScriptValuePtr GetCounter() => new ScriptValue(_counter).Return();
     
         public static void Run()
         {

@@ -26,6 +26,21 @@ namespace DamnScript.Runtimes.Natives
         
         public ScriptValuePtr(ScriptValue* value) => this.value = value;
         
+        public T GetReferencePin<T>(bool freeBeforeReturn = true) where T : class => 
+            value->GetReferencePin<T>(freeBeforeReturn);
+        
+        public T GetReferenceUnsafe<T>() where T : class => value->GetReferenceUnsafe<T>();
+        
+        public T GetStruct<T>(bool freeBeforeReturn = true) where T : unmanaged => value->GetStruct<T>(freeBeforeReturn);
+        
+        public SafeString GetSafeString() => value->GetSafeString();
+        
+        public void* GetReferencePointer() => value->GetReferencePointer();
+        
+        public void UnpinManagedPointer() => value->UnpinManagedPointer();
+        
+        public override string ToString() => value->ToString();
+        
         public static implicit operator ScriptValuePtr(ScriptValue* value) => new(value);
         public static implicit operator ScriptValue*(ScriptValuePtr ptr) => ptr.value;
     }

@@ -70,9 +70,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
             if (methods.TryGetValue(id, out method)) 
                 return true;
         
-            Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(TryGetNativeMethod)}) " +
-                               $"Method not found: {methodName}");
-            return false;
+            throw new Exception($"Method with the name \"{methodName}\" and with {argumentsCount.ToString()} not found!");
         }
     }
 }

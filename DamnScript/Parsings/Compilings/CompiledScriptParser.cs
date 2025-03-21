@@ -20,11 +20,7 @@ namespace DamnScript.Parsings.Compilings
 
             var version = stream.Read<int>();
             if (version != ScriptCompiler.Version)
-            {
-                Debugging.LogError($"[{nameof(CompiledScriptParser)}] ({nameof(ParseCompiledScript)}) " +
-                                   $"Invalid script version: {version}");
-                return;
-            }
+                throw new Exception($"Invalid script version: {version}. Expected: {ScriptCompiler.Version}");
 
             var regionsCount = stream.Read<int>();
             for (var i = 0; i < regionsCount; i++)

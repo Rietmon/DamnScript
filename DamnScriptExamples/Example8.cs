@@ -30,9 +30,9 @@ namespace DamnScriptExamples
 			stream.Close();
 		}
 		
-		private static async Task Await(ScriptValue ms)
+		private static async Task Await(ScriptValuePtr ms)
 		{
-			await Task.Delay(ms.intValue);
+			await Task.Delay(ms.IntValue);
 		}
         
 		public static unsafe void Run()

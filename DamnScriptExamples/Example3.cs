@@ -19,15 +19,15 @@ namespace DamnScriptExamples
         // This is an exception to the rule, because we are using async/await
         // Async methods can use Task as a return type ("Task" == "void")
         // If we gonna return any value from async method - it should be "Task<ScriptValue>"
-        public static async Task PrintWithDelay(ScriptValue value)
+        public static async Task PrintWithDelay(ScriptValuePtr value)
         {
             await Task.Delay(1000);
-            Console.WriteLine(value.longValue);
+            Console.WriteLine(value.LongValue);
         }
     
-        public static ScriptValue GetInt()
+        public static ScriptValuePtr GetInt()
         {
-            return 5;
+            return new ScriptValue(5).Return();
         }
     
         public static void Run()
