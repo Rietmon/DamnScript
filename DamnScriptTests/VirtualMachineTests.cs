@@ -44,8 +44,8 @@ public class VirtualMachineTests
 	[Test]
 	public unsafe void ReuseScriptData()
 	{
-		ScriptEngine.MainPtr.RefValue.Dispose();
-		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);		
+		ScriptEngine.mainPtr.RefValue.Dispose();
+		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);		
 		ScriptEngine.RegisterNativeMethod(Empty);
 		
 		var code = @"
@@ -71,7 +71,7 @@ public class VirtualMachineTests
 			Assert.That(thread.Ptr.RefValue.stack.stackOffset, Is.EqualTo(0));
 			Assert.That(thread.Ptr.RefValue.isAlive, Is.False);
 		}
-		Assert.That(ScriptEngine.MainPtr.RefValue.threads.Length, Is.EqualTo(16));
+		Assert.That(ScriptEngine.mainPtr.RefValue.threads.Length, Is.EqualTo(16));
 		ScriptEngine.UnloadScript(scriptDataPtr);
 		Assert.That(scriptDataPtr.RefValue, Is.Not.EqualTo(scriptData));
 	}
@@ -79,8 +79,8 @@ public class VirtualMachineTests
 	[Test]
 	public void ReAllocThreadsTest()
 	{
-		ScriptEngine.MainPtr.RefValue.Dispose();
-		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);		
+		ScriptEngine.mainPtr.RefValue.Dispose();
+		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);		
 		ScriptEngine.RegisterNativeMethod(Empty);
 		
 		var code = @"
@@ -101,7 +101,7 @@ public class VirtualMachineTests
 			threads[i].Ptr.RefValue.offset = i;
 		}
 		
-		Assert.That(ScriptEngine.MainPtr.RefValue.threads.Length, Is.EqualTo(32));
+		Assert.That(ScriptEngine.mainPtr.RefValue.threads.Length, Is.EqualTo(32));
 		
 		for (var i = 0; i < 32; i++)
 			Assert.That(threads[i].Ptr.RefValue.offset, Is.EqualTo(i));
@@ -109,10 +109,10 @@ public class VirtualMachineTests
 	}
 	
 	[Test]
-	public void AllocWhenExecutingTest()
+	public unsafe void AllocWhenExecutingTest()
 	{
-		ScriptEngine.MainPtr.RefValue.Dispose();
-		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);		
+		ScriptEngine.mainPtr.RefValue.Dispose();
+		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);		
 		ScriptEngine.RegisterNativeMethod(CreateTestClass);
 		ScriptEngine.RegisterNativeMethod(Wait);
 		ScriptEngine.RegisterNativeMethod(BigAlloc);
@@ -140,6 +140,6 @@ public class VirtualMachineTests
 			Thread.Sleep(10);
 		ScriptEngine.UnloadScript(scriptData);
 		
-		Assert.That(thread.Ptr.RefValue.StackPop().GetReferenceUnsafe<string>(), Is.EqualTo("Test VALUE"));
+		Assert.That(thread.Ptr.value->StackPop().GetReferenceUnsafe<string>(), Is.EqualTo("Test VALUE"));
 	}
 }

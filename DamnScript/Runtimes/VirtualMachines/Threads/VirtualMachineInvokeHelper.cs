@@ -17,13 +17,14 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 if (!method.isAsync)
                 {
                     if (method.hasReturnValue)
-                        return InvokeStaticValue<SV>(method, arguments);
+                        return InvokeStaticValue(method, arguments);
 
                     InvokeStaticVoid(method, arguments);
                 }
                 else
                 {
-                    task = InvokeStaticValue<Task>(method, arguments);
+                    var taskPtr = InvokeStaticValue(method, arguments);
+                    task = UnsafeUtilities.PointerToReference<Task>(taskPtr);
                 }
             }
             else
@@ -80,33 +81,33 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             }
         }
     
-        public static T InvokeStaticValue<T>(NativeMethod method, SV* a)
+        public static void* InvokeStaticValue(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;
             var methodPointer = method.methodPointer;
             var returnValue = argumentsCount switch
             {
-                0 => ((delegate*<T>)methodPointer)
+                0 => ((delegate*<void*>)methodPointer)
                     (),
-                1 => ((delegate*<SV*, T>)methodPointer)
+                1 => ((delegate*<SV*, void*>)methodPointer)
                     (a),
-                2 => ((delegate*<SV*, SV*, T>)methodPointer)
+                2 => ((delegate*<SV*, SV*, void*>)methodPointer)
                     (a, a + 1),
-                3 => ((delegate*<SV*, SV*, SV*, T>)methodPointer)
+                3 => ((delegate*<SV*, SV*, SV*, void*>)methodPointer)
                     (a, a + 1, a + 2),
-                4 => ((delegate*<SV*, SV*, SV*, SV*, T>)methodPointer)
+                4 => ((delegate*<SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (a, a + 1, a + 2, a + 3),
-                5 => ((delegate*<SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                5 => ((delegate*<SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (a, a + 1, a + 2, a + 3, a + 4),
-                6 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                6 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (a, a + 1, a + 2, a + 3, a + 4, a + 5),
-                7 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                7 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (a, a + 1, a + 2, a + 3, a + 4, a + 5, a + 6),
-                8 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                8 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (a, a + 1, a + 2, a + 3, a + 4, a + 5, a + 6, a + 7),
-                9 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                9 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (a, a + 1, a + 2, a + 3, a + 4, a + 5, a + 6, a + 7, a + 8),
-                10 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                10 => ((delegate*<SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (a, a + 1, a + 2, a + 3, a + 4, a + 5, a + 6, a + 7, a + 8, a + 9),
                 _ => throw new Exception("Invalid arguments count! It must be between 0 and 10.")
             };

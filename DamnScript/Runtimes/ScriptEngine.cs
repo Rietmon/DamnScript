@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using DamnScript.Parsings;
 using DamnScript.Parsings.Serializations;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Metadatas;
@@ -16,16 +17,20 @@ namespace DamnScript.Runtimes
     public static unsafe class ScriptEngine
     {
         /// <summary>
-        /// Pointer to the main virtual machine which is allocated by default.
-        /// </summary>
-        public static VirtualMachinePtr MainPtr => new(ref _main); 
-        
-        /// <summary>
         /// Returns the current thread executing right now.
         /// </summary>
-        public static VirtualMachineThreadPtr CurrentThreadPtr => _main.currentThread;
+        public static VirtualMachineThreadPtr CurrentThreadPtr => mainPtr.value->currentThread;
         
-        private static VirtualMachine _main = new(16);
+        /// <summary>
+        /// Pointer to the main virtual machine which is allocated by default.
+        /// </summary>
+        public static readonly VirtualMachinePtr mainPtr;
+        
+        static ScriptEngine()
+        {
+            mainPtr = UnsafeUtilities.Alloc<VirtualMachine>();
+            *mainPtr.value = new VirtualMachine(16);
+        }
         
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -96,7 +101,7 @@ namespace DamnScript.Runtimes
         /// <param name="regionName">Region which should be run. By default, it's "Main" region</param>
         /// <returns>Pointer to thread</returns>
         public static VirtualMachineThreadHandle RunThread(ScriptDataPtr scriptData, String32 regionName) => 
-            _main.RunThread(scriptData, regionName);
+            mainPtr.value->RunThread(scriptData, regionName);
 
         /// <summary>
         /// Execute all threads that are present in the main scheduler.
@@ -105,7 +110,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <returns>Does scheduler have other threads?</returns>
         public static bool ExecuteVirtualMachineNext() =>
-            _main.ExecuteNext();
+            mainPtr.value->ExecuteNext();
     
         /// <summary>
         /// Return script data from cache by provided name if it's present.
@@ -129,7 +134,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <returns>Serialization stream with bytes</returns>
         public static SerializationStream SerializeToSerializationStream() => 
-            VirtualMachineSerialization.SerializeToSerializationStream(_main);
+            VirtualMachineSerialization.SerializeToSerializationStream(mainPtr);
 
         /// <summary>
         /// Deserialize the Main virtual machine from provided stream.
@@ -153,7 +158,7 @@ namespace DamnScript.Runtimes
                     continue;
                 }
                 
-                _main.RunThreadFromSerialized(scriptData, begin);
+                mainPtr.value->RunThreadFromSerialized(scriptData, begin);
                 begin++;
             }
             

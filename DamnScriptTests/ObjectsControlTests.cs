@@ -36,8 +36,8 @@ public class ObjectsControlTests
 	[Test]
 	public void CreationAndGetTest()
 	{
-		ScriptEngine.MainPtr.RefValue.Dispose();
-		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);
+		ScriptEngine.mainPtr.RefValue.Dispose();
+		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
 
 		ScriptEngine.RegisterNativeMethod(Create);
 		
@@ -47,8 +47,8 @@ public class ObjectsControlTests
 	[Test]
 	public void MethodCallTest()
 	{
-		ScriptEngine.MainPtr.RefValue.Dispose();
-		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);
+		ScriptEngine.mainPtr.RefValue.Dispose();
+		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
 		
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Add)));
@@ -59,8 +59,8 @@ public class ObjectsControlTests
 	[Test]
 	public void MethodCallWithManyArgumentsTest()
 	{
-		ScriptEngine.MainPtr.RefValue.Dispose();
-		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);
+		ScriptEngine.mainPtr.RefValue.Dispose();
+		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
 
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Simulate)));
@@ -71,8 +71,8 @@ public class ObjectsControlTests
 	[Test]
 	public void MethodCallWithManyArgumentsAsyncTest()
 	{
-		ScriptEngine.MainPtr.RefValue.Dispose();
-		ScriptEngine.MainPtr.RefValue = new VirtualMachine(16);
+		ScriptEngine.mainPtr.RefValue.Dispose();
+		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
 
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.SimulateAsync)));

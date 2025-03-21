@@ -7,7 +7,7 @@ namespace DamnScript.Runtimes.Serializations
 {
     public static unsafe class VirtualMachineSerialization
     {
-        public static SerializationStream SerializeToSerializationStream(VirtualMachine vm)
+        public static SerializationStream SerializeToSerializationStream(VirtualMachine* vm)
         {
             var stream = new SerializationStream(4096);
             
@@ -17,8 +17,8 @@ namespace DamnScript.Runtimes.Serializations
             var threadsLengthPosition = stream.length - sizeof(int);
             
             var threadsCount = 0;
-            var threadsBegin = vm.threads.Begin;
-            var threadsEnd = vm.threads.End;
+            var threadsBegin = vm->threads.Begin;
+            var threadsEnd = vm->threads.End;
             while (threadsBegin < threadsEnd)
             {
                 if (!threadsBegin->isAlive)
