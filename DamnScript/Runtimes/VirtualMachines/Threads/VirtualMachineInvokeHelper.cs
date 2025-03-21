@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Natives;
 using SV = DamnScript.Runtimes.Natives.ScriptValue;
 using pSV = DamnScript.Runtimes.Natives.ScriptValuePtr;
@@ -32,15 +33,19 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 if (!method.isAsync)
                 {
                     if (method.hasReturnValue)
-                        return InvokeValue<SV>(method, arguments);
+                    {
+                        var resultPtr = (SV*)InvokeValue(method, arguments);
+                        return *resultPtr;
+                    }
 
                     InvokeVoid(method, arguments);
                 }
                 else
                 {
-                    task = method.hasReturnValue
-                        ? InvokeValue<Task<SV>>(method, arguments)
-                        : InvokeValue<Task>(method, arguments);
+                    var taskPtr = InvokeValue(method, arguments);
+                    task = method.hasReturnValue 
+                        ? UnsafeUtilities.PointerToReference<Task<SV>>(taskPtr) 
+                        : UnsafeUtilities.PointerToReference<Task>(taskPtr);
                 }
             }
 
@@ -146,7 +151,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             }
         }
     
-        public static T InvokeValue<T>(NativeMethod method, SV* a)
+        public static void* InvokeValue(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;
             var methodPointer = method.methodPointer;
@@ -154,25 +159,25 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             var objectInstance = a->GetReferencePointer();
             var returnValue = argumentsCount switch
             {
-                1 => ((delegate*<void*, T>)methodPointer)
+                1 => ((delegate*<void*, void*>)methodPointer)
                     (objectInstance),
-                2 => ((delegate*<void*, SV*, T>)methodPointer)
+                2 => ((delegate*<void*, SV*, void*>)methodPointer)
                     (objectInstance, a + 1),
-                3 => ((delegate*<void*, SV*, SV*, T>)methodPointer)
+                3 => ((delegate*<void*, SV*, SV*, void*>)methodPointer)
                     (objectInstance, a + 1, a + 2),
-                4 => ((delegate*<void*, SV*, SV*, SV*, T>)methodPointer)
+                4 => ((delegate*<void*, SV*, SV*, SV*, void*>)methodPointer)
                     (objectInstance, a + 1, a + 2, a + 3),
-                5 => ((delegate*<void*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                5 => ((delegate*<void*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (objectInstance, a + 1, a + 2, a + 3, a + 4),
-                6 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                6 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (objectInstance, a + 1, a + 2, a + 3, a + 4, a + 5),
-                7 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                7 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (objectInstance, a + 1, a + 2, a + 3, a + 4, a + 5, a + 6),
-                8 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                8 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (objectInstance, a + 1, a + 2, a + 3, a + 4, a + 5, a + 6, a + 7),
-                9 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                9 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (objectInstance, a + 1, a + 2, a + 3, a + 4, a + 5, a + 6, a + 7, a + 8),
-                10 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, T>)methodPointer)
+                10 => ((delegate*<void*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, SV*, void*>)methodPointer)
                     (objectInstance, a + 1, a + 2, a + 3, a + 4, a + 5, a + 6, a + 7, a + 8, a + 9),
                 _ => throw new Exception("Invalid arguments count! It must be between 1 and 10.")
             };
