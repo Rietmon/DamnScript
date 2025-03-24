@@ -79,7 +79,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 return false;
         
             var byteCode = ByteCode;
-            var opCode = *(OpCodes.OpCodeType*)byteCode;
+            var opCode = *(OpCodeType*)byteCode;
             switch (opCode)
             {
                 case NativeCall.OpCode:

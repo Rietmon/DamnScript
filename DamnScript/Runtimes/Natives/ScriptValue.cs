@@ -178,9 +178,6 @@ namespace DamnScript.Runtimes.Natives
         public static ScriptValue FromReferenceUnsafe<T>(T value) where T : class => 
             new(UnsafeUtilities.ReferenceToPointer(value), ValueType.ReferenceUnsafePointer);
 
-        public static ScriptValue FromPrimitive<T>(T value) where T : unmanaged =>
-            new(ValueType.Primitive, *(long*)&value);
-
         /// <summary>
         /// Alloc copy of the struct and create a new ScriptValue from it.
         /// </summary>
@@ -267,8 +264,16 @@ namespace DamnScript.Runtimes.Natives
                 }
                 case ValueType.ReferenceUnsafePointer:
                 {
+#if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
+                    var obj = UnsafeUtilities.PointerToReference<object>(pointerValue);
+                    if (obj is string str)
+                        return str;
+                    
+                    throw new Exception($"Attempt to get SafeString from non-string value!");
+#else
                     var value = UnsafeUtilities.PointerToReference<string>(pointerValue);
                     return value;
+#endif
                 }
                 case ValueType.ReferenceSafePointer:
                 {

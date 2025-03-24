@@ -50,7 +50,7 @@ namespace DamnScript.Runtimes.Cores.Types
 
         public void Dispose()
         {
-            if (type is SafeStringType.Unmanaged)
+            if (type is SafeStringType.Managed)
                 safeValue.Free();
             this = default;
         }

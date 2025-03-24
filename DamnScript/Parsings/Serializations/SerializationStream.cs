@@ -124,6 +124,11 @@ namespace DamnScript.Parsings.Serializations
             
             return result;
         }
+        
+        public Span<byte> AsSpan()
+        {
+            return new Span<byte>(start, length);
+        }
 
         public void Dispose()
         {

@@ -8,24 +8,40 @@ namespace DamnScript.Runtimes.Debugs
 {
     public static unsafe class Debugging
     {
-        public static void Log(string message) =>
+	    public static Action<(LogType type, string message)> OnLog { get; set; }
+
+	    public static void Log(string message)
+	    {
 #if UNITY_5_3_OR_NEWER
             Debug.Log(message);
 #else
-            WriteToConsole(message, ConsoleColor.White);
+		    WriteToConsole(message, ConsoleColor.White);
 #endif
-        public static void LogWarning(string message) => 
+		    
+		    OnLog?.Invoke((LogType.Log, message));
+	    }
+	    
+	    public static void LogWarning(string message)
+	    {
 #if UNITY_5_3_OR_NEWER
             Debug.LogWarning(message);
 #else
-            WriteToConsole(message, ConsoleColor.Yellow);
+		    WriteToConsole(message, ConsoleColor.Yellow);
 #endif
-        public static void LogError(string message) => 
+		    
+		    OnLog?.Invoke((LogType.Warning, message));
+	    }
+	    
+	    public static void LogError(string message)
+	    {
 #if UNITY_5_3_OR_NEWER
             Debug.LogError(message);
 #else
-            WriteToConsole(message, ConsoleColor.Red);
+		    WriteToConsole(message, ConsoleColor.Red);
 #endif
+		    
+		    OnLog?.Invoke((LogType.Error, message));
+	    }
 	    
 	    public static string DumpMemory(void* start, int length)
 	    {
@@ -46,6 +62,13 @@ namespace DamnScript.Runtimes.Debugs
             Console.ForegroundColor = color;
             Console.WriteLine(message);
             Console.ForegroundColor = previousColor;
+        }
+
+        public enum LogType
+        {
+	        Log,
+	        Warning,
+	        Error
         }
     }
 }

@@ -27,9 +27,6 @@ namespace DamnScript.Runtimes.VirtualMachines
 			}
 			return HasThreads;
 		}
-		
-		public bool IsInAwait(VirtualMachineThreadPtr virtualMachineThreadPointer) => 
-			virtualMachineThreadPointer.value->awaitTaskPin != default;
     
 		private void ExecuteThreads()
 		{
@@ -46,7 +43,7 @@ namespace DamnScript.Runtimes.VirtualMachines
 				currentThread = begin; 
 				
 				executeThreadProcedure:
-				if (!IsInAwait(begin))
+				if (begin->awaitTaskPin == default)
 				{
 					while (true)
 					{

@@ -1,10 +1,14 @@
+using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Natives;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
+	[StructLayout(LayoutKind.Sequential)]
 	public unsafe struct VirtualMachineThreadParametersStack
 	{
+		public const int MaxParameters = 10;
+		
 		public ScriptValue p1;
 		public ScriptValue p2;
 		public ScriptValue p3;

@@ -15,6 +15,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
         private static readonly Type scriptValuePtrType = typeof(ScriptValuePtr);
         private static readonly Type taskType = typeof(Task);
         private static readonly Type taskScriptValuePtrType = typeof(Task<ScriptValuePtr>);
+
+        private static readonly Type asyncStateMachineAttributeType = typeof(AsyncStateMachineAttribute);
         
         private static readonly Dictionary<NativeMethodId, NativeMethod> methods = new();
     
@@ -42,12 +44,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
             }
             
             var methodPointer = method.MethodHandle.GetFunctionPointer().ToPointer();
-            var isAsync = method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
+            var isAsync = method.GetCustomAttribute(asyncStateMachineAttributeType) != null;
             var isStatic = method.IsStatic;
             if (!isStatic)
                 argumentsCount++;
             
-            var hasReturnValue = method.ReturnType != typeof(void) || method.ReturnType.IsGenericType;
+            var hasReturnValue = method.ReturnType != voidType || method.ReturnType.IsGenericType;
             if (argumentsCount > 10)
             {
                 throw new Exception("The maximum number of arguments is 10 for native method. " +

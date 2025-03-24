@@ -19,7 +19,11 @@ namespace DamnScript.Runtimes
         /// <summary>
         /// Returns the current thread executing right now.
         /// </summary>
-        public static VirtualMachineThreadPtr CurrentThreadPtr => mainPtr.value->currentThread;
+        public static VirtualMachineThreadPtr CurrentThreadPtr => 
+            mainPtr.value->currentThread;
+        
+        public static VirtualMachineThreadHandle CurrentThreadHandle => 
+            new(CurrentThreadPtr - mainPtr.value->threads.Begin, mainPtr);
         
         /// <summary>
         /// Pointer to the main virtual machine which is allocated by default.
@@ -149,13 +153,7 @@ namespace DamnScript.Runtimes
             {
                 var scriptData = GetScriptDataFromCache(begin->scriptName);
                 if (scriptData.value == null)
-                {
-                    Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(DeserializeFromSerializationStream)}) " +
-                                    $"Attempt to deserialize thread with script which is not present in cache! " +
-                                    $"Name: {begin->scriptName.ToString()}");
-                    begin++;
-                    continue;
-                }
+                    throw new Exception($"Attempt to deserialize thread with script ({begin->scriptName.ToString()}) which is not present in cache!");
                 
                 mainPtr.value->RunThreadFromSerialized(scriptData, begin);
                 begin++;

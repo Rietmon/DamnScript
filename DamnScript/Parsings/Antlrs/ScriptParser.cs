@@ -14,7 +14,6 @@ namespace DamnScript.Parsings.Antlrs
 {
     public static unsafe class ScriptParser
     {
-        private static ScriptValue* asReturn;
         public static void ParseScript(Stream input, String32 name, ScriptData* scriptData)
         {
             var charStream = new AntlrInputStream(input);

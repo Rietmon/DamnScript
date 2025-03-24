@@ -18,6 +18,7 @@ namespace DamnScript.Runtimes.Metadatas
         public void Dispose()
         {
             strings.Dispose();
+            methods.Dispose();
         }
     }
 }

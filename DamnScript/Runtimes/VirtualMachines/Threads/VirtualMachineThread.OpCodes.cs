@@ -26,21 +26,20 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #endif
 			
 			var argumentsStack = parametersStack.BeginPtr;
-			for (var i = 9; i >= 0; i--)
-				argumentsStack[i] = default;
-			
+			UnsafeUtilities.Memset(argumentsStack, 0, ScriptValue.Size * VirtualMachineThreadParametersStack.MaxParameters);
 			for (var i = method.argumentsCount - 1; i >= 0; i--)
 				argumentsStack[i] = StackPop();
 
+			// Rietmon: Result will be in the "returnValue" field
 			ScriptValue.returnValuePtr = UnsafeUtilities.AsPointer(ref returnValue);
-			VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out var result);
+			VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out var task);
 
-			if (result != null)
+			if (task != null)
 			{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
                 Debugging.Log($"Method is async, pin result...");
 #endif
-				awaitTaskPin = UnsafeUtilities.Pin(result);
+				awaitTaskPin = UnsafeUtilities.Pin(task);
 			}
 			
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
@@ -160,6 +159,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
             Debugging.Log($"Set save point...");
+#endif
+			
+#if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
+			if (stack.stackOffset != 0)
+				throw new Exception($"Attempt to set save point with non-empty stack!");
 #endif
 			savePoint = offset;
 		}

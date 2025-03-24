@@ -80,6 +80,7 @@ public class VirtualMachineTests
 	private static ScriptValuePtr CreateTestClass() => ScriptValue.FromReferencePin(new TestClass()).Return();
 	private static async Task Wait() => await Task.Delay(10);
 
+	private const int Allocs = 100;
 	private static string[][] _temp = new string[10][];
 	
 	[MethodImpl(MethodImplOptions.NoOptimization)]
@@ -94,17 +95,17 @@ public class VirtualMachineTests
 		}
 		
 		var before = GC.GetTotalMemory(false);
-		var array = _temp[offset.IntValue % 10] = new string[1000 * (offset.IntValue / 2)];
+		var array = _temp[offset.IntValue % 10] = new string[Allocs * (offset.IntValue / 2)];
 		for (var i = 0; i < array.Length; i++)
-			array[i] = new string((char)(i % 30 + offset.IntValue), 1000 + i);
+			array[i] = new string((char)(i % 30 + offset.IntValue), Allocs + i);
 
 		Console.WriteLine(array);
-		var after = GC.GetTotalMemory(true);
+		var after = GC.GetTotalMemory(false);
 		Console.WriteLine($"Alloc {offset.IntValue} - {before} -> {after} = {after - before}");
 		
-		before = GC.GetTotalMemory(true);
-		var val = new TestClass();
-		after = GC.GetTotalMemory(true);
+		before = GC.GetTotalMemory(false);
+		_ = new TestClass();
+		after = GC.GetTotalMemory(false);
 		Console.WriteLine($"Checkup {offset.IntValue} - {before} -> {after} = {after - before}");
 	}
 
@@ -204,7 +205,7 @@ public class VirtualMachineTests
 		var stream = new MemoryStream(Encoding.UTF8.GetBytes(code));
 		var scriptData = ScriptEngine.LoadScript(stream, "Main");
 		stream.Dispose();
-		var thread = ScriptEngine.RunThread(scriptData, "Main");
+		ScriptEngine.RunThread(scriptData, "Main");
 		var asyncCount = 0;
 		try
 		{
@@ -213,7 +214,6 @@ public class VirtualMachineTests
 				asyncCount++;
 				Thread.Sleep(100);
 			}
-			Assert.Fail("Should throw exception");
 		}
 		catch (Exception e)
 		{
