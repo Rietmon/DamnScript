@@ -67,8 +67,19 @@ namespace DamnScript.Runtimes.VirtualMachines
 					{
 						begin->awaitTaskPin.Free();
 						begin->awaitTaskPin = default;
+						begin->UnpinParameters();
 						if (result is Task<ScriptValuePtr> task)
-							begin->StackPush(*task.Result.value);
+						{
+							var scriptValue = *task.Result.value;
+#if !DAMN_SCRIPT_ENBALE_MONO && !DAMN_SCRIPT_DISABLE_ASYNC_PINNING
+							if (scriptValue.type == ScriptValue.ValueType.ReferenceUnsafePointer)
+							{
+								throw new Exception($"Async ({result}) method in .NET should use Pinned return value be cause GC can move it! " +
+								                    "If you are sure what you are doing, please enable DAMN_SCRIPT_DISABLE_ASYNC_PINNING.");
+							}
+#endif
+							begin->StackPush(scriptValue);
+						}
 						goto executeThreadProcedure;
 					}
 				}

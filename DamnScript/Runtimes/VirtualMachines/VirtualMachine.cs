@@ -136,5 +136,12 @@ namespace DamnScript.Runtimes.VirtualMachines
             threads.Dispose();
             this = default;
         }
+        
+        public static VirtualMachine* Alloc(int capacity = 16)
+        {
+            var vm = UnsafeUtilities.Alloc<VirtualMachine>();
+            *vm = new VirtualMachine(capacity);
+            return vm;
+        }
     }
 }

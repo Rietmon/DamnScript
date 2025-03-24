@@ -161,6 +161,18 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 
             return true;
         }
+        
+        public void UnpinParameters()
+        {
+            var begin = parametersStack.BeginPtr;
+            for (var i = 0; i < 10; i++)
+            {
+                if (++begin->type != ScriptValue.ValueType.ReferenceSafePointer)
+                    continue;
+
+                begin->UnpinManagedPointer();
+            }
+        }
 
         /// <summary>
         /// Mark this thread as dead.

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace DamnScript.Runtimes.Cores.Pins
 {
+    [DebuggerDisplay("{Target}")]
     public readonly unsafe struct ObjectPin : IEquatable<ObjectPin>
     {
         /// <summary>

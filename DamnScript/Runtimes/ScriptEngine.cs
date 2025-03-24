@@ -28,8 +28,7 @@ namespace DamnScript.Runtimes
         
         static ScriptEngine()
         {
-            mainPtr = UnsafeUtilities.Alloc<VirtualMachine>();
-            *mainPtr.value = new VirtualMachine(16);
+            mainPtr = VirtualMachine.Alloc();
         }
         
         /// <summary>

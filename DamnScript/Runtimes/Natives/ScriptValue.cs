@@ -7,6 +7,10 @@ using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.Natives
 {
+    /// <summary>
+    /// Using as an argument for the native methods be passed by reference.
+    /// It is a pointer to the ScriptValue.
+    /// </summary>
     public readonly unsafe struct ScriptValuePtr
     {
         public bool BoolValue => value->boolValue;
@@ -26,19 +30,47 @@ namespace DamnScript.Runtimes.Natives
         
         public ScriptValuePtr(ScriptValue* value) => this.value = value;
         
+        public ScriptValuePtr(ref ScriptValue value) => this.value = UnsafeUtilities.AsPointer(ref value);
+        
+        /// <summary>
+        /// <inheritdoc cref="ScriptValue.GetReferencePin{T}"/>
+        /// </summary>
         public T GetReferencePin<T>(bool freeBeforeReturn = true) where T : class => 
             value->GetReferencePin<T>(freeBeforeReturn);
         
+        /// <summary>
+        /// <inheritdoc cref="ScriptValue.GetReferenceUnsafe{T}"/>
+        /// </summary>
         public T GetReferenceUnsafe<T>() where T : class => value->GetReferenceUnsafe<T>();
         
+        /// <summary>
+        /// <inheritdoc cref="ScriptValue.GetReference{T}"/>
+        /// </summary>
+        public T GetReference<T>() where T : class => value->GetReference<T>();
+        
+        /// <summary>
+        /// <inheritdoc cref="ScriptValue.GetStruct{T}"/>
+        /// </summary>
         public T GetStruct<T>(bool freeBeforeReturn = true) where T : unmanaged => value->GetStruct<T>(freeBeforeReturn);
         
+        /// <summary>
+        /// <inheritdoc cref="ScriptValue.GetSafeString"/>
+        /// </summary>
         public SafeString GetSafeString() => value->GetSafeString();
         
+        /// <summary>
+        /// <inheritdoc cref="ScriptValue.GetReferencePointer"/>
+        /// </summary>
         public void* GetReferencePointer() => value->GetReferencePointer();
         
+        /// <summary>
+        /// <inheritdoc cref="ScriptValue.UnpinManagedPointer"/>
+        /// </summary>
         public void UnpinManagedPointer() => value->UnpinManagedPointer();
         
+        /// <summary>
+        /// <inheritdoc cref="ScriptValue.ToString"/>
+        /// </summary>
         public override string ToString() => value->ToString();
         
         public static implicit operator ScriptValuePtr(ScriptValue* value) => new(value);
@@ -115,6 +147,11 @@ namespace DamnScript.Runtimes.Natives
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(ObjectPin value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
 
+        /// <summary>
+        /// Convert value to an internal constant pointer and use it as a return value.
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValuePtr Return()
         {
             *returnValuePtr = this;
@@ -140,7 +177,10 @@ namespace DamnScript.Runtimes.Natives
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptValue FromReferenceUnsafe<T>(T value) where T : class => 
             new(UnsafeUtilities.ReferenceToPointer(value), ValueType.ReferenceUnsafePointer);
-    
+
+        public static ScriptValue FromPrimitive<T>(T value) where T : unmanaged =>
+            new(ValueType.Primitive, *(long*)&value);
+
         /// <summary>
         /// Alloc copy of the struct and create a new ScriptValue from it.
         /// </summary>
@@ -177,6 +217,20 @@ namespace DamnScript.Runtimes.Natives
         /// <returns>Reference from the pointer</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetReferenceUnsafe<T>() where T : class => UnsafeUtilities.PointerToReference<T>(pointerValue);
+        
+        /// <summary>
+        /// Get reference
+        /// </summary>
+        /// <typeparam name="T">Type of the reference</typeparam>
+        /// <returns>Reference from the pointer</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T GetReference<T>() where T : class => type switch
+        {
+            ValueType.Pointer => throw new NotSupportedException("For reference type use only ReferenceUnsafePointer or ReferenceSafePointer!"),
+            ValueType.ReferenceUnsafePointer => GetReferenceUnsafe<T>(),
+            ValueType.ReferenceSafePointer => GetReferencePin<T>(),
+            _ => throw new NotSupportedException(exceptionMessageInvalidTypeForPointers)
+        };
     
         /// <summary>
         /// Get struct value from the pointer and can free it.
@@ -227,30 +281,42 @@ namespace DamnScript.Runtimes.Natives
         }
 
         /// <summary>
-        /// Convert ANY value to SafeString and returns it.
-        /// </summary>
-        /// <returns>SafeString value</returns>
-        /// <exception cref="Exception">If ScriptValue initialized incorrectly it will throw an exception</exception>
-        public SafeString ToSafeString() =>
-            type switch
-            {
-                ValueType.Primitive => longValue.ToString(),
-                ValueType.Pointer or ValueType.ReferenceUnsafePointer or ValueType.ReferenceSafePointer => GetSafeString(),
-                _ => throw new Exception("ValueType is invalid!")
-            };
-
-        /// <summary>
         /// Convert ANY value to SafeString and then to string and returns it.
         /// </summary>
         /// <returns>String value</returns>
-        /// <exception cref="Exception">If ScriptValue initialized incorrectly it will throw an exception</exception>
-        public override string ToString() =>
-            type switch
+        /// <exception cref="Exception">If ScriptValue initialized incorrectly or attempt to convert an anonymous pointer, it will throw an exception</exception>
+        public override string ToString()
+        {
+            switch (type)
             {
-                ValueType.Primitive => longValue.ToString(),
-                ValueType.Pointer or ValueType.ReferenceUnsafePointer or ValueType.ReferenceSafePointer => ToSafeString().ToString(),
-                _ => throw new Exception("ValueType is invalid!")
-            };
+                case ValueType.Primitive:
+                {
+                    return longValue.ToString();
+                }
+                case ValueType.Pointer:
+                {
+                    throw new Exception($"Pointer type is not supported for {nameof(ToString)} method!");
+                }
+                case ValueType.ReferenceUnsafePointer:
+                {
+                    var value = UnsafeUtilities.PointerToReference<object>(pointerValue);
+                    if (value is string str)
+                        return str;
+                    
+                    return value.ToString();
+                }
+                case ValueType.ReferenceSafePointer:
+                {
+                    var target = safeValue.Target;
+                    if (target is string str)
+                        return str;
+                    
+                    return target.ToString();
+                }
+                default:
+                    throw new NotSupportedException(exceptionMessageInvalidTypeForPointers);
+            }
+        }
 
         
         public bool Equals(ScriptValue other) => type == other.type && longValue == other.longValue;
@@ -396,7 +462,7 @@ namespace DamnScript.Runtimes.Natives
             /// </summary>
             Primitive,
             /// <summary>
-            /// Pointer to the ANY value.
+            /// Pointer to any unmanaged value.
             /// </summary>
             Pointer,
 

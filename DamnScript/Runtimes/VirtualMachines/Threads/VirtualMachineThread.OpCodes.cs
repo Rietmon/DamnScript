@@ -1,4 +1,3 @@
-#define DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 using System;
 using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Cores;
@@ -25,7 +24,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
             Debugging.Log($"Found native method \"{methodName}\" with {argumentsCount} arguments.");
 #endif
+			
 			var argumentsStack = parametersStack.BeginPtr;
+			for (var i = 9; i >= 0; i--)
+				argumentsStack[i] = default;
+			
 			for (var i = method.argumentsCount - 1; i >= 0; i--)
 				argumentsStack[i] = StackPop();
 
@@ -39,13 +42,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #endif
 				awaitTaskPin = UnsafeUtilities.Pin(result);
 			}
-
-			for (var i = 0; i < method.argumentsCount; i++)
-			{
-				var argument = argumentsStack[i];
-				if (argument.type == ScriptValue.ValueType.ReferenceSafePointer)
-					argument.UnpinManagedPointer();
-			}
+			
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
             Debugging.Log($"Free arguments stack...");
 #endif
@@ -57,6 +54,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #endif
 				StackPush(returnValue);
 			}
+			
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
             Debugging.Log($"End native call.");
 #endif

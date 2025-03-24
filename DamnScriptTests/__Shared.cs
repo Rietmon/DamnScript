@@ -11,6 +11,7 @@ global using DamnScript.Runtimes.VirtualMachines.Datas;
 global using DamnScript.Runtimes.VirtualMachines.Threads;
 
 using System.Text;
+using DamnScript.Runtimes.Cores.Pins;
 
 namespace DamnScriptTests;
 
@@ -20,10 +21,17 @@ public static class __Shared
 	{
 		ScriptEngine.CurrentThreadPtr.RefValue.StackPush(value.LongValue);
 	}
+	
+	public static void Print(ScriptValuePtr value)
+	{
+		var str = value.RefValue.ToString();
+		Console.WriteLine(str);
+	}
 
 	public static ScriptValue Run(string method)
 	{
 		ScriptEngine.RegisterNativeMethod(PushToStack);
+		ScriptEngine.RegisterNativeMethod(Print);
 		
 		var code = $@"
 				region Main

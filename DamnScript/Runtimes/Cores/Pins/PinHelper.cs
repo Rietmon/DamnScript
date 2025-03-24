@@ -6,6 +6,8 @@ namespace DamnScript.Runtimes.Cores.Pins
     // Rietmon: Rewrite to a real hash set system
     public static unsafe class PinHelper
     {
+        public static int PinsCount => pinnedObjects.Count;
+        
         private static readonly HashSet<PinHandle> pinnedObjects = new(32);
         
         public static ObjectPin Pin(object obj)
@@ -70,11 +72,17 @@ namespace DamnScript.Runtimes.Cores.Pins
         private readonly struct PinHandle : IEquatable<PinHandle>
         {
             public readonly long hash;
+#if DAMN_SCRIPT_PINNING_DEBUG
+            public readonly string stack;
+#endif
             public readonly object target;
             
             public PinHandle(long hash, object target)
             {
                 this.hash = hash;
+#if DAMN_SCRIPT_PINNING_DEBUG
+                this.stack = Environment.StackTrace;
+#endif
                 this.target = target;
             }
             
