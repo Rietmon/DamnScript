@@ -47,14 +47,17 @@ It is designed for writing game behavior logic with deep integration into C# and
 > 🛠 In the future, a build with releases will be available — everything included, minimal hassle.
 
 > 🔧 Possible directives:
-> - `DAMN_SCRIPT_ENBALE_MONO` - switches the mode to support Mono
-> - `DAMN_SCRIPT_ENBALE_TARGET_32BIT` - switches the mode to support 32-bit platforms
-> - `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` - enables memory debug messages
-> - `DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12` - reduces ScriptValue size to 12 bytes (not recommended without clear understanding)
-> - `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` - enables assembler debug messages
-> - `DAMN_SCRIPT_STACK_SIZE_16`/`DAMN_SCRIPT_STACK_SIZE_64` - sets the stack size for scripts (default is 32 elements)
-> - `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_32_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` - sets the size of opcodes (default is 8 bits)
-> - `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` - enables additional memory safety checks (disabled by default)
+> - ARCHITECTURES `DAMN_SCRIPT_ENBALE_MONO` - switches the mode to support Mono (by default, it applies to Unity)
+> - CONFIGS `DAMN_SCRIPT_ENBALE_TARGET_32BIT` - switches the mode to support 32-bit platforms
+> - CONFIGS `DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12` - reduces ScriptValue size to 12 bytes (not recommended without clear understanding)
+> - CONFIGS `DAMN_SCRIPT_STACK_SIZE_16`/`DAMN_SCRIPT_STACK_SIZE_64` - sets the stack size for scripts (default is 32 elements)
+> - CONFIGS `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_32_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` - sets the size of opcodes (default is 8 bits)
+> - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` - enables additional memory safety checks (disabled by default)
+> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` - disables built-in methods
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` - allows using non-pinned reference in async methods in .NET (not applies to Unity, here it is always allowed)
+> - DEBUGS `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` - enables memory debug
+> - DEBUGS `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` - enables assembler debug messages
+> - DEBUGS `DAMN_SCRIPT_PINNING_DEBUG` - enables pinning debug
 
 ---
 
@@ -64,8 +67,8 @@ It is designed for writing game behavior logic with deep integration into C# and
 - JIT and AOT are supported: you can interpret `.ds` or run pre-compiled `.dsc`
 - Pseudo-multithreaded VM: each pseudo-thread executes its region independently
 - **Stack-based execution model** + 4 registers are used
-- Safe `ScriptValue` structure stores any data (including pointers and references)
-- Callable C# methods work with `ScriptValue`, including async `Task<ScriptValue>`
+- Safe `ScriptValuePtr` structure stores any data (including pointers and references)
+- Callable C# methods work with `ScriptValuePtr`, including async `Task<ScriptValuePtr>`
 - Assembler-like bytecode allows easy debugging and code optimization
 
 ---
@@ -101,8 +104,15 @@ region AnythingElse {
 ## 🧩 Connecting to C#
 
 ```csharp
+public static void Log(ScriptValuePtr value) 
+{
+    Console.WriteLine(value.IntValue.ToString()); // This method will be called from the script
+}
+
 public static void TestRun() 
 {
+	ScriptEngine.RegisterNativeMethod((Action<ScriptValuePtr>)Log); // Register a native method
+    
     var fileStream = File.Open("Test1.ds", FileMode.Open); // Opening the stream to read the script
     var scriptData = ScriptEngine.LoadScript(fileStream, "Test1"); // Loading the script into memory (JIT compilation in this case)
     var thread = ScriptEngine.RunThread(scriptData, "Main"); // Starting the thread and executing the Main region
@@ -136,7 +146,7 @@ public static void TestRun()
 - ✅ Conditions, loops, serialization
 - ✅ Memory checks
 - ✅ Manual saves
-- ⏳ Unit Tests
+- 🔧 Unit Tests
 - ⏳ Auto-saves
 - ⏳ Unloading inactive metadata
 - ⏳ Migration when bytecode changes

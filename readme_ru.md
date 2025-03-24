@@ -47,14 +47,17 @@
 > 🛠 В будущем будет доступна сборка с релизами — всё включено, минимум возни.
 
 > 🔧 Возможные директивы:
-> - `DAMN_SCRIPT_ENBALE_MONO` - переводит режим работы на поддержку Mono
-> - `DAMN_SCRIPT_ENBALE_TARGET_32BIT` - переводит режим работы на поддержку 32-битных платформ
-> - `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` - включает сообщения для отладки памяти
-> - `DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12` - уменьшает размер ScriptValue до 12 байт (не рекомендуется без четкого понимания)
-> - `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` - включает сообщения для отладки ассемблера
-> - `DAMN_SCRIPT_STACK_SIZE_16`/`DAMN_SCRIPT_STACK_SIZE_64` - устанавливает размер стека для скриптов (по умолчанию 32 элемента)
-> - `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_32_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` - устанавливает размер кодов операций (по умолчанию 8 бит)
-> - `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` - включает дополнительные проверки безопасного использования памяти (по умолчанию отключены)
+> - ARCHITECTURES `DAMN_SCRIPT_ENBALE_MONO` — переключает режим на поддержку Mono (по умолчанию применяется к Unity)
+> - CONFIGS `DAMN_SCRIPT_ENBALE_TARGET_32BIT` — включает поддержку 32-битных платформ
+> - CONFIGS `DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12` — уменьшает размер `ScriptValue` до 12 байт (не рекомендуется без чёткого понимания последствий)
+> - CONFIGS `DAMN_SCRIPT_STACK_SIZE_16` / `DAMN_SCRIPT_STACK_SIZE_64` — задаёт размер стека для скриптов (по умолчанию — 32 элемента)
+> - CONFIGS `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES` / `DAMN_SCRIPT_ENABLE_32_BIT_OPCODES` / `DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` — устанавливает размер опкодов (по умолчанию — 8 бит)
+> - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` — включает дополнительные проверки безопасности памяти (по умолчанию отключены)
+> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — отключает встроенные методы
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` — разрешает использование неприкреплённых ссылок в асинхронных методах в .NET (не применяется к Unity, там всегда разрешено)
+> - DEBUGS `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` — включает отладку памяти
+> - DEBUGS `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` — включает отладочные сообщения ассемблера
+> - DEBUGS `DAMN_SCRIPT_PINNING_DEBUG` — включает отладку pinning'а
 
 ---
 
@@ -64,8 +67,8 @@
 - Поддерживается JIT и AOT: можно интерпретировать `.ds` или запускать заранее скомпилированные `.dsc`
 - Псевдо-многопоточная VM: каждый псевдопоток исполняет свой регион независимо
 - Используется **стековая модель выполнения** + 4 регистра
-- Безопасная структура `ScriptValue` хранит любые данные (в том числе указатели и ссылки)
-- Вызываемые C# методы работают с `ScriptValue`, включая асинхронные `Task<ScriptValue>`
+- Безопасная структура `ScriptValuePtr` принимает любые данные (в том числе указатели и ссылки)
+- Вызываемые C# методы работают с `ScriptValuePtr`, включая асинхронные `Task<ScriptValuePtr>`
 - Ассемблероподобный байткод позволяет легко отлаживать и оптимизировать код
 
 ---
@@ -101,8 +104,15 @@ region AnythingElse {
 ## 🧩 Подключение к C#
 
 ```csharp
+public static void Log(ScriptValuePtr value) 
+{
+    Console.WriteLine(value.IntValue.ToString()); // Этот метод будет вызван из скрипта
+}
+
 public static void TestRun() 
 {
+    ScriptEngine.RegisterNativeMethod((Action<ScriptValuePtr>)Log); // Регистрируем нативный метод
+    
     var fileStream = File.Open("Test1.ds", FileMode.Open); // Открытие стрима для чтения скрипта
     var scriptData = ScriptEngine.LoadScript(fileStream, "Test1"); // Загрузка скрипта в память (в данном случае JIT компиляция)
     var thread = ScriptEngine.RunThread(scriptData, "Main"); // Запуск потока и выполнение региона Main
@@ -136,6 +146,7 @@ public static void TestRun()
 - ✅ Условия, циклы, сериализация
 - ✅ Проверки памяти
 - ✅ Ручные сейвы
+- 🔧 Unit Tests
 - ⏳ Автосейвы
 - ⏳ Выгрузка неактивных метаданных
 - ⏳ Миграция при изменении байткода
