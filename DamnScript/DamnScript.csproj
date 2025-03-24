@@ -9,10 +9,7 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       <OutputPath>../_Binaries/Debug/</OutputPath>
-      <DefineConstants>TRACE;
-DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG;
-DAMN_SCRIPT_ENABLE_EXECUTION_LOG;
-DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS;</DefineConstants>
+      <DefineConstants>TRACE;DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG;DAMN_SCRIPT_ENABLE_EXECUTION_LOG;DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS;DAMN_SCRIPT_ENABLE_MEMORY_DEBUG;</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

@@ -4,7 +4,7 @@ using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.Metadatas
 {
-    public struct ConstantsData : IDisposable
+    public unsafe struct ConstantsData : IDisposable
     {
         public NativeArray<NativeStringPtr> strings;
         public NativeArray<NativeStringPtr> methods;
@@ -17,7 +17,12 @@ namespace DamnScript.Runtimes.Metadatas
 
         public void Dispose()
         {
+            for (var i = 0; i < strings.Length; i++)
+                strings[i].value->Dispose();
             strings.Dispose();
+            
+            for (var i = 0; i < methods.Length; i++)
+                methods[i].value->Dispose();
             methods.Dispose();
         }
     }

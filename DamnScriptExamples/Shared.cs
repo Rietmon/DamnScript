@@ -3,7 +3,7 @@ using DamnScript.Runtimes.Metadatas;
 
 namespace DamnScriptExamples
 {
-    public static unsafe class Shared
+    public static class Shared
     {
         public static void PrintDisassembly(ScriptDataPtr scriptData)
         {

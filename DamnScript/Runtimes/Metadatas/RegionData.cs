@@ -18,7 +18,7 @@ namespace DamnScript.Runtimes.Metadatas
         public static implicit operator RegionData*(RegionDataPtr ptr) => ptr.value;
     }
     
-    public readonly struct RegionData
+    public readonly struct RegionData : IDisposable
     {
         public readonly String32 name;
 
@@ -28,6 +28,11 @@ namespace DamnScript.Runtimes.Metadatas
         {
             this.name = name;
             this.byteCode = byteCode;
+        }
+
+        public void Dispose()
+        {
+            byteCode.Dispose();
         }
     }
 }

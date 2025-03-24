@@ -20,6 +20,10 @@ namespace DamnScript.Runtimes.Cores
 	    public const int PointerSize = 8;
 #endif
 	    
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+	    public static List<AllocInfo> AllocInfos { get; } = new();
+#endif
+	    
 	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	    public static void* Alloc(int size)
 	    {
@@ -28,6 +32,15 @@ namespace DamnScript.Runtimes.Cores
 #endif
 		    
 		    var ptr = Marshal.AllocHGlobal(size).ToPointer();
+		    
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+		    AllocInfos.Add(new AllocInfo
+		    {
+			    address = ptr,
+			    size = size,
+			    stack = Environment.StackTrace
+		    });
+#endif
 		    
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
 		    Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(Alloc)}) Allocated at {new IntPtr(ptr):X}.");
@@ -51,6 +64,17 @@ namespace DamnScript.Runtimes.Cores
 	        var newPtr = Marshal.ReAllocHGlobal(new IntPtr(ptr), new IntPtr(size)).ToPointer();
 	        
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+	        var info = AllocInfos.Find((x) => x.address == ptr);
+	        if (info.address == null)
+		        throw new Exception("Failed to find the address while realloc in AllocInfos!");
+	        
+	        AllocInfos.Remove(info);
+	        info.address = newPtr;
+	        info.size = size;
+	        AllocInfos.Add(info);
+#endif
+	        
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
 	        Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(ReAlloc)}) Reallocated at {new IntPtr(newPtr):X}.");
 #endif
 	        if (newPtr != null)
@@ -67,6 +91,10 @@ namespace DamnScript.Runtimes.Cores
 #endif
 
 	        Marshal.FreeHGlobal(new IntPtr(ptr));
+	        
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+	        AllocInfos.RemoveAll((x) => x.address == ptr);
+#endif
 	        
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
 	        Debugging.Log($"[{nameof(UnsafeUtilities)}] ({nameof(Free)}) Freed.");
@@ -185,8 +213,10 @@ namespace DamnScript.Runtimes.Cores
 #endif
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AsRef<T>(void* ptr) where T : unmanaged => ref Unsafe.AsRef<T>(ptr);
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T* AsPointer<T>(ref T value) where T : unmanaged => (T*)Unsafe.AsPointer(ref value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -220,5 +250,19 @@ namespace DamnScript.Runtimes.Cores
             }
             return hash;
         }
+        
+#if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
+        public struct AllocInfo : IEquatable<AllocInfo>
+        {
+	        public void* address;
+	        public int size;
+	        public string stack;
+
+	        public bool Equals(AllocInfo other) => address == other.address && size == other.size && stack == other.stack;
+	        public override bool Equals(object obj) => obj is AllocInfo other && Equals(other);
+
+	        public override int GetHashCode() => HashCode.Combine(unchecked((int)(long)address), size, stack);
+        }
+#endif
     }
 }

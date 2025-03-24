@@ -1,8 +1,10 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
+using DamnScript.Runtimes.Cores;
 
 namespace DamnScript.Runtimes.Metadatas
 {
-    public readonly unsafe struct ByteCodeData
+    public readonly unsafe struct ByteCodeData : IDisposable
     {
         public readonly byte* start;
         public readonly int length;
@@ -15,5 +17,10 @@ namespace DamnScript.Runtimes.Metadatas
 
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
         public bool IsInRange(int offset) => offset < length;
+
+        public void Dispose()
+        {
+            UnsafeUtilities.Free(start);
+        }
     }
 }

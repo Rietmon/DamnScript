@@ -1,4 +1,5 @@
-﻿using DamnScript.Runtimes.Cores;
+﻿using System;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.Metadatas
@@ -23,6 +24,8 @@ namespace DamnScript.Runtimes.Metadatas
         public ScriptMetadata metadata;
 
         public NativeArray<RegionData> regions;
+        
+        public int referencesCount;
 
         public RegionData* GetRegionData(String32 regionName) => GetRegionData(regionName.GetHashCode());
 
@@ -44,8 +47,15 @@ namespace DamnScript.Runtimes.Metadatas
 
         public void Dispose()
         {
+            if (referencesCount > 0)
+                throw new Exception($"Script {name} is still referenced by {referencesCount} threads.");
+            
             metadata.Dispose();
+            
+            for (var i = 0; i < regions.Length; i++)
+                regions[i].Dispose();
             regions.Dispose();
+            
             this = default;
         }
     }

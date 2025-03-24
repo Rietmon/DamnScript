@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using DamnScript.Parsings;
 using DamnScript.Parsings.Serializations;
+using DamnScript.Runtimes.BuiltIns;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
@@ -22,6 +23,9 @@ namespace DamnScript.Runtimes
         public static VirtualMachineThreadPtr CurrentThreadPtr => 
             mainPtr.value->currentThread;
         
+        /// <summary>
+        /// Current thread handle which is executing right now.
+        /// </summary>
         public static VirtualMachineThreadHandle CurrentThreadHandle => 
             new(CurrentThreadPtr - mainPtr.value->threads.Begin, mainPtr);
         
@@ -33,6 +37,7 @@ namespace DamnScript.Runtimes
         static ScriptEngine()
         {
             mainPtr = VirtualMachine.Alloc();
+            BuiltInMethods.Register();
         }
         
         /// <summary>

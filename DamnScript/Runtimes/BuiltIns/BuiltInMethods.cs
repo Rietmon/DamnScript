@@ -21,9 +21,9 @@ namespace DamnScript.Runtimes.BuiltIns
 			ScriptEngine.RegisterNativeMethod((Func<SVP>)GetCurrentThreadPtr);
 			ScriptEngine.RegisterNativeMethod((Action<SVP, SVP>)RunLoadedScript);
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)StopThread);
-			ScriptEngine.RegisterNativeMethod((Func<SVP, Task>)AsyncWait);
+			ScriptEngine.RegisterNativeMethod((Func<SVP, Task>)Delay);
 			ScriptEngine.RegisterNativeMethod((Action)SetSavePoint);
-			ScriptEngine.RegisterNativeMethod((Func<SVP>)SerializeToSerializationStreamAlloc);
+			ScriptEngine.RegisterNativeMethod((Func<SVP>)SerializeToStreamAlloc);
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)SerializeToFile);
 #endif
 		}
@@ -68,13 +68,13 @@ namespace DamnScript.Runtimes.BuiltIns
 			thread->Dispose();
 		}
 		
-		private static async Task AsyncWait(SVP value) => 
+		private static async Task Delay(SVP value) => 
 			await Task.Delay(value.IntValue);
 
 		private static unsafe void SetSavePoint() =>
 			ScriptEngine.CurrentThreadPtr.value->ExecuteSetSavePoint();
 		
-		private static SVP SerializeToSerializationStreamAlloc()
+		private static SVP SerializeToStreamAlloc()
 		{
 			var stream = ScriptEngine.SerializeToSerializationStream();
 			return SV.FromStructAlloc(stream).Return();

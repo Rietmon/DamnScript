@@ -26,7 +26,6 @@ namespace DamnScript.Parsings.Antlrs
             scriptData->name = name;
 
             var regions = new NativeList<RegionData>(16);
-
             var strings = new NativeList<NativeStringPtr>(16);
             var methods = new NativeList<NativeStringPtr>(16);
             var context = new ScriptParserContext();
@@ -62,6 +61,7 @@ namespace DamnScript.Parsings.Antlrs
 
             scriptData->metadata = new ScriptMetadata(new ConstantsData(strings.ToArrayAlloc(), methods.ToArrayAlloc()));
             strings.Dispose();
+            methods.Dispose();
         }
 
         public static void ParseRegion(DamnScriptParser.RegionContext region, ScriptParserContext* context)

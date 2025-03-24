@@ -89,11 +89,6 @@ namespace DamnScript.Runtimes.Natives
         
         public static ScriptValue* returnValuePtr;
         
-        private static readonly string exceptionMessageInvalidTypeForPointers = 
-            $"Unsupported type! Expected {nameof(ValueType.Pointer)}, " +
-            $"{nameof(ValueType.ReferenceSafePointer)} or " +
-            $"{nameof(ValueType.ReferenceUnsafePointer)}!";
-        
         [FieldOffset(0)] public ValueType type;
         [FieldOffset(TypeSize)] public bool boolValue;
         [FieldOffset(TypeSize)] public byte byteValue;
@@ -105,6 +100,7 @@ namespace DamnScript.Runtimes.Natives
         [FieldOffset(TypeSize)] public char charValue;
         [FieldOffset(TypeSize)] public void* pointerValue;
         [FieldOffset(TypeSize)] public ObjectPin safeValue;
+        [FieldOffset(TypeSize)] public NativeString* nativeStringValue;
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(ValueType type, long value) : this()
@@ -146,6 +142,13 @@ namespace DamnScript.Runtimes.Natives
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(ObjectPin value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ScriptValue(NativeString* value) : this()
+        {
+            nativeStringValue = value;
+            type = ValueType.NativeStringPointer;
+        }
 
         /// <summary>
         /// Convert value to an internal constant pointer and use it as a return value.
@@ -223,10 +226,11 @@ namespace DamnScript.Runtimes.Natives
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetReference<T>() where T : class => type switch
         {
-            ValueType.Pointer => throw new NotSupportedException("For reference type use only ReferenceUnsafePointer or ReferenceSafePointer!"),
             ValueType.ReferenceUnsafePointer => GetReferenceUnsafe<T>(),
             ValueType.ReferenceSafePointer => GetReferencePin<T>(),
-            _ => throw new NotSupportedException(exceptionMessageInvalidTypeForPointers)
+            _ => throw new NotSupportedException("For GetReference use only " +
+                                                 $"{nameof(ValueType.ReferenceUnsafePointer)} or " +
+                                                 $"{nameof(ValueType.ReferenceSafePointer)}!")
         };
     
         /// <summary>
@@ -257,7 +261,7 @@ namespace DamnScript.Runtimes.Natives
         {
             switch (type)
             {
-                case ValueType.Pointer:
+                case ValueType.NativeStringPointer:
                 {
                     var value = (NativeString*)pointerValue;
                     return value;
@@ -269,7 +273,7 @@ namespace DamnScript.Runtimes.Natives
                     if (obj is string str)
                         return str;
                     
-                    throw new Exception($"Attempt to get SafeString from non-string value!");
+                    throw new Exception($"Attempt to get SafeString from non-string value! If you want to convert into string, use ToString() method.");
 #else
                     var value = UnsafeUtilities.PointerToReference<string>(pointerValue);
                     return value;
@@ -281,7 +285,10 @@ namespace DamnScript.Runtimes.Natives
                     return value;
                 }
                 default:
-                    throw new NotSupportedException(exceptionMessageInvalidTypeForPointers);
+                    throw new NotSupportedException("For GetSafeString use only " +
+                                                    $"{nameof(ValueType.NativeStringPointer)}, " +
+                                                    $"{nameof(ValueType.ReferenceUnsafePointer)} or " +
+                                                    $"{nameof(ValueType.ReferenceSafePointer)}!");
             }
         }
 
@@ -298,9 +305,9 @@ namespace DamnScript.Runtimes.Natives
                 {
                     return longValue.ToString();
                 }
-                case ValueType.Pointer:
+                case ValueType.NativeStringPointer:
                 {
-                    throw new Exception($"Pointer type is not supported for {nameof(ToString)} method!");
+                    return ((NativeString*)pointerValue)->ToString();
                 }
                 case ValueType.ReferenceUnsafePointer:
                 {
@@ -319,7 +326,10 @@ namespace DamnScript.Runtimes.Natives
                     return target.ToString();
                 }
                 default:
-                    throw new NotSupportedException(exceptionMessageInvalidTypeForPointers);
+                    throw new NotSupportedException("For ToString use only " +
+                                                    $"{nameof(ValueType.NativeStringPointer)}, " +
+                                                    $"{nameof(ValueType.ReferenceUnsafePointer)} or " +
+                                                    $"{nameof(ValueType.ReferenceSafePointer)}!");
             }
         }
 
@@ -346,9 +356,11 @@ namespace DamnScript.Runtimes.Natives
         /// <exception cref="Exception">Will throw exception if you try to get safe string if ScriptValue is based on primitive or initialized incorrectly</exception>
         public void* GetReferencePointer() => type switch
         {
-            ValueType.Pointer or ValueType.ReferenceUnsafePointer => pointerValue,
+            ValueType.ReferenceUnsafePointer => pointerValue,
             ValueType.ReferenceSafePointer => safeValue.Address,
-            _ => throw new Exception(exceptionMessageInvalidTypeForPointers)
+            _ => throw new Exception("For GetReferencePointer use only " +
+                                     $"{nameof(ValueType.ReferenceUnsafePointer)} or " +
+                                     $"{nameof(ValueType.ReferenceSafePointer)}!")
         };
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -446,6 +458,9 @@ namespace DamnScript.Runtimes.Natives
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ScriptValue(void* value) => new(value, ValueType.Pointer);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ScriptValue(NativeString* value) => new(value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ScriptValue(ObjectPin value) => new(value);
@@ -470,6 +485,11 @@ namespace DamnScript.Runtimes.Natives
             /// Pointer to any unmanaged value.
             /// </summary>
             Pointer,
+            
+            /// <summary>
+            /// Pointer to the native string.
+            /// </summary>
+            NativeStringPointer,
 
             /// <summary>
             /// Unsafe pointer to the reference type.

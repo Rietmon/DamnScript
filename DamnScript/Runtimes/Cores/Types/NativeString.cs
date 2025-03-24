@@ -132,4 +132,13 @@ namespace DamnScript.Runtimes.Cores.Types
             }
         }
     }
+    
+    public static unsafe class NativeStringExtensions
+    {
+        public static void Dispose(this ref NativeString str)
+        {
+            var ptr = UnsafeUtilities.AsPointer(ref str);
+            UnsafeUtilities.Free(ptr);
+        }
+    }
 }

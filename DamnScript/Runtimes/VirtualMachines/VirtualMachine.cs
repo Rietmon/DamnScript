@@ -49,8 +49,7 @@ namespace DamnScript.Runtimes.VirtualMachines
             if (regionData == null)
                 throw new Exception($"Region with name {regionName} not found in script \"{scriptData.value->name}\"!");
             
-            var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata);
-        
+            var thread = new VirtualMachineThread(scriptData.value, regionData, &scriptData.value->metadata);
             var slot = GetEmptySlotOrReAlloc();
             threads[slot] = thread;
             HasThreads = true;
@@ -64,14 +63,13 @@ namespace DamnScript.Runtimes.VirtualMachines
             if (regionData == null)
                 throw new Exception($"Region with name {data->regionName} not found in script \"{scriptData.value->name}\"!");
             
-            var thread = new VirtualMachineThread(&scriptData.value->name, regionData, &scriptData.value->metadata)
+            var thread = new VirtualMachineThread(scriptData.value, regionData, &scriptData.value->metadata)
             {
                 offset = data->savePoint,
                 savePoint = data->savePoint,
                 stack = data->stack,
                 registers = data->registers
             };
-        
             var slot = GetEmptySlotOrReAlloc();
             threads[slot] = thread;
             HasThreads = true;

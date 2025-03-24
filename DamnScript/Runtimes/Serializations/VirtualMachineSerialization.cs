@@ -29,7 +29,7 @@ namespace DamnScript.Runtimes.Serializations
                 
                 var serializedThread = new VirtualMachineSerializedThread
                 {
-                    scriptName = *threadsBegin->scriptName,
+                    scriptName = threadsBegin->scriptData->name,
                     regionName = threadsBegin->regionData->name,
                     savePoint = threadsBegin->savePoint,
                     stack = threadsBegin->stack,
