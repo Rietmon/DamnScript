@@ -72,6 +72,9 @@ public class VirtualMachineTests
 		
 		for (var i = 0; i < 32; i++)
 			Assert.That(threads[i].Ptr.RefValue.offset, Is.EqualTo(i));
+		
+		for (var i = 0; i < 32; i++)
+			threads[i].Ptr.RefValue.Dispose();
 		ScriptEngine.UnloadScript(scriptData);
 		Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
 	}
