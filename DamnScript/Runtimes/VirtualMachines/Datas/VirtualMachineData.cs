@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores.Types;
@@ -25,8 +26,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
         
         public static void RegisterNativeMethod(MethodInfo method, String32 name)
         {
-            var parameters = method.GetParameters();
-            var argumentsCount = parameters.Length;
+#if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
+            if (method is DynamicMethod)
+                throw new Exception("Dynamic methods are not supported for native method registration. Please use Delegate instead!");
+#endif
+            
+            var parameters = MethodInfoResolver.GetParameters(method);
+            var argumentsCount = parameters!.Length;
             foreach (var parameter in parameters)
             {
                 if (parameter.ParameterType == scriptValuePtrType) 

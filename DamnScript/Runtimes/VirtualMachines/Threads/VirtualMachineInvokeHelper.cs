@@ -12,11 +12,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public static SV Invoke(NativeMethod method, SV* arguments, out Task task)
         {
             task = null;
-            if (method.isStatic)
+            if (method.IsStatic)
             {
-                if (!method.isAsync)
+                if (!method.IsAsync)
                 {
-                    if (method.hasReturnValue)
+                    if (method.HasReturnValue)
                         return InvokeStaticValue(method, arguments);
 
                     InvokeStaticVoid(method, arguments);
@@ -29,9 +29,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             }
             else
             {
-                if (!method.isAsync)
+                if (!method.IsAsync)
                 {
-                    if (method.hasReturnValue)
+                    if (method.HasReturnValue)
                     {
                         var resultPtr = (SV*)InvokeValue(method, arguments);
                         return *resultPtr;

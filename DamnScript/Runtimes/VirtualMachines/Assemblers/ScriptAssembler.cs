@@ -16,9 +16,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public int size;
         public int offset;
     
-        public ScriptAssembler(int _)
+        public ScriptAssembler(int capacity)
         {
-            byteCode = (byte*)UnsafeUtilities.Alloc(DefaultSize);
+            byteCode = (byte*)UnsafeUtilities.Alloc(capacity <= 0 ? DefaultSize : capacity);
             size = DefaultSize;
             offset = 0;
         }

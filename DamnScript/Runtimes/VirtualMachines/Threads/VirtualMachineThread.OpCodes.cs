@@ -46,7 +46,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             Debugging.Log($"Free arguments stack...");
 #endif
 
-			if (method.hasReturnValue && !method.isAsync)
+			if (method.HasReturnValue && !method.IsAsync)
 			{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
                 Debugging.Log($"Push return value ({returnValue.type}):({returnValue.longValue}) to stack...");
