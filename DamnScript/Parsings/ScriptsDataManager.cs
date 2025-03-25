@@ -43,7 +43,7 @@ namespace DamnScript.Parsings
             if (loaded.value != null)
                 return loaded;
         
-            var scriptData = UnsafeUtilities.Alloc<ScriptData>();
+            var scriptData = ScriptData.Alloc();
             ScriptParser.ParseScript(input, name, scriptData);
             var scriptDataPtr = new ScriptDataPtr(scriptData);
             _scripts.Add(scriptDataPtr);
@@ -79,7 +79,7 @@ namespace DamnScript.Parsings
                 throw new IOException("Failed to read input stream!");
                 
             input.Dispose();
-            var scriptData = UnsafeUtilities.Alloc<ScriptData>();
+            var scriptData = ScriptData.Alloc();
             CompiledScriptParser.ParseCompiledScript(_buffer, _bufferSize, name, scriptData);
             var scriptDataPtr = new ScriptDataPtr(scriptData);
             _scripts.Add(scriptDataPtr);
@@ -92,8 +92,8 @@ namespace DamnScript.Parsings
             var length = (int)input.Length;
             if (length > MaxStackBufferSize)
                 throw new NotSupportedException($"Input length is too big for stack: {input.Length.ToString()}!");
-        
-            var scriptData = UnsafeUtilities.Alloc<ScriptData>();
+
+            var scriptData = ScriptData.Alloc();
             var buffer = stackalloc byte[length];
             if (input.Read(new Span<byte>(buffer, length)) != length)
                 throw new IOException("Failed to read input stream!");
