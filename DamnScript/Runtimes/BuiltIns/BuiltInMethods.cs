@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.VirtualMachines.Threads;
 using SV = DamnScript.Runtimes.Natives.ScriptValue;
 using SVP = DamnScript.Runtimes.Natives.ScriptValuePtr;
 using SVT = DamnScript.Runtimes.Natives.ScriptValue.ValueType;
@@ -17,14 +16,27 @@ namespace DamnScript.Runtimes.BuiltIns
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)Log);
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)LogWarning);
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)LogError);
+			
 			ScriptEngine.RegisterNativeMethod((Func<SVP>)GetCurrentThreadHandle);
 			ScriptEngine.RegisterNativeMethod((Func<SVP>)GetCurrentThreadPtr);
+			
 			ScriptEngine.RegisterNativeMethod((Action<SVP, SVP>)RunLoadedScript);
+			
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)StopThread);
+			
 			ScriptEngine.RegisterNativeMethod((Func<SVP, Task>)Delay);
+			
 			ScriptEngine.RegisterNativeMethod((Action)SetSavePoint);
+			
 			ScriptEngine.RegisterNativeMethod((Func<SVP>)SerializeToStreamAlloc);
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)SerializeToFile);
+			
+			ScriptEngine.RegisterNativeMethod((Action<SVP>)PushToStack);
+			ScriptEngine.RegisterNativeMethod((Func<SVP>)PopFromStack);
+			
+			ScriptEngine.RegisterNativeMethod((Func<SVP, SVP>)ToString);
+			ScriptEngine.RegisterNativeMethod((Func<SVP, SVP>)StringToNumber);
+			ScriptEngine.RegisterNativeMethod((Func<SVP, SVP>)GetType);
 #endif
 		}
 
@@ -96,6 +108,50 @@ namespace DamnScript.Runtimes.BuiltIns
 			
 			pathString.Dispose();
 			stream.Dispose();
+		}
+		
+		private static unsafe void PushToStack(SVP value)
+		{
+			var thread = ScriptEngine.CurrentThreadPtr.value;
+			thread->StackPush(*value.value);
+		}
+		
+		private static unsafe SVP PopFromStack()
+		{
+			var thread = ScriptEngine.CurrentThreadPtr.value;
+			var value = thread->StackPop();
+			return value.Return();
+		}
+		
+		private static SVP ToString(SVP value)
+		{
+			var str = value.ToString();
+			return SV.FromReferenceUnsafe(str).Return();
+		}
+
+		private static unsafe SVP StringToNumber(SVP value)
+		{
+			var ptr = value.value;
+			switch (ptr->type)
+			{
+				case SVT.Primitive:
+					return new SV(ptr->longValue).Return();
+				case SVT.NativeStringPointer or SVT.ReferenceUnsafePointer or SVT.ReferenceSafePointer:
+				{
+					var str = ptr->ToString();
+					if (double.TryParse(str, out var number))
+						return new SV(number).Return();
+					break;
+				}
+			}
+
+			throw new Exception($"Unable to convert {value.ToString()} to number.");
+		}
+		
+		private static unsafe SVP GetType(SVP value)
+		{
+			var ptr = value.value;
+			return new SV((long)ptr->type).Return();
 		}
 	}
 }
