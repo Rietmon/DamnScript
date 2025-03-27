@@ -10,7 +10,24 @@ namespace DamnScript.Runtimes.Debugs
         public static string DisassembleScriptToString(ScriptDataPtr scriptData)
         {
             var sb = new StringBuilder();
-            sb.Append($"---{scriptData.RefValue.name.ToString()}---");
+            sb.AppendLine($"---{scriptData.RefValue.name.ToString()}---");   
+            sb.AppendLine("Metadata:");
+            sb.AppendLine("           ");
+            sb.AppendLine($"Constants:");
+            for (var i = 0; i < scriptData.RefValue.metadata.constants.strings.Length; i++)
+            {
+                var str = scriptData.RefValue.metadata.constants.strings[i].value;
+                sb.AppendLine($"{i.ToString()}: {str->ToString()}");
+            }
+            sb.AppendLine("           ");
+            sb.AppendLine($"Methods:");
+            for (var i = 0; i < scriptData.RefValue.metadata.constants.methods.Length; i++)
+            {
+                var str = scriptData.RefValue.metadata.constants.methods[i].value;
+                sb.AppendLine($"{i.ToString()}: {str->ToString()}");
+            }
+            sb.Append('\n');
+            sb.AppendLine("Regions:\n");
             for (var i = 0; i < scriptData.RefValue.regions.Length; i++)
             {
                 sb.AppendLine(DisassembleRegionToString(scriptData.value->regions.Begin + i, scriptData.RefValue.metadata));
@@ -39,9 +56,9 @@ namespace DamnScript.Runtimes.Debugs
                     {
                         var nativeCall = *(NativeCall*)byteCode;
                         sb.AppendLine(
-                            $"{offset.ToString()}: CALL {nativeCall.methodIndex} " +
-                            $"({metadata.GetMethodName(nativeCall.methodIndex)->ToString32()}) " +
-                            $"{nativeCall.argumentsCount.ToString()}");
+                            $"{offset.ToString()}: CALL {nativeCall.MethodIndex} " +
+                            $"({metadata.GetMethodName(nativeCall.MethodIndex)->ToString32()}) " +
+                            $"{nativeCall.ArgumentsCount.ToString()}");
                         offset += sizeof(NativeCall);
                         break;
                     }

@@ -5,6 +5,7 @@ using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
+// ReSharper disable EqualExpressionComparison
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
@@ -16,8 +17,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
             Debugging.Log($"Begin native call...");
 #endif
-			var methodName = metadata->GetMethodName(nativeCall.methodIndex)->ToString32();
-			var argumentsCount = nativeCall.argumentsCount;
+			var methodName = metadata->GetMethodName(nativeCall.MethodIndex)->ToString32();
+			var argumentsCount = nativeCall.ArgumentsCount;
 			if (!VirtualMachineData.TryGetNativeMethod(methodName, argumentsCount, out var method))
 				throw new Exception($"Method \"{methodName}\" with {argumentsCount} arguments not found!");
 

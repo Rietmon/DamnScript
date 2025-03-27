@@ -58,8 +58,10 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
             var hasReturnValue = method.ReturnType != voidType || method.ReturnType.IsGenericType;
             if (argumentsCount > 10)
             {
-                throw new Exception("The maximum number of arguments is 10 for native method. " +
-                                    "Probably it is 10 but you are using a non-static method which is add one more argument for object pointer.");
+                if (!isStatic)
+                    throw new Exception("The maximum number of arguments is 9 for NON-static method!");
+
+                throw new Exception("The maximum number of arguments is 10 for STATIC method!");
             }
             
             var id = new NativeMethodId(name, argumentsCount);

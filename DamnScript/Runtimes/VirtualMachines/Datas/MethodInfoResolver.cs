@@ -13,11 +13,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
 		{
 			var runtimeMethodInfoType = Type.GetType("System.Reflection.RuntimeMethodInfo");
 			if (runtimeMethodInfoType == null)
-				throw new Exception($"Type \"System.Reflection.RuntimeMethodInfo\" not found!");
+				throw new Exception("Type \"System.Reflection.RuntimeMethodInfo\" not found!");
             
 			getParametersNoCopyMethodInfo = runtimeMethodInfoType.GetMethod("GetParametersNoCopy", BindingFlags.NonPublic | BindingFlags.Instance);
 			if (getParametersNoCopyMethodInfo == null)
-				throw new Exception($"Method \"GetParametersNoCopy\" not found!");
+				throw new Exception("Method \"GetParametersNoCopy\" not found!");
 		}
 #endif
 
@@ -35,7 +35,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
 			(ParameterInfo[])getParametersNoCopyMethodInfo.Invoke(method, null);
 #endif
 
+#if DAMN_SCRIPT_DISABLE_RAW_METHOD_INFO
 		public static ParameterInfo[] GetParametersCopy(MethodInfo method) =>
 			method.GetParameters();
+#endif
 	}
 }

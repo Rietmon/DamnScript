@@ -1,4 +1,4 @@
-global using static DamnScriptTests.__Shared;
+global using static DamnScriptTests.Shared;
 global using DamnScript.Runtimes;
 global using DamnScript.Runtimes.Cores;
 global using DamnScript.Runtimes.Cores.Types;
@@ -15,7 +15,7 @@ using DamnScript.Runtimes.Cores.Pins;
 
 namespace DamnScriptTests;
 
-public static class __Shared
+public static class Shared
 {
 	public static void PushToStack(ScriptValuePtr value)
 	{

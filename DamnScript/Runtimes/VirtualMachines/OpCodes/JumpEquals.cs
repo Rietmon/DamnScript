@@ -2,7 +2,11 @@
 
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
+#if DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+#else 
     [StructLayout(LayoutKind.Sequential)]
+#endif
     public readonly unsafe struct JumpEquals
     {
         public const OpCodeType OpCode = OpCodeType.JumpEquals;

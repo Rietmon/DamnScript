@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Natives;
 using SV = DamnScript.Runtimes.Natives.ScriptValue;
-using pSV = DamnScript.Runtimes.Natives.ScriptValuePtr;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
@@ -11,14 +12,24 @@ namespace DamnScript.Runtimes.Natives
     /// Using as an argument for the native methods be passed by reference.
     /// It is a pointer to the ScriptValue.
     /// </summary>
+#if DAMN_SCRIPT_DISABLE_ALIGNMENT_SCRIPT_VALUE
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+#else
+    [StructLayout(LayoutKind.Sequential)]
+#endif
     public readonly unsafe struct ScriptValuePtr
     {
+        public ScriptValue.ValueType Type => value->type;
         public bool BoolValue => value->boolValue;
         public byte ByteValue => value->byteValue;
+        public sbyte SByteValue => value->sbyteValue;
         public short ShortValue => value->shortValue;
+        public ushort UShortValue => value->ushortValue;
         public int IntValue => value->intValue;
+        public uint UIntValue => value->uintValue;
         public long LongValue => value->longValue;
-        public float FloatValue => value->floatValue;
+        public ulong ULongValue => value->ulongValue;
+        public float FloatValue => (float)value->doubleValue;
         public double DoubleValue => value->doubleValue;
         public char CharValue => value->charValue;
         public void* PointerValue => value->pointerValue;
@@ -82,78 +93,58 @@ namespace DamnScript.Runtimes.Natives
     /// It has a fixed size and can be used in the virtual machine.
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = Size)]
-    public unsafe struct ScriptValue : IEquatable<ScriptValue>
+    public unsafe partial struct ScriptValue : IEquatable<ScriptValue>
     {
         public const int TypeSize = UnsafeUtilities.PointerSize;
         public const int Size = TypeSize + 8;
         
         public static ScriptValue* returnValuePtr;
+
+        public float SafeFloatValue => type switch
+        {
+            ValueType.NumberInteger => longValue,
+            ValueType.NumberFloat32 => floatValue,
+            ValueType.NumberFloat64 => (float)doubleValue,
+            _ => throw new NotSupportedException("ScriptValue is not a number type!")
+        };
+        
+        public double SafeDoubleValue => type switch
+        {
+            ValueType.NumberInteger => longValue,
+            ValueType.NumberFloat32 => floatValue,
+            ValueType.NumberFloat64 => doubleValue,
+            _ => throw new NotSupportedException("ScriptValue is not a number type!")
+        };
+        
+        public long SafeIntegerValue => type switch
+        {
+            ValueType.NumberInteger => longValue,
+            ValueType.NumberFloat32 => (long)floatValue,
+            ValueType.NumberFloat64 => (long)doubleValue,
+            _ => throw new NotSupportedException("ScriptValue is not a number type!")
+        };
         
         [FieldOffset(0)] public ValueType type;
         [FieldOffset(TypeSize)] public bool boolValue;
         [FieldOffset(TypeSize)] public byte byteValue;
+        [FieldOffset(TypeSize)] public sbyte sbyteValue;
         [FieldOffset(TypeSize)] public short shortValue;
+        [FieldOffset(TypeSize)] public ushort ushortValue;
         [FieldOffset(TypeSize)] public int intValue;
+        [FieldOffset(TypeSize)] public uint uintValue;
         [FieldOffset(TypeSize)] public long longValue;
+        [FieldOffset(TypeSize)] public ulong ulongValue;
         [FieldOffset(TypeSize)] public float floatValue;
         [FieldOffset(TypeSize)] public double doubleValue;
         [FieldOffset(TypeSize)] public char charValue;
         [FieldOffset(TypeSize)] public void* pointerValue;
         [FieldOffset(TypeSize)] public ObjectPin safeValue;
         [FieldOffset(TypeSize)] public NativeString* nativeStringValue;
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(ValueType type, long value) : this()
-        {
-            this.type = type;
-            longValue = value;
-        }
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(bool value) : this() => (type, boolValue) = (ValueType.Primitive, value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(byte value) : this() => (type, byteValue) = (ValueType.Primitive, value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(short value) : this() => (type, shortValue) = (ValueType.Primitive, value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(int value) : this() => (type, intValue) = (ValueType.Primitive, value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(long value) : this() => (type, longValue) = (ValueType.Primitive, value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(float value) : this() => (type, floatValue) = (ValueType.Primitive, value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(double value) : this() => (type, doubleValue) = (ValueType.Primitive, value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(char value) : this() => (type, charValue) = (ValueType.Primitive, value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(void* value, ValueType type) : this()
-        {
-            this.type = type;
-            pointerValue = value;
-        }
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(ObjectPin value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(NativeString* value) : this()
-        {
-            nativeStringValue = value;
-            type = ValueType.NativeStringPointer;
-        }
-
+        
         /// <summary>
         /// Convert value to an internal constant pointer and use it as a return value.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Pointer to returned value (use only in VM thread call)</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValuePtr Return()
         {
@@ -301,9 +292,17 @@ namespace DamnScript.Runtimes.Natives
         {
             switch (type)
             {
-                case ValueType.Primitive:
+                case ValueType.NumberInteger:
                 {
                     return longValue.ToString();
+                }
+                case ValueType.NumberFloat32:
+                {
+                    return floatValue.ToString(CultureInfo.InvariantCulture);
+                }
+                case ValueType.NumberFloat64:
+                {
+                    return doubleValue.ToString(CultureInfo.InvariantCulture);
                 }
                 case ValueType.NativeStringPointer:
                 {
@@ -332,9 +331,8 @@ namespace DamnScript.Runtimes.Natives
                                                     $"{nameof(ValueType.ReferenceSafePointer)}!");
             }
         }
-
         
-        public bool Equals(ScriptValue other) => type == other.type && longValue == other.longValue;
+        public bool Equals(ScriptValue other) => Equal(this, other);
 
         public override bool Equals(object obj) => obj is ScriptValue other && Equals(other);
 
@@ -362,108 +360,6 @@ namespace DamnScript.Runtimes.Natives
                                      $"{nameof(ValueType.ReferenceUnsafePointer)} or " +
                                      $"{nameof(ValueType.ReferenceSafePointer)}!")
         };
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(ScriptValue left, ScriptValue right) => 
-            left.type == right.type && left.longValue == right.longValue;
-    
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(ScriptValue left, ScriptValue right) => 
-            left.type != right.type || left.longValue != right.longValue;
-    
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >(ScriptValue left, ScriptValue right) => left.longValue > right.longValue;
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <(ScriptValue left, ScriptValue right) => left.longValue < right.longValue;
-    
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >=(ScriptValue left, ScriptValue right) => left.longValue >= right.longValue;
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <=(ScriptValue left, ScriptValue right) => left.longValue <= right.longValue;
-    
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator +(ScriptValue left, ScriptValue right) => new(left.type, left.longValue + right.longValue);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator -(ScriptValue left, ScriptValue right) => new(left.type, left.longValue - right.longValue);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator *(ScriptValue left, ScriptValue right) => new(left.type, left.longValue * right.longValue);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator /(ScriptValue left, ScriptValue right) => new(left.type, left.longValue / right.longValue);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator %(ScriptValue left, ScriptValue right) => new(left.type, left.longValue % right.longValue);
-    
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator &(ScriptValue left, ScriptValue right) => new(left.type, left.longValue & right.longValue);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator |(ScriptValue left, ScriptValue right) => new(left.type, left.longValue | right.longValue);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator ^(ScriptValue left, ScriptValue right) => new(left.type, left.longValue ^ right.longValue);
-    
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator <<(ScriptValue left, int right) => new(left.type, left.longValue << right);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator >>(ScriptValue left, int right) => new(left.type, left.longValue >> right);
-    
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator ++(ScriptValue value) => new(value.type, value.longValue + 1);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator --(ScriptValue value) => new(value.type, value.longValue - 1);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator -(ScriptValue value) => new(value.type, -value.longValue);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptValue operator +(ScriptValue value) => new(value.type, +value.longValue);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(bool value) => new(value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(byte value) => new(value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(short value) => new(value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(int value) => new(value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(long value) => new(value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(float value) => new(value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(double value) => new(value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(char value) => new(value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(void* value) => new(value, ValueType.Pointer);
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(NativeString* value) => new(value);
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(ObjectPin value) => new(value);
 
         public enum ValueType :
 #if DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12
@@ -476,11 +372,21 @@ namespace DamnScript.Runtimes.Natives
             /// Represent that ScriptValue initialized incorrectly.
             /// </summary>
             Invalid,
-
+            
             /// <summary>
-            /// Represent that ScriptValue is a primitive type (byte, int, long, etc.)
+            /// Represent that ScriptValue initialized as an integer.
             /// </summary>
-            Primitive,
+            NumberInteger,
+            
+            /// <summary>
+            /// Represent that ScriptValue initialized as a float.
+            /// </summary>
+            NumberFloat32,
+            /// <summary>
+            /// Represent that ScriptValue initialized as a double.
+            /// </summary>
+            NumberFloat64,
+            
             /// <summary>
             /// Pointer to any unmanaged value.
             /// </summary>
