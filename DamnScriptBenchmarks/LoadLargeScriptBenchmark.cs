@@ -26,14 +26,14 @@ public class LoadLargeScriptBenchmark
 		result = value;
 	}
             
-	public static ScriptValue ExternalGetDamnScriptValue()
+	public static ScriptValuePtr ExternalGetDamnScriptValue()
 	{
-		return 5;
+		return new ScriptValue(5).Return();
 	}
             
-	public static void ExternalPrintDamnScript(ScriptValue value)
+	public static void ExternalPrintDamnScript(ScriptValuePtr value)
 	{
-		result = value.intValue;
+		result = value.IntValue;
 	}
             
 	[GlobalSetup]

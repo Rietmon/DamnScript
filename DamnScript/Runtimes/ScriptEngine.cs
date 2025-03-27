@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using DamnScript.Parsings;
 using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes.BuiltIns;
@@ -20,14 +21,20 @@ namespace DamnScript.Runtimes
         /// <summary>
         /// Returns the current thread executing right now.
         /// </summary>
-        public static VirtualMachineThreadPtr CurrentThreadPtr => 
-            mainPtr.value->currentThread;
-        
+        public static VirtualMachineThreadPtr CurrentThreadPtr
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => mainPtr.value->currentThread;
+        }
+
         /// <summary>
         /// Current thread handle which is executing right now.
         /// </summary>
-        public static VirtualMachineThreadHandle CurrentThreadHandle => 
-            new(CurrentThreadPtr - mainPtr.value->threads.Begin, mainPtr);
+        public static VirtualMachineThreadHandle CurrentThreadHandle
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new(CurrentThreadPtr.value == null ? -1 : CurrentThreadPtr - mainPtr.value->threads.Begin, mainPtr);
+        }
         
         /// <summary>
         /// Pointer to the main virtual machine which is allocated by default.
@@ -46,6 +53,7 @@ namespace DamnScript.Runtimes
         /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
         /// </summary>
         /// <param name="d">Delegate to method</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterNativeMethod(Delegate d) => 
             VirtualMachineData.RegisterNativeMethod(d, d.Method.Name);
         
@@ -55,6 +63,7 @@ namespace DamnScript.Runtimes
         /// Also, you can use OOP methods, but in this case, you should pass an instance of the object as the first argument.
         /// </summary>
         /// <param name="method">Method info</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterNativeMethod(MethodInfo method) => 
             VirtualMachineData.RegisterNativeMethod(method, method.Name);
 
@@ -65,6 +74,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="d">Delegate to method</param>
         /// <param name="name">Override method name</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterNativeMethod(Delegate d, String32 name) => 
             VirtualMachineData.RegisterNativeMethod(d, name);
 
@@ -75,6 +85,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="method">Method info</param>
         /// <param name="name">Override method name</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterNativeMethod(MethodInfo method, String32 name) => 
             VirtualMachineData.RegisterNativeMethod(method, name);
     
@@ -86,6 +97,7 @@ namespace DamnScript.Runtimes
         /// <param name="input">Stream with script code. Should be a text code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
         /// <returns>Pointer to script data</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDataPtr LoadScript(Stream input, String32 name) => 
             ScriptsDataManager.LoadScript(input, name);
     
@@ -97,6 +109,7 @@ namespace DamnScript.Runtimes
         /// <param name="input">Stream with compiled script code. Should be a byte code!</param>
         /// <param name="name">Name of the script. Should be unique!</param>
         /// <returns>Pointer to script data</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDataPtr LoadCompiledScript(Stream input, String32 name) => 
             ScriptsDataManager.LoadCompiledScript(input, name);
 
@@ -108,6 +121,7 @@ namespace DamnScript.Runtimes
         /// <param name="scriptData">Pointer to script data</param>
         /// <param name="regionName">Region which should be run. By default, it's "Main" region</param>
         /// <returns>Pointer to thread</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static VirtualMachineThreadHandle RunThread(ScriptDataPtr scriptData, String32 regionName) => 
             mainPtr.value->RunThread(scriptData, regionName);
 
@@ -117,6 +131,7 @@ namespace DamnScript.Runtimes
         /// Because of it, this method should be called in application life cycle loop.
         /// </summary>
         /// <returns>Does scheduler have other threads?</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ExecuteVirtualMachineNext() =>
             mainPtr.value->ExecuteNext();
     
@@ -126,6 +141,7 @@ namespace DamnScript.Runtimes
         /// </summary>
         /// <param name="scriptName">Name of the script</param>
         /// <returns>Pointer to script data</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDataPtr GetScriptDataFromCache(String32 scriptName) => 
             ScriptsDataManager.GetScriptData(scriptName);
     
@@ -134,6 +150,7 @@ namespace DamnScript.Runtimes
         /// If a script is not present in cache, it will log an error. And do nothing.
         /// </summary>
         /// <param name="scriptData">Name of the script</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnloadScript(ScriptDataPtr scriptData) => 
             ScriptsDataManager.UnloadScript(scriptData);
 
@@ -141,6 +158,7 @@ namespace DamnScript.Runtimes
         /// Serialize the Main virtual machine to bytes then return it.
         /// </summary>
         /// <returns>Serialization stream with bytes</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SerializationStream SerializeToSerializationStream() => 
             VirtualMachineSerialization.SerializeToSerializationStream(mainPtr);
 

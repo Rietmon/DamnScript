@@ -16,8 +16,8 @@ namespace DamnScriptBenchmarks
     {
         public static void Main()
         {
-            // BenchmarkRunner.Run<SimpleExternalCallBenchmark>();
-             BenchmarkRunner.Run<LoadLargeScriptBenchmark>();
+             BenchmarkRunner.Run<SimpleExternalCallBenchmark>();
+            // BenchmarkRunner.Run<LoadLargeScriptBenchmark>();
             // var benchmark = new LoadLargeScriptBenchmark();
             // benchmark.Initialize();
             // benchmark.LuaBenchmark();

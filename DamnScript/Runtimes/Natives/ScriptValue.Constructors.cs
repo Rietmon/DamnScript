@@ -16,39 +16,39 @@ namespace DamnScript.Runtimes.Natives
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(bool value) : this() => (type, boolValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(bool value) : this() => (type, boolValue) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(byte value) : this() => (type, ulongValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(byte value) : this() => (type, ulongValue) = (ValueType.Integer, value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(sbyte value) : this() => (type, longValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(sbyte value) : this() => (type, longValue) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(short value) : this() => (type, longValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(short value) : this() => (type, longValue) = (ValueType.Integer, value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(ushort value) : this() => (type, ulongValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(ushort value) : this() => (type, ulongValue) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(int value) : this() => (type, longValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(int value) : this() => (type, longValue) = (ValueType.Integer, value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(uint value) : this() => (type, ulongValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(uint value) : this() => (type, ulongValue) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(long value) : this() => (type, longValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(long value) : this() => (type, longValue) = (ValueType.Integer, value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(ulong value) : this() => (type, ulongValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(ulong value) : this() => (type, ulongValue) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(float value) : this() => (type, floatValue) = (ValueType.NumberFloat32, value);
+        public ScriptValue(float value) : this() => (type, floatValue) = (ValueType.Float32, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(double value) : this() => (type, doubleValue) = (ValueType.NumberFloat64, value);
+        public ScriptValue(double value) : this() => (type, doubleValue) = (ValueType.Float64, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(char value) : this() => (type, charValue) = (ValueType.NumberInteger, value);
+        public ScriptValue(char value) : this() => (type, charValue) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(void* value, ValueType type) : this()

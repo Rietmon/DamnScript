@@ -27,17 +27,20 @@ It is designed for writing game behavior logic with deep integration into C# and
 ## ⚡ Quick Start
 
 ### For .NET Project
+
 1. Download the project from [GitHub](https://github.com/Rietmon/DamnScript)
 2. Import the `DamnScript/` folder (including `Runtimes/` and `Parsing/`) into your .NET 7+ project
 3. Enjoy!
 
 ### For Unity (as a build)
+
 1. Download the project from [GitHub](https://github.com/Rietmon/DamnScript)
 2. Build `DamnScript` into a library using .NET 7+, configuring the directives
 3. Connect `DamnScript.dll` in Unity
 4. Done!
 
 ### For Unity (as source code)
+
 1. Download the project from [GitHub](https://github.com/Rietmon/DamnScript)
 2. Import `DamnScript/`, including `Runtimes/` and `Parsing/` into Unity
 3. Build DamnScript for the target platform
@@ -49,12 +52,16 @@ It is designed for writing game behavior logic with deep integration into C# and
 > 🔧 Possible directives:
 > - ARCHITECTURES `DAMN_SCRIPT_ENBALE_MONO` - switches the mode to support Mono (by default, it applies to Unity)
 > - CONFIGS `DAMN_SCRIPT_ENBALE_TARGET_32BIT` - switches the mode to support 32-bit platforms
-> - CONFIGS `DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12` - reduces ScriptValue size to 12 bytes (not recommended without clear understanding)
-> - CONFIGS `DAMN_SCRIPT_STACK_SIZE_16`/`DAMN_SCRIPT_STACK_SIZE_64` - sets the stack size for scripts (default is 32 elements)
-> - CONFIGS `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_32_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` - sets the size of opcodes (default is 8 bits)
+> - CONFIGS `DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12` - reduces ScriptValue size to 12 bytes (not recommended without clear
+    understanding)
+> - CONFIGS `DAMN_SCRIPT_STACK_SIZE_16`/`DAMN_SCRIPT_STACK_SIZE_64` - sets the stack size for scripts (default is 32
+    elements)
+> - CONFIGS `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_32_BIT_OPCODES`/
+    `DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` - sets the size of opcodes (default is 8 bits)
 > - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` - enables additional memory safety checks (disabled by default)
 > - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` - disables built-in methods
-> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` - allows using non-pinned reference in async methods in .NET (not applies to Unity, here it is always allowed)
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` - allows using non-pinned reference in async methods in .NET (not
+    applies to Unity, here it is always allowed)
 > - DEBUGS `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` - enables memory debug
 > - DEBUGS `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` - enables assembler debug messages
 > - DEBUGS `DAMN_SCRIPT_PINNING_DEBUG` - enables pinning debug
@@ -111,7 +118,7 @@ public static void Log(ScriptValuePtr value)
 
 public static void TestRun() 
 {
-	ScriptEngine.RegisterNativeMethod((Action<ScriptValuePtr>)Log); // Register a native method
+    ScriptEngine.RegisterNativeMethod((Action<ScriptValuePtr>)Log); // Register a native method
     
     var fileStream = File.Open("Test1.ds", FileMode.Open); // Opening the stream to read the script
     var scriptData = ScriptEngine.LoadScript(fileStream, "Test1"); // Loading the script into memory (JIT compilation in this case)
@@ -132,6 +139,7 @@ public static void TestRun()
 ---
 
 ## 🤝 How to Contribute
+
 - ✍️ Write scripts in DamnScript and share them
 - 📚 Create tutorials and guides
 - 🐛 Open Issues with bugs and ideas

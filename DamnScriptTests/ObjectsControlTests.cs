@@ -26,10 +26,11 @@ public class ObjectsControlTests
 		public async Task<ScriptValuePtr> SimulateAsync(ScriptValuePtr value1, ScriptValuePtr value2, ScriptValuePtr value3, ScriptValuePtr value4, 
 			ScriptValuePtr value5, ScriptValuePtr value6, ScriptValuePtr value7, ScriptValuePtr value8, ScriptValuePtr value9)
 		{
+			var handle = ScriptEngine.CurrentThreadHandle;
 			await Task.Delay(100);
 			Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
 			         value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
-			return ScriptValue.FromReferencePin(this).Return();
+			return ScriptValue.FromReferencePin(this).ReturnAsync(handle);
 		}
 	}
 	

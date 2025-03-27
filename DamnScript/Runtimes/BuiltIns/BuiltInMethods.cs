@@ -134,11 +134,11 @@ namespace DamnScript.Runtimes.BuiltIns
 			var ptr = value.value;
 			switch (ptr->type)
 			{
-				case SVT.NumberInteger:
+				case SVT.Integer:
 					return new SV(ptr->longValue).Return();
-				case SVT.NumberFloat32:
+				case SVT.Float32:
 					return new SV(ptr->floatValue).Return();
-				case SVT.NumberFloat64:
+				case SVT.Float64:
 					return new SV(ptr->doubleValue).Return();
 				case SVT.NativeStringPointer or SVT.ReferenceUnsafePointer or SVT.ReferenceSafePointer:
 				{

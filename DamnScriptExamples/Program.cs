@@ -41,7 +41,7 @@ namespace DamnScriptExamples
                 Console.WriteLine("8: Save point");
                 Console.WriteLine("Q: Exit");
                 Console.WriteLine("---------------------------------");
-            
+
                 var input = Console.ReadLine();
 
                 switch (input)

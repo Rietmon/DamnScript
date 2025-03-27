@@ -83,6 +83,8 @@ namespace DamnScript.Runtimes.VirtualMachines
             
 				begin++;
 			}
+
+			currentThread = null;
 		}
 	}
 }

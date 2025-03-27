@@ -17,22 +17,8 @@ namespace DamnScriptTests;
 
 public static class Shared
 {
-	public static void PushToStack(ScriptValuePtr value)
-	{
-		ScriptEngine.CurrentThreadPtr.RefValue.StackPush(value.LongValue);
-	}
-	
-	public static void Print(ScriptValuePtr value)
-	{
-		var str = value.RefValue.ToString();
-		Console.WriteLine(str);
-	}
-
 	public static ScriptValue Run(string method)
 	{
-		ScriptEngine.RegisterNativeMethod(PushToStack);
-		ScriptEngine.RegisterNativeMethod(Print);
-		
 		var code = $@"
 				region Main
 				{{

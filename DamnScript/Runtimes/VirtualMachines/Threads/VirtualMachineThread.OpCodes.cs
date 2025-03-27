@@ -55,6 +55,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 				StackPush(returnValue);
 			}
 			
+			ScriptValue.returnValuePtr = null;
+			
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
             Debugging.Log($"End native call.");
 #endif

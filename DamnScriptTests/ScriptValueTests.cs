@@ -550,7 +550,7 @@ public class ScriptValueTests
 		SV* valuePtr = UnsafeUtilities.AsPointer(ref value);
 		var scriptValuePtr = new ScriptValuePtr(valuePtr);
 
-		Assert.That(scriptValuePtr.Type, Is.EqualTo(SV.ValueType.NumberInteger));
+		Assert.That(scriptValuePtr.Type, Is.EqualTo(SV.ValueType.Integer));
 		Assert.That(scriptValuePtr.IntValue, Is.EqualTo(42));
 	}
 
@@ -719,19 +719,6 @@ public class ScriptValueTests
 	}
 
 	[Test]
-	public unsafe void ReturnMethodTest()
-	{
-		SV returnValue = new SV();
-		SV.returnValuePtr = &returnValue;
-
-		SV testValue = 42;
-		var returnedPtr = testValue.Return();
-
-		Assert.That(returnedPtr.IntValue, Is.EqualTo(42));
-		Assert.That(returnValue.intValue, Is.EqualTo(42));
-	}
-
-	[Test]
 	public void ScriptValuePtrReferenceTest()
 	{
 		var testObject = new TestClass { Value = "RefTest" };
@@ -754,13 +741,13 @@ public class ScriptValueTests
 		SV floatToDouble = floatValue + 0.25;
 		SV doubleToInt = doubleValue * 0;
 
-		Assert.That(intToFloat.type, Is.EqualTo(SV.ValueType.NumberFloat64));
+		Assert.That(intToFloat.type, Is.EqualTo(SV.ValueType.Float64));
 		Assert.That(intToFloat.doubleValue, Is.EqualTo(10.5));
 
-		Assert.That(floatToDouble.type, Is.EqualTo(SV.ValueType.NumberFloat64));
+		Assert.That(floatToDouble.type, Is.EqualTo(SV.ValueType.Float64));
 		Assert.That(floatToDouble.doubleValue, Is.EqualTo(10.75));
 
-		Assert.That(doubleToInt.type, Is.EqualTo(SV.ValueType.NumberFloat64));
+		Assert.That(doubleToInt.type, Is.EqualTo(SV.ValueType.Float64));
 		Assert.That(doubleToInt.doubleValue, Is.EqualTo(0.0));
 	}
 
@@ -820,7 +807,7 @@ public class ScriptValueTests
 	}
 
 	[Test]
-	public unsafe void NestedStructTest()
+	public void NestedStructTest()
 	{
 		var outer = new OuterStruct
 		{
@@ -851,16 +838,16 @@ public class ScriptValueTests
 	public void TypePromotionTest()
 	{
 		SV intValue = 10;
-		Assert.That(intValue.type, Is.EqualTo(SV.ValueType.NumberInteger));
+		Assert.That(intValue.type, Is.EqualTo(SV.ValueType.Integer));
 
 		SV floatResult = intValue + 10.5f;
-		Assert.That(floatResult.type, Is.EqualTo(SV.ValueType.NumberFloat64));
+		Assert.That(floatResult.type, Is.EqualTo(SV.ValueType.Float64));
 
 		SV floatValue = 10.5f;
-		Assert.That(floatValue.type, Is.EqualTo(SV.ValueType.NumberFloat32));
+		Assert.That(floatValue.type, Is.EqualTo(SV.ValueType.Float32));
 
 		SV doubleResult = floatValue + 10.5;
-		Assert.That(doubleResult.type, Is.EqualTo(SV.ValueType.NumberFloat64));
+		Assert.That(doubleResult.type, Is.EqualTo(SV.ValueType.Float64));
 	}
 
 	[Test]
@@ -991,7 +978,7 @@ public class ScriptValueTests
 	}
 
 	[Test]
-	public unsafe void ComplexNestedStructTest()
+	public void ComplexNestedStructTest()
 	{
 		var nested = new OuterStruct
 		{
@@ -1024,7 +1011,7 @@ public class ScriptValueTests
 	}
 
 	[Test]
-	public unsafe void ArrayOfStructsTest()
+	public void ArrayOfStructsTest()
 	{
 		var structArray = new InnerStruct[3];
 		structArray[0] = new InnerStruct { x = 10, y = 20 };
@@ -1088,5 +1075,14 @@ public class ScriptValueTests
 	private class LinkedNode
 	{
 		public LinkedNode? Next { get; set; }
+	}
+	
+	[Test]
+	public void StringMathTest()
+	{
+		SV str1 = SV.FromReferenceUnsafe("Hello ");
+		SV str2 = SV.FromReferenceUnsafe("World");
+
+		Assert.Throws<Exception>(() => { _ = str1 + str2; });
 	}
 }

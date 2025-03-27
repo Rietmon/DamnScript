@@ -70,8 +70,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
             if (methods.TryAdd(id, nativeMethod)) 
                 return;
             
-            Debugging.LogWarning($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
-                                 $"Method with the name \"{name}\" and with {argumentsCount.ToString()} arguments is already registered.");
+            Debugging.LogError($"[{nameof(ScriptEngine)}] ({nameof(RegisterNativeMethod)}) " +
+                                 $"Method with the name \"{name}\" and with {argumentsCount.ToString()} arguments is already registered. " +
+                                 $"Overrides is not supported!");
         }
     
         public static bool TryGetNativeMethod(String32 methodName, int argumentsCount, out NativeMethod method)
