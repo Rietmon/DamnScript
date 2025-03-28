@@ -1,0 +1,46 @@
+name: Build and Release DamnScript
+
+on:
+  push:
+    tags:
+      - "stable-*"
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore DamnScript.sln
+
+      - name: Build Debug
+        run: dotnet build DamnScript.sln --configuration Debug --no-restore
+
+      - name: Build Release
+        run: dotnet build DamnScript.sln --configuration Release --no-restore
+
+      - name: Run Unit Tests (Debug)
+        run: dotnet test DamnScriptTests/DamnScriptTests.csproj --configuration Debug --no-build --verbosity normal
+
+      - name: Run Unit Tests (Release)
+        run: dotnet test DamnScriptTests/DamnScriptTests.csproj --configuration Release --no-build --verbosity normal
+
+      - name: Run build_releases.py
+        run: python3 Script/build_releases.py
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Script/Releases/*.zip
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
