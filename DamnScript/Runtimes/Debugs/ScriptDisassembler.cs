@@ -7,30 +7,30 @@ namespace DamnScript.Runtimes.Debugs
 {
     public static unsafe class ScriptDisassembler
     {
-        public static string DisassembleScriptToString(ScriptDataPtr scriptData)
+        public static unsafe string DisassembleScriptToString(ScriptDataPtr scriptData)
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"---{scriptData.RefValue.name.ToString()}---");   
+            sb.AppendLine($"---{scriptData.value->name.ToString()}---");   
             sb.AppendLine("Metadata:");
             sb.AppendLine("           ");
             sb.AppendLine($"Constants:");
-            for (var i = 0; i < scriptData.RefValue.metadata.constants.strings.Length; i++)
+            for (var i = 0; i < scriptData.value->metadata.constants.strings.Length; i++)
             {
-                var str = scriptData.RefValue.metadata.constants.strings[i].value;
+                var str = scriptData.value->metadata.constants.strings[i].value;
                 sb.AppendLine($"{i.ToString()}: {str->ToString()}");
             }
             sb.AppendLine("           ");
             sb.AppendLine($"Methods:");
-            for (var i = 0; i < scriptData.RefValue.metadata.constants.methods.Length; i++)
+            for (var i = 0; i < scriptData.value->metadata.constants.methods.Length; i++)
             {
-                var str = scriptData.RefValue.metadata.constants.methods[i].value;
+                var str = scriptData.value->metadata.constants.methods[i].value;
                 sb.AppendLine($"{i.ToString()}: {str->ToString()}");
             }
             sb.Append('\n');
             sb.AppendLine("Regions:\n");
-            for (var i = 0; i < scriptData.RefValue.regions.Length; i++)
+            for (var i = 0; i < scriptData.value->regions.Length; i++)
             {
-                sb.AppendLine(DisassembleRegionToString(scriptData.value->regions.Begin + i, scriptData.RefValue.metadata));
+                sb.AppendLine(DisassembleRegionToString(scriptData.value->regions.Begin + i, scriptData.value->metadata));
             }
 
             return sb.ToString();

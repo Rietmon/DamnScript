@@ -258,10 +258,16 @@ namespace DamnScript.Runtimes.Cores
 	        public int size;
 	        public string stack;
 
-	        public bool Equals(AllocInfo other) => address == other.address && size == other.size && stack == other.stack;
+	        public bool Equals(AllocInfo other) => this == other;
 	        public override bool Equals(object obj) => obj is AllocInfo other && Equals(other);
 
 	        public override int GetHashCode() => HashCode.Combine(unchecked((int)(long)address), size, stack);
+
+	        public static bool operator ==(AllocInfo left, AllocInfo right) =>
+		        left.address == right.address && left.size == right.size && left.stack == right.stack;
+
+            public static bool operator !=(AllocInfo left, AllocInfo right) => 
+	            !(left == right);
         }
 #endif
     }

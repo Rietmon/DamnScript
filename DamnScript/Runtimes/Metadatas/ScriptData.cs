@@ -27,16 +27,14 @@ namespace DamnScript.Runtimes.Metadatas
 
         public int referencesCount;
 
-        public RegionData* GetRegionData(String32 regionName) => GetRegionData(regionName.GetHashCode());
-
-        public RegionData* GetRegionData(int hash)
+        public RegionData* GetRegionData(String32 regionName)
         {
             var begin = regions.Begin;
             var end = regions.End;
 
             while (begin < end)
             {
-                if (begin->name.GetHashCode() == hash)
+                if (begin->name == regionName)
                     return begin;
 
                 begin++;

@@ -39,9 +39,8 @@ namespace DamnScript.Runtimes.Cores.Types
 
         public static NativeString* Alloc(int length)
         {
-            var str = (NativeString*)UnsafeUtilities.Alloc((length + 1) * sizeof(char) + sizeof(int));
+            var str = (NativeString*)UnsafeUtilities.Alloc(length * sizeof(char) + sizeof(int));
             str->length = length;
-            str->data[length - 1] = '\0';
             return str;
         }
     

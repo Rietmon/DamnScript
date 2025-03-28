@@ -48,21 +48,10 @@ namespace DamnScript.Runtimes.Cores.Types
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator==(String32 left, String32 right)
-        {
-            var begin = left.data;
-            var end = right.data;
-            for (var i = 0; i < Length; i++)
-            {
-                if (*begin != *end)
-                    return false;
-            
-                begin++;
-                end++;
-            }
-            return true;
-        }
+        public static bool operator==(String32 left, String32 right) => 
+            UnsafeUtilities.Memcmp(left.data, right.data, Length * sizeof(char));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] 
         public static bool operator !=(String32 left, String32 right) => !(left == right);
 
         public override bool Equals(object obj) => obj is String32 other && Equals(other);
