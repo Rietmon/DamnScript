@@ -214,10 +214,20 @@ namespace DamnScript.Runtimes.Cores
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref T AsRef<T>(void* ptr) where T : unmanaged => ref Unsafe.AsRef<T>(ptr);
+        public static ref T AsRef<T>(void* ptr) where T : unmanaged => 
+#if UNITY_5_3_OR_NEWER
+	        ref UnsafeUtility.AsRef<T>(ptr);
+#else
+	        ref Unsafe.AsRef<T>(ptr);
+#endif
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T* AsPointer<T>(ref T value) where T : unmanaged => (T*)Unsafe.AsPointer(ref value);
+        public static T* AsPointer<T>(ref T value) where T : unmanaged => 
+#if UNITY_5_3_OR_NEWER
+			(T*)UnsafeUtility.AddressOf(ref value);
+#else
+	        (T*)Unsafe.AsPointer(ref value);
+#endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ObjectPin Pin<T>(T value) where T : class
