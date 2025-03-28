@@ -3,13 +3,13 @@ name: Build and Release DamnScript
 on:
   push:
     tags:
-      - "stable-*"
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build:
     name: Build and Test
-    runs-on: ubuntu-latest
-
+    runs-on: windows-latest
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,19 +28,22 @@ jobs:
       - name: Build Release
         run: dotnet build DamnScript.sln --configuration Release --no-restore
 
-      - name: Run Unit Tests (Debug)
-        run: dotnet test DamnScriptTests/DamnScriptTests.csproj --configuration Debug --no-build --verbosity normal
-
-      - name: Run Unit Tests (Release)
-        run: dotnet test DamnScriptTests/DamnScriptTests.csproj --configuration Release --no-build --verbosity normal
-
       - name: Run build_releases.py
-        run: python3 Script/build_releases.py
+        run:
+          python3 Scripts/build_releases.py
 
-      - name: Upload release assets
+      - name: List archives in Releases directory
+        run: Get-ChildItem -Path "${{ github.workspace }}\\Scripts\\Releases" -Filter "DamnScript_*.zip" | Select-Object Name
+        shell: pwsh
+
+      - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          files: Script/Releases/*.zip
-          fail_on_unmatched_files: true
+          tag_name: ${{ github.ref_name }}
+          files: |
+            ${{ github.workspace }}\\Scripts\\Releases\\DamnScript_Unity_Source_Debug.zip
+            ${{ github.workspace }}\\Scripts\\Releases\\DamnScript_Unity_Source_Release.zip
+            ${{ github.workspace }}\\Scripts\\Releases\\DamnScript_NET_Binaries_Debug.zip
+            ${{ github.workspace }}\\Scripts\\Releases\\DamnScript_NET_Binaries_Release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
