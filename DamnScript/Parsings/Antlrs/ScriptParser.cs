@@ -348,6 +348,8 @@ namespace DamnScript.Parsings.Antlrs
                 for (var i = 0; i < arguments.ChildCount; i++)
                 {
                     var argument = arguments.GetChild<DamnScriptParser.ArgumentContext>(i);
+                    if (argument == null)
+                        continue;
                     var expression = argument.expression();
                     ParseExpression(expression, context);
                 }

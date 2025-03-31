@@ -5,7 +5,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Datas
 {
 	public static class MethodInfoResolver
 	{
-		
 #if !DAMN_SCRIPT_DISABLE_RAW_METHOD_INFO
 		private static readonly MethodInfo getParametersNoCopyMethodInfo;
 		

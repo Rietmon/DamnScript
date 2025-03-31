@@ -15,11 +15,8 @@ namespace DamnScriptExamples
             Console.WriteLine($"DAMN SCRIPT: {value.RefValue.ToString()}");
         }
         
-        public static unsafe void Main()
+        public static void Main()
         {
-            var sv = new ScriptValue(0.5f);
-            Console.WriteLine(sv.floatValue);
-            Console.WriteLine(sv.doubleValue);
             ScriptEngine.RegisterNativeMethod(Print);
             
             Begin();

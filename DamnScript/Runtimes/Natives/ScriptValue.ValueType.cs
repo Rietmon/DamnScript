@@ -2,12 +2,7 @@ namespace DamnScript.Runtimes.Natives
 {
 	public partial struct ScriptValue
 	{
-		public enum ValueType :
-#if DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12
-            int
-#else
-			long
-#endif
+		public enum ValueType
 		{
 			/// <summary>
 			/// Represent that ScriptValue initialized incorrectly.

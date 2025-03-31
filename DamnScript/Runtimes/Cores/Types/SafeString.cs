@@ -9,14 +9,16 @@ namespace DamnScript.Runtimes.Cores.Types
     /// It can be created from string or NativeString.
     /// If provided string, it will be pinned, then you should implicitly Dispose it.
     /// </summary>
-    [StructLayout(LayoutKind.Explicit, Size = 12)]
+    [StructLayout(LayoutKind.Explicit, Size = Size)]
     public unsafe struct SafeString : IDisposable
     {
+        public const int Size = UnsafeUtilities.PointerSize * 2;
+        
         public bool IsManaged => type is SafeStringType.Managed or SafeStringType.ManagedAlreadyPinned;
     
         [FieldOffset(0)] public SafeStringType type;
-        [FieldOffset(4)] public ObjectPin safeValue;
-        [FieldOffset(4)] public NativeString* unsafeValue;
+        [FieldOffset(UnsafeUtilities.PointerSize)] public ObjectPin safeValue;
+        [FieldOffset(UnsafeUtilities.PointerSize)] public NativeString* unsafeValue;
 
         public SafeString(string value) : this()
         {

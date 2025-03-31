@@ -26,45 +26,49 @@ It is designed for writing game behavior logic with deep integration into C# and
 
 ## ⚡ Quick Start
 
-### For .NET Project
+### 📌 Version Numbering
+Format: `x.y.z`
+- **x** — Major version
+- **y** — Release type (`0` — alpha, `1` — beta, `2` — stable release)
+- **z** — Build number
 
-1. Download the project from [GitHub](https://github.com/Rietmon/DamnScript)
-2. Import the `DamnScript/` folder (including `Runtimes/` and `Parsing/`) into your .NET 7+ project
-3. Enjoy!
+### 🚀 Using in .NET
 
-### For Unity (as a build)
+#### 🔹 As a Binary File
+1. **Download** the required version from the [GitHub releases](https://github.com/Rietmon/DamnScript/releases).
+2. **Add to your project** the files `DamnScript.dll` and `Antlr4.Runtime.dll`.
+3. **Done!** Ready to use.
 
-1. Download the project from [GitHub](https://github.com/Rietmon/DamnScript)
-2. Build `DamnScript` into a library using .NET 7+, configuring the directives
-3. Connect `DamnScript.dll` in Unity
-4. Done!
+#### 🔹 As Source Code
+1. **Clone** the DamnScript repository.
+2. **Import** the `DamnScript/` folder (including `Runtimes` and `Parsing`) into your project.
+3. **Add Antlr4** (either as a binary file or a NuGet package).
+4. **Done!** You’re ready to go.
 
-### For Unity (as source code)
+### 🎮 Using in Unity
+1. **Download** the required version from the [GitHub releases](https://github.com/Rietmon/DamnScript/releases).
+2. **Import the files** from the archive into your Unity project.
+3. **Done!** Ready to use.
 
-1. Download the project from [GitHub](https://github.com/Rietmon/DamnScript)
-2. Import `DamnScript/`, including `Runtimes/` and `Parsing/` into Unity
-3. Build DamnScript for the target platform
-4. Connect `Antlr4.Runtime.dll` and generated files from `gen`, after the build is complete
-5. Profit ✅
-
-> 🛠 In the future, a build with releases will be available — everything included, minimal hassle.
-
-> 🔧 Possible directives:
-> - ARCHITECTURES `DAMN_SCRIPT_ENBALE_MONO` - switches the mode to support Mono (by default, it applies to Unity)
-> - CONFIGS `DAMN_SCRIPT_ENBALE_TARGET_32BIT` - switches the mode to support 32-bit platforms
-> - CONFIGS `DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12` - reduces ScriptValue size to 12 bytes (not recommended without clear
-    understanding)
-> - CONFIGS `DAMN_SCRIPT_STACK_SIZE_16`/`DAMN_SCRIPT_STACK_SIZE_64` - sets the stack size for scripts (default is 32
-    elements)
-> - CONFIGS `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES`/`DAMN_SCRIPT_ENABLE_32_BIT_OPCODES`/
-    `DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` - sets the size of opcodes (default is 8 bits)
-> - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` - enables additional memory safety checks (disabled by default)
-> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` - disables built-in methods
-> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` - allows using non-pinned reference in async methods in .NET (not
-    applies to Unity, here it is always allowed)
-> - DEBUGS `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` - enables memory debug
-> - DEBUGS `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` - enables assembler debug messages
-> - DEBUGS `DAMN_SCRIPT_PINNING_DEBUG` - enables pinning debug
+> 🔧 Possible Directives:
+> - ARCHITECTURES `DAMN_SCRIPT_ENABLE_MONO` — switches the mode to support Mono (default for Unity).
+> - CONFIGS `DAMN_SCRIPT_ENABLE_TARGET_32BIT` — enables support for 32-bit platforms.
+> - CONFIGS `DAMN_SCRIPT_STACK_SIZE_16` / `DAMN_SCRIPT_STACK_SIZE_64` — sets the script stack size (default: 32 elements).
+> - CONFIGS `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES` / `DAMN_SCRIPT_ENABLE_32_BIT_OPCODES` /  
+    `DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` — sets the opcode size (default: 8 bits).  
+    Does not disable compiler alignment, so the result may not be as expected.  
+    When using this directive, it is recommended to also use `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES`!
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES` — disables opcode alignment (opcode size may be less than 8 bytes) from the compiler (enabled by default).
+> - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` — enables additional memory safety checks (disabled by default).
+> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — disables built-in methods.
+> - CONFIGS `DAMN_SCRIPT_DISABLE_RAW_METHOD_INFO` — disables the use of NoCopy methods for MethodInfo (enabled by default).
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` — allows the use of unpinned references in asynchronous methods in .NET (not applicable to Unity, where it is always allowed).
+> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — disables built-in methods.
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` — allows the use of unpinned references in asynchronous methods in .NET (not applicable to Unity, where it is always allowed).
+> - DEBUGS `DAMN_SCRIPT_ENABLE_EXECUTION_LOG` — enables execution debugging.
+> - DEBUGS `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` — enables memory debugging.
+> - DEBUGS `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` — enables assembler debug messages.
+> - DEBUGS `DAMN_SCRIPT_PINNING_DEBUG` — enables pinning debugging.
 
 ---
 
@@ -111,7 +115,7 @@ region AnythingElse {
 ## 🧩 Connecting to C#
 
 ```csharp
-public static void Log(ScriptValuePtr value) 
+public static void Print(ScriptValuePtr value) 
 {
     Console.WriteLine(value.IntValue.ToString()); // This method will be called from the script
 }

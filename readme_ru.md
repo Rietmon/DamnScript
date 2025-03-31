@@ -26,43 +26,52 @@
 
 ## ⚡ Быстрый старт
 
-### Для .NET проекта
+### 📌 Нумерация версий
+Формат: `x.y.z`
+- **x** — Основная версия
+- **y** — Тип релиза (`0` — альфа, `1` — бета, `2` — релиз)
+- **z** — Номер сборки
 
-1. Скачай проект с [GitHub](https://github.com/Rietmon/DamnScript)
-2. Импортируй папку `DamnScript/` (включая `Runtimes/` и `Parsing/`) в свой .NET 7+ проект
-3. Пользуйся на здоровье
+### 🚀 Использование в .NET
 
-### Для Unity (как сборка)
+#### 🔹 Как бинарный файл
+1. **Скачать** необходимую версию со страницы [релизов GitHub](https://github.com/Rietmon/DamnScript/releases).
+2. **Добавить в проект** файлы `DamnScript.dll` и `Antlr4.Runtime.dll`.
+3. **Готово!** Можно использовать.
 
-1. Скачай проект с [GitHub](https://github.com/Rietmon/DamnScript)
-2. Собери `DamnScript` в библиотеку с использованием .NET 7+, настроив директивы
-3. Подключи `DamnScript.dll` в Unity
-4. Готово!
+#### 🔹 Как исходный код
+1. **Клонировать** репозиторий DamnScript.
+2. **Импортировать** папку `DamnScript/` (включая `Runtimes` и `Parsing`) в свой проект.
+3. **Подключить Antlr4** (через бинарный файл или NuGet).
+4. **Готово!** Можно работать.
 
-### Для Unity (как исходный код)
-
-1. Скачай проект с [GitHub](https://github.com/Rietmon/DamnScript)
-2. Импортируй `DamnScript/`, включая `Runtimes/` и `Parsing/` в Unity
-3. Собери DamnScript под нужную платформу
-4. Подключи `Antlr4.Runtime.dll` и сгенерированные файлы из `gen`, после окончания сборки
-5. Profit ✅
-
-> 🛠 В будущем будет доступна сборка с релизами — всё включено, минимум возни.
+### 🎮 Использование в Unity
+1. **Скачать** нужную версию со страницы [релизов GitHub](https://github.com/Rietmon/DamnScript/releases).
+2. **Импортировать файлы** из архива в проект Unity.
+3. **Готово!** Можно использовать.
 
 > 🔧 Возможные директивы:
 > - ARCHITECTURES `DAMN_SCRIPT_ENBALE_MONO` — переключает режим на поддержку Mono (по умолчанию применяется к Unity)
 > - CONFIGS `DAMN_SCRIPT_ENBALE_TARGET_32BIT` — включает поддержку 32-битных платформ
-> - CONFIGS `DAMN_SCRIPT_SCRIPT_VALUE_SIZE_12` — уменьшает размер `ScriptValue` до 12 байт (не рекомендуется без чёткого
-    понимания последствий)
 > - CONFIGS `DAMN_SCRIPT_STACK_SIZE_16` / `DAMN_SCRIPT_STACK_SIZE_64` — задаёт размер стека для скриптов (по умолчанию —
     32 элемента)
 > - CONFIGS `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES` / `DAMN_SCRIPT_ENABLE_32_BIT_OPCODES` /
-    `DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` — устанавливает размер опкодов (по умолчанию — 8 бит)
+    `DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` — устанавливает размер опкодов (по умолчанию — 8 бит).
+  Не выключает выравнивание от компилятора, из-за этого результат может быть не таким, как ожидалось.
+  При использовании этой директивы рекомендуется использовать `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES`!
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES` — отключает выравнивание опкодов (их размер может быть менее 8 байт) от компилятора (по умолчанию
+    включено)
 > - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` — включает дополнительные проверки безопасности памяти (по умолчанию
     отключены)
 > - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — отключает встроенные методы
+> - CONFIGS `DAMN_SCRIPT_DISABLE_RAW_METHOD_INFO` — отключает использование NoCopy методов для MethodInfo (по умолчанию
+    включено)
 > - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` — разрешает использование неприкреплённых ссылок в асинхронных методах в
     .NET (не применяется к Unity, там всегда разрешено)
+> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — отключает встроенные методы
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` — разрешает использование неприкреплённых ссылок в асинхронных методах в
+    .NET (не применяется к Unity, там всегда разрешено)
+> - DEBUGS `DAMN_SCRIPT_ENABLE_EXECUTION_LOG` — включает отладку выполнения
 > - DEBUGS `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` — включает отладку памяти
 > - DEBUGS `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` — включает отладочные сообщения ассемблера
 > - DEBUGS `DAMN_SCRIPT_PINNING_DEBUG` — включает отладку pinning'а
@@ -112,7 +121,7 @@ region AnythingElse {
 ## 🧩 Подключение к C#
 
 ```csharp
-public static void Log(ScriptValuePtr value) 
+public static void Print(ScriptValuePtr value) 
 {
     Console.WriteLine(value.IntValue.ToString()); // Этот метод будет вызван из скрипта
 }

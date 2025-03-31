@@ -10,11 +10,6 @@ namespace DamnScript.Runtimes.Natives
     /// Using as an argument for the native methods be passed by reference.
     /// It is a pointer to the ScriptValue.
     /// </summary>
-#if DAMN_SCRIPT_DISABLE_ALIGNMENT_SCRIPT_VALUE
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-#else
-    [StructLayout(LayoutKind.Sequential)]
-#endif
     public readonly unsafe struct ScriptValuePtr
     {
         public bool IsRefOrPtr { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->IsRefOrPtr; }
