@@ -8,7 +8,6 @@ from datetime import datetime
 
 OUTPUT_DIR = "./Scripts/Releases"
 
-# Конфигурации пакетов
 NET_RELEASE_SOURCE_DIR = "./_Binaries/Release/net7.0/"
 NET_RELEASE_FILES = [
     "Antlr4.Runtime.dll",
