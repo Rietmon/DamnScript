@@ -51,30 +51,24 @@
 3. **Готово!** Можно использовать.
 
 > 🔧 Возможные директивы:
-> - ARCHITECTURES `DAMN_SCRIPT_ENBALE_MONO` — переключает режим на поддержку Mono (по умолчанию применяется к Unity)
-> - CONFIGS `DAMN_SCRIPT_ENBALE_TARGET_32BIT` — включает поддержку 32-битных платформ
+> - ARCHITECTURES `DAMN_SCRIPT_ENBALE_MONO` — переключает режим на поддержку Mono (к Unity авто применяет `UNITY_5_3_OR_NEWER`).
+> - ARCHITECTURES `DAMN_SCRIPT_ENBALE_TARGET_32BIT` — включает поддержку 32-битных платформ.
 > - CONFIGS `DAMN_SCRIPT_STACK_SIZE_16` / `DAMN_SCRIPT_STACK_SIZE_64` — задаёт размер стека для скриптов (по умолчанию —
-    32 элемента)
+    32 элемента).
 > - CONFIGS `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES` / `DAMN_SCRIPT_ENABLE_32_BIT_OPCODES` /
     `DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` — устанавливает размер опкодов (по умолчанию — 8 бит).
   Не выключает выравнивание от компилятора, из-за этого результат может быть не таким, как ожидалось.
   При использовании этой директивы рекомендуется использовать `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES`!
-> - CONFIGS `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES` — отключает выравнивание опкодов (их размер может быть менее 8 байт) от компилятора (по умолчанию
-    включено)
-> - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` — включает дополнительные проверки безопасности памяти (по умолчанию
-    отключены)
-> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — отключает встроенные методы
-> - CONFIGS `DAMN_SCRIPT_DISABLE_RAW_METHOD_INFO` — отключает использование NoCopy методов для MethodInfo (по умолчанию
-    включено)
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES` — отключает выравнивание опкодов (их размер может быть менее 8 байт) от компилятора.
+> - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` — включает дополнительные проверки безопасности.
+> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — отключает встроенные методы.
+> - CONFIGS `DAMN_SCRIPT_DISABLE_RAW_METHOD_INFO` — отключает использование NoCopy методов для MethodInfo.
 > - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` — разрешает использование неприкреплённых ссылок в асинхронных методах в
-    .NET (не применяется к Unity, там всегда разрешено)
-> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — отключает встроенные методы
-> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` — разрешает использование неприкреплённых ссылок в асинхронных методах в
-    .NET (не применяется к Unity, там всегда разрешено)
-> - DEBUGS `DAMN_SCRIPT_ENABLE_EXECUTION_LOG` — включает отладку выполнения
-> - DEBUGS `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` — включает отладку памяти
-> - DEBUGS `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` — включает отладочные сообщения ассемблера
-> - DEBUGS `DAMN_SCRIPT_PINNING_DEBUG` — включает отладку pinning'а
+    .NET (не применяется к Unity, там всегда разрешено).
+> - DEBUGS `DAMN_SCRIPT_ENABLE_EXECUTION_LOG` — включает отладку выполнения.
+> - DEBUGS `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` — включает отладку памяти.
+> - DEBUGS `DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG` — включает отладочные сообщения ассемблера.
+> - DEBUGS `DAMN_SCRIPT_PINNING_DEBUG` — включает отладку pinning'а.
 
 ---
 

@@ -51,19 +51,17 @@ Format: `x.y.z`
 3. **Done!** Ready to use.
 
 > 🔧 Possible Directives:
-> - ARCHITECTURES `DAMN_SCRIPT_ENABLE_MONO` — switches the mode to support Mono (default for Unity).
-> - CONFIGS `DAMN_SCRIPT_ENABLE_TARGET_32BIT` — enables support for 32-bit platforms.
+> - ARCHITECTURES `DAMN_SCRIPT_ENABLE_MONO` — switches the mode to support Mono (for Unity auto applies `UNITY_5_3_OR_NEWER`).
+> - ARCHITECTURES `DAMN_SCRIPT_ENABLE_TARGET_32BIT` — enables support for 32-bit platforms.
 > - CONFIGS `DAMN_SCRIPT_STACK_SIZE_16` / `DAMN_SCRIPT_STACK_SIZE_64` — sets the script stack size (default: 32 elements).
 > - CONFIGS `DAMN_SCRIPT_ENABLE_16_BIT_OPCODES` / `DAMN_SCRIPT_ENABLE_32_BIT_OPCODES` /  
     `DAMN_SCRIPT_ENABLE_64_BIT_OPCODES` — sets the opcode size (default: 8 bits).  
     Does not disable compiler alignment, so the result may not be as expected.  
     When using this directive, it is recommended to also use `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES`!
-> - CONFIGS `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES` — disables opcode alignment (opcode size may be less than 8 bytes) from the compiler (enabled by default).
-> - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` — enables additional memory safety checks (disabled by default).
+> - CONFIGS `DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES` — disables opcode alignment (opcode size may be less than 8 bytes) from the compiler.
+> - CONFIGS `DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS` — enables additional safety checks.
 > - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — disables built-in methods.
-> - CONFIGS `DAMN_SCRIPT_DISABLE_RAW_METHOD_INFO` — disables the use of NoCopy methods for MethodInfo (enabled by default).
-> - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` — allows the use of unpinned references in asynchronous methods in .NET (not applicable to Unity, where it is always allowed).
-> - CONFIGS `DAMN_SCRIPT_DISABLE_BUILTIN_METHODS` — disables built-in methods.
+> - CONFIGS `DAMN_SCRIPT_DISABLE_RAW_METHOD_INFO` — disables the use of NoCopy methods for MethodInfo.
 > - CONFIGS `DAMN_SCRIPT_DISABLE_ASYNC_PINNING` — allows the use of unpinned references in asynchronous methods in .NET (not applicable to Unity, where it is always allowed).
 > - DEBUGS `DAMN_SCRIPT_ENABLE_EXECUTION_LOG` — enables execution debugging.
 > - DEBUGS `DAMN_SCRIPT_ENABLE_MEMORY_DEBUG` — enables memory debugging.
