@@ -5,6 +5,7 @@ using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Datas;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
+
 // ReSharper disable EqualExpressionComparison
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
@@ -15,7 +16,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public void ExecuteNativeCall(NativeCall nativeCall)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Begin native call...");
+			Debugging.Log($"Begin native call...");
 #endif
 			var methodName = metadata->GetMethodName(nativeCall.MethodIndex)->ToString32();
 			var argumentsCount = nativeCall.ArgumentsCount;
@@ -23,11 +24,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 				throw new Exception($"Method \"{methodName}\" with {argumentsCount} arguments not found!");
 
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Found native method \"{methodName}\" with {argumentsCount} arguments.");
+			Debugging.Log($"Found native method \"{methodName}\" with {argumentsCount} arguments.");
 #endif
-			
+
 			var argumentsStack = parametersStack.BeginPtr;
-			UnsafeUtilities.Memset(argumentsStack, 0, ScriptValue.Size * VirtualMachineThreadParametersStack.MaxParameters);
+			UnsafeUtilities.Memset(argumentsStack, 0,
+				ScriptValue.Size * VirtualMachineThreadParametersStack.MaxParameters);
 			for (var i = method.argumentsCount - 1; i >= 0; i--)
 				argumentsStack[i] = StackPop();
 
@@ -38,27 +40,27 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 			if (task != null)
 			{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-                Debugging.Log($"Method is async, pin result...");
+				Debugging.Log($"Method is async, pin result...");
 #endif
 				awaitTaskPin = UnsafeUtilities.Pin(task);
 			}
-			
+
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Free arguments stack...");
+			Debugging.Log($"Free arguments stack...");
 #endif
 
 			if (method.HasReturnValue && !method.IsAsync)
 			{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-                Debugging.Log($"Push return value ({returnValue.type}):({returnValue.longValue}) to stack...");
+				Debugging.Log($"Push return value ({returnValue.type}):({returnValue.longValue}) to stack...");
 #endif
 				StackPush(returnValue);
 			}
-			
+
 			ScriptValue.returnValuePtr = null;
-			
+
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"End native call.");
+			Debugging.Log($"End native call.");
 #endif
 		}
 
@@ -66,7 +68,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public void ExecutePushToStack(PushToStack pushToStack)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Push to stack ({pushToStack.value})");
+			Debugging.Log($"Push to stack ({pushToStack.value})");
 #endif
 			StackPush(pushToStack.value);
 		}
@@ -75,7 +77,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public void ExecuteExpressionCall(ExpressionCall expressionCall)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Begin expression call ({expressionCall.type})...");
+			Debugging.Log($"Begin expression call ({expressionCall.type})...");
 #endif
 			switch (expressionCall.type)
 			{
@@ -153,7 +155,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 				default: throw new ArgumentOutOfRangeException($"{nameof(expressionCall)} == {expressionCall.type}");
 			}
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"End expression call");
+			Debugging.Log($"End expression call");
 #endif
 		}
 
@@ -161,9 +163,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public void ExecuteSetSavePoint()
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Set save point...");
+			Debugging.Log($"Set save point...");
 #endif
-			
+
 #if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
 			if (stack.stackOffset != 0)
 				throw new Exception($"Attempt to set save point with non-empty stack!");
@@ -175,13 +177,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public bool ExecuteJumpNotEquals(JumpNotEquals jumpNotEquals)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Begin Jump not equals...");
+			Debugging.Log($"Begin Jump not equals...");
 #endif
 			if (StackPop() == StackPop())
 				return false;
 
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Jump to {offset}");
+			Debugging.Log($"Jump to {offset}");
 #endif
 			offset = jumpNotEquals.jumpOffset;
 			return true;
@@ -191,13 +193,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public bool ExecuteJumpIfEquals(JumpEquals jumpEquals)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Begin Jump equals...");
+			Debugging.Log($"Begin Jump equals...");
 #endif
 			if (StackPop() != StackPop())
 				return false;
 
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Jump to {offset}");
+			Debugging.Log($"Jump to {offset}");
 #endif
 			offset = jumpEquals.jumpOffset;
 			return true;
@@ -207,7 +209,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		private bool ExecuteJump(Jump jump)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Jump to {offset}");
+			Debugging.Log($"Jump to {offset}");
 #endif
 			offset = jump.jumpOffset;
 			return true;
@@ -217,7 +219,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public void ExecutePushStringToStack(PushStringToStack pushStringToStack)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Push string to stack...");
+			Debugging.Log($"Push string to stack...");
 #endif
 			var index = pushStringToStack.index;
 			var str = metadata->GetNativeString(index);
@@ -237,11 +239,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public void ExecuteStoreToRegister(StoreToRegister storeToRegister)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log("Begin store to register...");
+			Debugging.Log("Begin store to register...");
 #endif
 			var registerIndex = storeToRegister.register;
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Store to ({registerIndex}) register...");
+			Debugging.Log($"Store to ({registerIndex}) register...");
 #endif
 			registers[registerIndex] = StackPop().longValue;
 		}
@@ -250,11 +252,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public void ExecuteLoadFromRegister(LoadFromRegister loadFromRegister)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log("Begin load from register...");
+			Debugging.Log("Begin load from register...");
 #endif
 			var registerIndex = loadFromRegister.register;
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"Load from ({registerIndex}) register...");
+			Debugging.Log($"Load from ({registerIndex}) register...");
 #endif
 			StackPush(registers[registerIndex]);
 		}
@@ -263,7 +265,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public void ExecuteDuplicateStack(DuplicateStack _)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log("Begin duplicate stack...");
+			Debugging.Log("Begin duplicate stack...");
 #endif
 			StackPush(StackPeek());
 		}
@@ -272,7 +274,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public void StackPush(ScriptValue value)
 		{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"STACK: Push value ({value.type}):({value.longValue}) to stack...");
+			Debugging.Log($"STACK: Push value ({value.type}):({value.longValue}) to stack...");
 #endif
 			stack.Push(value);
 		}
@@ -282,7 +284,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		{
 			var value = stack.Pop();
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"STACK: Pop value ({value.type}):({value.longValue}) from stack...");
+			Debugging.Log($"STACK: Pop value ({value.type}):({value.longValue}) from stack...");
 #endif
 			return value;
 		}
@@ -292,7 +294,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		{
 			var value = stack.Peek();
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-            Debugging.Log($"STACK: Peek value ({value.type}):({value.longValue}) from stack...");
+			Debugging.Log($"STACK: Peek value ({value.type}):({value.longValue}) from stack...");
 #endif
 			return value;
 		}

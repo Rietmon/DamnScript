@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Types;
 
@@ -13,9 +14,11 @@ namespace DamnScript.Runtimes.Metadatas
             this.constants = constants;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public NativeString* GetNativeString(int index) => 
             constants.strings[index].value;
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public NativeString* GetMethodName(int index) => 
             constants.methods[index].value;
 

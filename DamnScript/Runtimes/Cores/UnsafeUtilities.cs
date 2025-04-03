@@ -123,6 +123,7 @@ namespace DamnScript.Runtimes.Cores
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Memcmp(void* left, void* right, int size)
         {
+	        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	        static bool Memcmp64(long* left, long* right, int size)
 	        {
 		        for (var i = 0; i < size; i++)
@@ -133,6 +134,7 @@ namespace DamnScript.Runtimes.Cores
 
 		        return true;
 	        }
+	        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	        static bool Memcmp32(int* left, int* right, int size)
 	        {
 		        for (var i = 0; i < size; i++)
@@ -143,6 +145,7 @@ namespace DamnScript.Runtimes.Cores
 
 		        return true;
 	        }
+	        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	        static bool Memcmp16(short* left, short* right, int size)
 	        {
 		        for (var i = 0; i < size; i++)
@@ -153,6 +156,7 @@ namespace DamnScript.Runtimes.Cores
 
 		        return true;
 	        }
+	        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	        static bool Memcmp8(byte* left, byte* right, int size)
 	        {
 		        for (var i = 0; i < size; i++)
@@ -182,7 +186,7 @@ namespace DamnScript.Runtimes.Cores
 #endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* ReferenceToPointer<T>(T value) where T : class
+        public static void* ReferenceToPointer<T>(T value)
         {
 #if UNITY_5_3_OR_NEWER
             var castHelper = new PointerToReferenceCastHelper() { value = value };
@@ -202,7 +206,7 @@ namespace DamnScript.Runtimes.Cores
 #endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T PointerToReference<T>(void* ptr) where T : class
+        public static T PointerToReference<T>(void* ptr)
         {
 #if UNITY_5_3_OR_NEWER
             

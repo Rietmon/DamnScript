@@ -165,7 +165,9 @@ public class VirtualMachineTests
             Thread.Sleep(10);
             
         ScriptEngine.UnloadScript(scriptData);
-        Assert.That(thread.Ptr.value->StackPop().GetReferencePin<string>(), Is.EqualTo("Test VALUE"));
+        var result = thread.Ptr.value->StackPop();
+        Assert.That(result.GetReferencePin<string>(), Is.EqualTo("Test VALUE"));
+        result.UnpinManagedPointer();
         Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
     }
 

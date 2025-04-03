@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace DamnScript.Runtimes.Cores.Pins
 {
@@ -9,32 +10,45 @@ namespace DamnScript.Runtimes.Cores.Pins
         /// <summary>
         /// Target reference of the object.
         /// </summary>
-        public object Target => PinHelper.GetTarget(this);
-        
+        public object Target
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => PinHelper.GetTarget(this);
+        }
+
         /// <summary>
         /// Return TEMPORARY address of the object.
-        /// !!! DO NOT CACHE THID VALUE IN .NET CORE!!! .NET CORE GC CAN MOVE OBJECTS IN MEMORY!!!
+        /// !!! DO NOT CACHE THIS VALUE IN .NET CORE!!! .NET CORE GC CAN MOVE OBJECTS IN MEMORY!!!
         /// </summary>
         /// <returns>Address of pinned reference</returns>
-        public void* Address => PinHelper.GetAddress(this);
+        public void* Address
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => PinHelper.GetAddress(this);
+        }
+
+        /// <summary>
+        /// Index of the object in the pinned list.
+        /// </summary>
+        public readonly int index;
         
         /// <summary>
         /// Hash of the object.
         /// </summary>
-        public readonly long hash;
+        public readonly int hash;
         
-        public ObjectPin(long hash) => this.hash = hash;
-        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ObjectPin(int index, int hash)
+        {
+            this.index = index;
+            this.hash = hash;
+        }
+
         /// <summary>
         /// Let GC collect the object.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Free() => PinHelper.Free(this);
-        
-        /// <summary>
-        /// Return pinned object and free it.
-        /// </summary>
-        /// <returns></returns>
-        public object FreeAndGetTarget() => PinHelper.FreeAndGetTarget(this);
 
         public bool Equals(ObjectPin other) => hash == other.hash;
 

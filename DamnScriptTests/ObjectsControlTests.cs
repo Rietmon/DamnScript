@@ -69,7 +69,7 @@ public class ObjectsControlTests
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Simulate)));
 		
-		Assert.That(Run("Simulate(Create(), 1, 2, 3, 4, 5, 6, 7, 8, 9);").GetReference<TestClass>()?.Value, Is.EqualTo(50));
+		Assert.That(Run("Simulate(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90);").GetReference<TestClass>()?.Value, Is.EqualTo(455));
 		Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
 	}
 	
@@ -82,7 +82,9 @@ public class ObjectsControlTests
 		ScriptEngine.RegisterNativeMethod(Create);
 		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.SimulateAsync)));
 		
-		Assert.That(Run("SimulateAsync(Create(), 1, 2, 3, 4, 5, 6, 7, 8, 9);").GetReference<TestClass>().Value, Is.EqualTo(50));
+		var result = Run("SimulateAsync(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90);");
+		Assert.That(result.GetReference<TestClass>().Value, Is.EqualTo(455));
+		result.UnpinManagedPointer();
 		Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
 	}
 }

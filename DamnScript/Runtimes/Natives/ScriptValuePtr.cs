@@ -45,8 +45,8 @@ namespace DamnScript.Runtimes.Natives
         /// <inheritdoc cref="ScriptValue.GetReferencePin{T}"/>
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T GetReferencePin<T>(bool freeBeforeReturn = true) where T : class => 
-            value->GetReferencePin<T>(freeBeforeReturn);
+        public T GetReferencePin<T>() where T : class => 
+            value->GetReferencePin<T>();
         
         /// <summary>
         /// <inheritdoc cref="ScriptValue.GetReferenceUnsafe{T}"/>

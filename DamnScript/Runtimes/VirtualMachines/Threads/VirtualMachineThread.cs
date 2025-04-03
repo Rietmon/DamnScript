@@ -169,10 +169,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             var begin = parametersStack.BeginPtr;
             for (var i = 0; i < 10; i++)
             {
-                if (++begin->type != ScriptValue.ValueType.ReferenceSafePointer)
+                if (begin->type != ScriptValue.ValueType.ReferenceSafePointer)
                     continue;
 
                 begin->UnpinManagedPointer();
+                begin++;
             }
         }
 

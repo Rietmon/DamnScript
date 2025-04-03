@@ -68,7 +68,7 @@ namespace DamnScript.Runtimes.VirtualMachines
 						if (result is Task<ScriptValuePtr> task)
 						{
 							var scriptValue = *task.Result.value;
-#if !DAMN_SCRIPT_ENBALE_MONO && !DAMN_SCRIPT_DISABLE_ASYNC_PINNING
+#if (!DAMN_SCRIPT_ENBALE_MONO || !UNITY_5_3_OR_NEWER) && !DAMN_SCRIPT_DISABLE_ASYNC_PINNING
 							if (scriptValue.type == ScriptValue.ValueType.ReferenceUnsafePointer)
 							{
 								throw new Exception($"Async ({result}) method in .NET should use Pinned return value be cause GC can move it! " +

@@ -487,6 +487,8 @@ public class ScriptValueTests
 
 		var retrievedObject = value.GetReference<TestClass>();
 		Assert.That(retrievedObject.Value, Is.EqualTo("Test"));
+		
+		value.UnpinManagedPointer();
 	}
 
 	[Test]
@@ -728,6 +730,8 @@ public class ScriptValueTests
 		Assert.That(valuePtr.Type, Is.EqualTo(SV.ValueType.ReferenceSafePointer));
 		var retrievedObject = valuePtr.GetReference<TestClass>();
 		Assert.That(retrievedObject.Value, Is.EqualTo("RefTest"));
+		
+		value.UnpinManagedPointer();
 	}
 
 	[Test]
@@ -803,6 +807,7 @@ public class ScriptValueTests
 
 		var retrievedString = value.GetSafeString().ToString();
 		Assert.That(retrievedString, Is.EqualTo(testString));
+		
 		value.UnpinManagedPointer();
 	}
 
@@ -1001,13 +1006,15 @@ public class ScriptValueTests
 		var value = SV.FromReferencePin(derivedObj);
 
 		// Test retrieving as base type
-		var asBase = value.GetReferencePin<TestClass>(false);
+		var asBase = value.GetReferencePin<TestClass>();
 		Assert.That(asBase.Value, Is.EqualTo("Base"));
 
 		// Test retrieving as derived type
 		var asDerived = value.GetReferencePin<DerivedTestClass>();
 		Assert.That(asDerived.Value, Is.EqualTo("Base"));
 		Assert.That(asDerived.ExtraValue, Is.EqualTo("Derived"));
+		
+		value.UnpinManagedPointer();
 	}
 
 	[Test]
@@ -1026,6 +1033,8 @@ public class ScriptValueTests
 		Assert.That(retrieved[0].x, Is.EqualTo(10));
 		Assert.That(retrieved[1].y, Is.EqualTo(40));
 		Assert.That(retrieved[2].x, Is.EqualTo(50));
+		
+		value.UnpinManagedPointer();
 	}
 
 	[Test]
@@ -1043,6 +1052,8 @@ public class ScriptValueTests
 		// Verify circular reference is maintained
 		Assert.That(retrieved.Next, Is.Not.Null);
 		Assert.That(retrieved.Next.Next, Is.SameAs(retrieved));
+		
+		value1.UnpinManagedPointer();
 	}
 
 	[Test]

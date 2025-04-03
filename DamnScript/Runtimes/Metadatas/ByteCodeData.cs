@@ -18,9 +18,6 @@ namespace DamnScript.Runtimes.Metadatas
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
         public bool IsInRange(int offset) => offset < length;
 
-        public void Dispose()
-        {
-            UnsafeUtilities.Free(start);
-        }
+        public void Dispose() => UnsafeUtilities.Free(start);
     }
 }

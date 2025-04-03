@@ -27,6 +27,11 @@ namespace DamnScript.Runtimes.Natives
 			/// Pointer to any unmanaged value.
 			/// </summary>
 			Pointer,
+			
+			/// <summary>
+			/// Pointer to any managed value that is freed already.
+			/// </summary>
+			FreedPointer,
             
 			/// <summary>
 			/// Pointer to the native string.
@@ -37,10 +42,15 @@ namespace DamnScript.Runtimes.Natives
 			/// Unsafe pointer to the reference type.
 			/// </summary>
 			ReferenceUnsafePointer,
+			
 			/// <summary>
 			/// Safe pointer to the reference type.
 			/// </summary>
-			ReferenceSafePointer
+			ReferenceSafePointer,
+			/// <summary>
+			/// Safe pointer to the reference type that is not pinned.
+			/// </summary>
+			ReferenceUnpinnedSafePointer,
 		}
 	}
 }

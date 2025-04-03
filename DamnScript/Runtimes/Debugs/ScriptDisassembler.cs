@@ -7,7 +7,7 @@ namespace DamnScript.Runtimes.Debugs
 {
     public static unsafe class ScriptDisassembler
     {
-        public static unsafe string DisassembleScriptToString(ScriptDataPtr scriptData)
+        public static string DisassembleScriptToString(ScriptDataPtr scriptData)
         {
             var sb = new StringBuilder();
             sb.AppendLine($"---{scriptData.value->name.ToString()}---");   

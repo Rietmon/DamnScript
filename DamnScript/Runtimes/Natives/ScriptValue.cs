@@ -149,19 +149,29 @@ namespace DamnScript.Runtimes.Natives
             UnsafeUtilities.Memcpy(&value, allocate, sizeof(T));
             return new ScriptValue(allocate, ValueType.Pointer);
         }
+        
+        /// <summary>
+        /// Box the struct and create a new ScriptValue from it.
+        /// </summary>
+        /// <param name="value">Struct value</param>
+        /// <typeparam name="T">Type of the struct</typeparam>
+        /// <returns>ScriptValue with a pinned value</returns>
+        public static ScriptValue FromBoxedStructPin<T>(T value) where T : struct => 
+            new(UnsafeUtilities.Pin((object)value));
 
         /// <summary>
         /// Get reference from the safe pointer and can unpin it.
         /// </summary>
-        /// <param name="freeBeforeReturn">Does need to unpin reference?</param>
         /// <typeparam name="T">Type of the reference</typeparam>
         /// <returns>Reference from the pointer</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T GetReferencePin<T>(bool freeBeforeReturn = true) where T : class
+        public T GetReferencePin<T>() where T : class
         {
+            if (type != ValueType.ReferenceSafePointer)
+                throw new NotSupportedException("For GetStruct use only " +
+                                                $"{nameof(ValueType.Pointer)}!");
+            
             var value = (T)safeValue.Target;
-            if (freeBeforeReturn)
-                safeValue.Free();
             return value;
         }
     
@@ -197,9 +207,16 @@ namespace DamnScript.Runtimes.Natives
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetStruct<T>(bool freeBeforeReturn = true) where T : unmanaged
         {
+            if (type != ValueType.Pointer)
+                throw new NotSupportedException("For GetStruct use only " +
+                                                $"{nameof(ValueType.Pointer)}!");
+            
             var value = *(T*)pointerValue;
             if (freeBeforeReturn)
+            {
                 UnsafeUtilities.Free(pointerValue);
+                type = ValueType.FreedPointer;
+            }
             return value;
         }
     
@@ -228,7 +245,7 @@ namespace DamnScript.Runtimes.Natives
                     if (obj is string str)
                         return str;
                     
-                    throw new Exception($"Attempt to get SafeString from non-string value! If you want to convert into string, use ToString() method.");
+                    throw new NotSupportedException($"Attempt to get SafeString from non-string value! If you want to convert into string, use ToString() method.");
 #else
                     var value = UnsafeUtilities.PointerToReference<string>(pointerValue);
                     return value;
@@ -256,9 +273,9 @@ namespace DamnScript.Runtimes.Natives
         {
             ValueType.ReferenceUnsafePointer => pointerValue,
             ValueType.ReferenceSafePointer => safeValue.Address,
-            _ => throw new Exception("For GetReferencePointer use only " +
-                                     $"{nameof(ValueType.ReferenceUnsafePointer)} or " +
-                                     $"{nameof(ValueType.ReferenceSafePointer)}!")
+            _ => throw new NotSupportedException("For GetReferencePointer use only " +
+                                                 $"{nameof(ValueType.ReferenceUnsafePointer)} or " +
+                                                 $"{nameof(ValueType.ReferenceSafePointer)}!")
         };
 
         /// <summary>
@@ -315,8 +332,12 @@ namespace DamnScript.Runtimes.Natives
         /// </summary>
         public void UnpinManagedPointer()
         {
-            if (type == ValueType.ReferenceSafePointer)
-                safeValue.Free();
+            if (type != ValueType.ReferenceSafePointer)
+                throw new NotSupportedException("For UnpinManagedPointer use only " +
+                                                $"{nameof(ValueType.ReferenceSafePointer)}!");
+            
+            safeValue.Free();
+            type = ValueType.ReferenceUnpinnedSafePointer;
         }
         
         public bool Equals(ScriptValue other) => Equal(this, other);

@@ -34,13 +34,18 @@ namespace DamnScript.Runtimes.Cores.Types
             [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref data[index];
         }
 
-        public int length;
+        public readonly int length;
         public fixed char data[1];
 
+        public NativeString(int length)
+        {
+            this.length = length;
+        }
+        
         public static NativeString* Alloc(int length)
         {
             var str = (NativeString*)UnsafeUtilities.Alloc(length * sizeof(char) + sizeof(int));
-            str->length = length;
+            *str = new NativeString(length);
             return str;
         }
     

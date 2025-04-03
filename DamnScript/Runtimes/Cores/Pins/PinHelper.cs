@@ -1,14 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace DamnScript.Runtimes.Cores.Pins
 {
-    // Rietmon: Rewrite to a real hash set system
     public static unsafe class PinHelper
     {
-        public static int PinsCount => pinnedObjects.Count;
+        public static int PinsCount
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                var count = 0;
+                for (var i = 0; i < _pinnedObjects.Length; i++)
+                {
+                    if (_pinnedObjects[i].hash != 0)
+                        count++;
+                }
+                return count;
+            }
+        }
         
-        private static readonly HashSet<PinHandle> pinnedObjects = new(32);
+        private static PinHandle[] _pinnedObjects = new PinHandle[32];
         
         public static ObjectPin Pin(object obj)
         {
@@ -16,68 +28,74 @@ namespace DamnScript.Runtimes.Cores.Pins
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj), "Cannot pin a null object.");
 #endif
+            var slot = FindEmptySlot();
             var objHash = obj.GetHashCode();
-            var hash = objHash + pinnedObjects.Count;
-            pinnedObjects.Add(new PinHandle(hash, obj));
-            return new ObjectPin(hash);
+            var hash = objHash + slot;
+            var handle = new PinHandle(hash, obj);
+            _pinnedObjects[slot] = handle;
+            return new ObjectPin(slot, hash);
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void* GetAddress(ObjectPin pin)
         {
-            var handle = FindHandle(pin.hash);
-            if (handle == default)
-                return null;
-            
+            ref var handle = ref FindHandle(pin);
             return UnsafeUtilities.ReferenceToPointer(handle.target);
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object GetTarget(ObjectPin pin)
         {
-            var handle = FindHandle(pin.hash);
-            if (handle == default)
-                return null;
-            
+            ref var handle = ref FindHandle(pin);
             return handle.target;
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Free(ObjectPin pin)
         {
-            var handle = FindHandle(pin.hash);
-            if (handle == default)
-                return;
-            
-            pinnedObjects.Remove(handle);
+            ref var handle = ref FindHandle(pin);
+            handle = default;
         }
         
-        public static object FreeAndGetTarget(ObjectPin pin)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ref PinHandle FindHandle(ObjectPin pin)
         {
-            var handle = FindHandle(pin.hash);
-            if (handle == default)
-                return null;
+            ref var handle = ref _pinnedObjects[pin.index];
+            if (handle.hash == pin.hash)
+                return ref handle;
             
-            pinnedObjects.Remove(handle);
-            return handle.target;
+            throw new Exception($"Failed to find handle with hash {pin.hash} in pinned objects array!");
         }
         
-        private static PinHandle FindHandle(long hash)
+        private static int FindEmptySlot()
         {
-            foreach (var obj in pinnedObjects)
+            for (var i = 0; i < _pinnedObjects.Length; i++)
             {
-                if (obj.hash == hash)
-                    return obj;
+                if (_pinnedObjects[i].hash == 0)
+                    return i;
             }
-            return default;
+            
+            var oldLength = _pinnedObjects.Length;
+            var newSize = oldLength * 2;
+            Array.Resize(ref _pinnedObjects, newSize);
+            for (var i = oldLength; i < newSize; i++)
+            {
+                if (_pinnedObjects[i].hash == 0)
+                    return i;
+            }
+           
+            throw new Exception($"Failed to find empty slot in pinned objects array even after realloc!");
         }
 
-        private readonly struct PinHandle : IEquatable<PinHandle>
+        private readonly struct PinHandle
         {
-            public readonly long hash;
+            public readonly object target;
 #if DAMN_SCRIPT_PINNING_DEBUG
             public readonly string stack;
 #endif
-            public readonly object target;
+            public readonly int hash;
             
-            public PinHandle(long hash, object target)
+            public PinHandle(int hash, object target)
             {
                 this.hash = hash;
 #if DAMN_SCRIPT_PINNING_DEBUG
@@ -85,15 +103,6 @@ namespace DamnScript.Runtimes.Cores.Pins
 #endif
                 this.target = target;
             }
-            
-            public static bool operator ==(PinHandle l, PinHandle r) => r.hash == l.hash && l.target == r.target;
-            public static bool operator !=(PinHandle l, PinHandle r) => !(r == l);
-
-            public bool Equals(PinHandle other) => hash == other.hash && Equals(target, other.target);
-
-            public override bool Equals(object obj) => obj is PinHandle other && Equals(other);
-
-            public override int GetHashCode() => HashCode.Combine(hash, target);
         }
     }
 }
