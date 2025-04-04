@@ -26,24 +26,23 @@ namespace DamnScript.Runtimes.Cores.Pins
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => PinHelper.GetAddress(this);
         }
-
-        /// <summary>
-        /// Index of the object in the pinned list.
-        /// </summary>
-        public readonly int index;
         
         /// <summary>
         /// Hash of the object.
         /// </summary>
         public readonly int hash;
         
+        public readonly short bucketIndex;
+        public readonly short slotIndex;
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ObjectPin(int index, int hash)
+        public ObjectPin(int hash, short bucketIndex, short slotIndex)
         {
-            this.index = index;
             this.hash = hash;
+            this.bucketIndex = bucketIndex;
+            this.slotIndex = slotIndex;
         }
-
+        
         /// <summary>
         /// Let GC collect the object.
         /// </summary>

@@ -6,6 +6,7 @@ using MoonSharp.Interpreter;
 
 namespace DamnScriptBenchmarks;
 
+[Config(typeof(BenchmarksConfig))]
 public class SimpleExternalCallBenchmark
 {
 	public static int result;

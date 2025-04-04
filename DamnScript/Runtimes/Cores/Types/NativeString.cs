@@ -27,7 +27,7 @@ namespace DamnScript.Runtimes.Cores.Types
     public unsafe struct NativeString
     {
         private static string _buffer;
-        private static ObjectPin _gcHandleBuffer;
+        private static ObjectPin _bufferPinHandle;
 
         public ref char this[int index]
         {
@@ -83,13 +83,13 @@ namespace DamnScript.Runtimes.Cores.Types
 
         public string ToTempStringNonAlloc()
         {
-            if (_gcHandleBuffer == default)
+            if (_bufferPinHandle == default)
             {
                 _buffer = new string('\0', 1024);
-                _gcHandleBuffer = UnsafeUtilities.Pin(_buffer);
+                _bufferPinHandle = UnsafeUtilities.Pin(_buffer);
             }
 
-            var stringPtr = (UnmanagedString*)_gcHandleBuffer.Address;
+            var stringPtr = (UnmanagedString*)_bufferPinHandle.Address;
             stringPtr->length = length;
             fixed (char* ptr = data)
                 UnsafeUtilities.Memcpy(ptr, stringPtr->data, length * sizeof(char));
@@ -108,7 +108,7 @@ namespace DamnScript.Runtimes.Cores.Types
         public static void ReleaseTempStringNonAlloc()
         {
             _buffer = null;
-            _gcHandleBuffer.Free();
+            _bufferPinHandle.Free();
         }
 
         [DebuggerDisplay("{ToString()}")]

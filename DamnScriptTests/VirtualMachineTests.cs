@@ -120,7 +120,7 @@ public class VirtualMachineTests
         await Task.Delay(10);
         for (var i = 0; i < 8; i++)
         {
-            ScriptValue ret = default;
+            ScriptValue ret = 0;
             BigAlloc(new ScriptValuePtr(ref ret));
             await Task.Delay(10);
         }

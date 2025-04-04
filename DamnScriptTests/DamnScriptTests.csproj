@@ -12,11 +12,15 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <OutputPath>../_Binaries/Debug/net7.0/</OutputPath>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <DefineConstants>TRACE;
+DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <OutputPath>../_Binaries/Release/net7.0/</OutputPath>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <DefineConstants>TRACE;
+DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

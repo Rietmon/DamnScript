@@ -777,11 +777,13 @@ public class ScriptValueTests
 		var testStruct = new TestStruct { x = 15, y = 25 };
 		var value = SV.FromStructAlloc(testStruct);
 
-		var retrievedStruct1 = value.GetStruct<TestStruct>(false);
+		var retrievedStruct1 = value.GetStruct<TestStruct>();
 		Assert.That(retrievedStruct1.x, Is.EqualTo(15));
 
 		var retrievedStruct2 = value.GetStruct<TestStruct>();
 		Assert.That(retrievedStruct2.y, Is.EqualTo(25));
+		
+		value.FreeUnmanagedPointer();
 	}
 
 	[Test]
@@ -805,7 +807,7 @@ public class ScriptValueTests
 
 		Assert.That(value.type, Is.EqualTo(SV.ValueType.ReferenceSafePointer));
 
-		var retrievedString = value.GetSafeString().ToString();
+		var retrievedString = value.GetStringWrapper().ToString();
 		Assert.That(retrievedString, Is.EqualTo(testString));
 		
 		value.UnpinManagedPointer();

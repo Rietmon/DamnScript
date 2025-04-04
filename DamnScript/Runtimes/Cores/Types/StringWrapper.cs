@@ -10,7 +10,7 @@ namespace DamnScript.Runtimes.Cores.Types
     /// If provided string, it will be pinned, then you should implicitly Dispose it.
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = Size)]
-    public unsafe struct SafeString : IDisposable
+    public unsafe struct StringWrapper : IDisposable
     {
         public const int Size = UnsafeUtilities.PointerSize * 2;
         
@@ -20,19 +20,19 @@ namespace DamnScript.Runtimes.Cores.Types
         [FieldOffset(UnsafeUtilities.PointerSize)] public ObjectPin safeValue;
         [FieldOffset(UnsafeUtilities.PointerSize)] public NativeString* unsafeValue;
 
-        public SafeString(string value) : this()
+        public StringWrapper(string value) : this()
         {
             type = SafeStringType.Managed;
             safeValue = UnsafeUtilities.Pin(value);
         }
 
-        public SafeString(ObjectPin value) : this()
+        public StringWrapper(ObjectPin value) : this()
         {
             type = SafeStringType.ManagedAlreadyPinned;
             safeValue = value;
         }
 
-        public SafeString(NativeString* value) : this()
+        public StringWrapper(NativeString* value) : this()
         {
             type = SafeStringType.Unmanaged;
             unsafeValue = value;
@@ -57,9 +57,9 @@ namespace DamnScript.Runtimes.Cores.Types
             this = default;
         }
 
-        public static implicit operator SafeString(string value) => new(value);
-        public static implicit operator SafeString(ObjectPin value) => new(value);
-        public static implicit operator SafeString(NativeString* value) => new(value);
+        public static implicit operator StringWrapper(string value) => new(value);
+        public static implicit operator StringWrapper(ObjectPin value) => new(value);
+        public static implicit operator StringWrapper(NativeString* value) => new(value);
     
         public enum SafeStringType
         {

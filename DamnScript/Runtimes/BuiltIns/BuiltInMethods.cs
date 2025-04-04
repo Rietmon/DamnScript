@@ -54,12 +54,12 @@ namespace DamnScript.Runtimes.BuiltIns
 
 		private static unsafe void RunLoadedScript(SVP scriptName, SVP regionName)
 		{
-			var nameString = scriptName.GetSafeString();
+			var nameString = scriptName.GetStringWrapper();
 			var scriptDataPtr = ScriptEngine.GetScriptDataFromCache(nameString.ToString32()).value;
 			if (scriptDataPtr == null)
 				throw new Exception($"Script {nameString} not found in cache.");
 			
-			var regionString = regionName.GetSafeString();
+			var regionString = regionName.GetStringWrapper();
 			ScriptEngine.RunThread(scriptDataPtr, regionString.ToString32());
 			
 			nameString.Dispose();
@@ -89,14 +89,18 @@ namespace DamnScript.Runtimes.BuiltIns
 		private static SVP SerializeToStreamAlloc()
 		{
 			var stream = ScriptEngine.SerializeToSerializationStream();
+#if DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
 			return SV.FromStructAlloc(stream).Return();
+#else
+			return SV.FromReferencePin(stream).Return();
+#endif
 		}
 
 		// Rietmon: TODO Make split work for SafeString and System.String
 		private static void SerializeToFile(SVP filePath)
 		{
 			var stream = ScriptEngine.SerializeToSerializationStream();
-			var pathString = filePath.GetSafeString();
+			var pathString = filePath.GetStringWrapper();
 			var path = filePath.ToString();
 			if (string.IsNullOrEmpty(path))
 				throw new Exception("File path is empty.");
@@ -126,7 +130,7 @@ namespace DamnScript.Runtimes.BuiltIns
 		private static SVP ToString(SVP value)
 		{
 			var str = value.ToString();
-			return SV.FromReferenceUnsafe(str).Return();
+			return SV.FromReferencePin(str).Return();
 		}
 
 		private static unsafe SVP StringToNumber(SVP value)

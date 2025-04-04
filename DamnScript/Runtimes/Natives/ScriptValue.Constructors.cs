@@ -9,13 +9,6 @@ namespace DamnScript.Runtimes.Natives
 		#region Constructors
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(ValueType type, long value) : this()
-        {
-            this.type = type;
-            longValue = value;
-        }
-    
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(bool value) : this() => (type, boolValue) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

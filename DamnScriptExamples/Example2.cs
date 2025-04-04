@@ -23,7 +23,7 @@ namespace DamnScriptExamples
         // P.S. Every value used from stack will be unpinned automatically.
         public static ScriptValuePtr GetString()
         {
-            return ScriptValue.FromReferenceUnsafe("Hello from C#!").Return();
+            return ScriptValue.FromReferencePin("Hello from C#!").Return();
         }
     
         public static void Run()

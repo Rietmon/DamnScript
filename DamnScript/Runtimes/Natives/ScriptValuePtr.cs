@@ -25,7 +25,7 @@ namespace DamnScript.Runtimes.Natives
         public uint UIntValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->uintValue; }
         public long LongValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->longValue; }
         public ulong ULongValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->ulongValue; }
-        public float FloatValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (float)value->doubleValue; }
+        public float FloatValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->floatValue; }
         public double DoubleValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->doubleValue; }
         public char CharValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->charValue; }
         public void* PointerValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->pointerValue; }
@@ -45,14 +45,16 @@ namespace DamnScript.Runtimes.Natives
         /// <inheritdoc cref="ScriptValue.GetReferencePin{T}"/>
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T GetReferencePin<T>() where T : class => 
-            value->GetReferencePin<T>();
+        public T GetReferencePin<T>() where T : class => value->GetReferencePin<T>();
         
+        
+#if DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
         /// <summary>
         /// <inheritdoc cref="ScriptValue.GetReferenceUnsafe{T}"/>
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetReferenceUnsafe<T>() where T : class => value->GetReferenceUnsafe<T>();
+#endif
         
         /// <summary>
         /// <inheritdoc cref="ScriptValue.GetReference{T}"/>
@@ -60,17 +62,20 @@ namespace DamnScript.Runtimes.Natives
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetReference<T>() where T : class => value->GetReference<T>();
         
+        
+#if DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
         /// <summary>
         /// <inheritdoc cref="ScriptValue.GetStruct{T}"/>
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T GetStruct<T>(bool freeBeforeReturn = true) where T : unmanaged => value->GetStruct<T>(freeBeforeReturn);
+        public T GetStruct<T>() where T : unmanaged => value->GetStruct<T>();
+#endif
         
         /// <summary>
-        /// <inheritdoc cref="ScriptValue.GetSafeString"/>
+        /// <inheritdoc cref="ScriptValue.GetStringWrapper"/>
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public SafeString GetSafeString() => value->GetSafeString();
+        public StringWrapper GetStringWrapper() => value->GetStringWrapper();
         
         /// <summary>
         /// <inheritdoc cref="ScriptValue.GetReferencePointer"/>

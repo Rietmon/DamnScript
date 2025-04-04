@@ -234,13 +234,11 @@ namespace DamnScript.Runtimes.Cores
 #endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ObjectPin Pin<T>(T value) where T : class
-        {
-            return PinHelper.Pin(value);
-        }
+        public static ObjectPin Pin<T>(T value) where T : class => 
+	        PinHelper.Pin(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* ToPointer<T>(ref T value) where T : unmanaged =>
+        public static void* ToPointer<T>(ref T value) where T : struct =>
 #if UNITY_5_3_OR_NEWER
             UnsafeUtility.AddressOf(ref value);
 #else
