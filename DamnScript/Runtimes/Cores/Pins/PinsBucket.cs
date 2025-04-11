@@ -6,18 +6,18 @@ namespace DamnScript.Runtimes.Cores.Pins
 	public unsafe struct PinsBucket
 	{
 		public long freeSlots;
-		public readonly PinHandle[] pinnedObjects;
+		public readonly ObjectPin[] pinnedObjects;
 		
 		public PinsBucket(int size)	
 		{
 			freeSlots = size;
-			pinnedObjects = new PinHandle[size];
+			pinnedObjects = new ObjectPin[size];
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.NoOptimization)]
 		public short FastFind()
 		{
-			const int hashOffset = PinHandle.HashOffsetAsIntPtr + 1;
+			const int hashOffset = ObjectPin.HashOffsetAsIntPtr + 1;
 
 			ref var first = ref pinnedObjects[0];
 			var begin = &((PinHandleUnmanaged*)UnsafeUtilities.ToPointer(ref first))->hash;

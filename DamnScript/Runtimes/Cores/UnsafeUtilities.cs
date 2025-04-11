@@ -209,7 +209,6 @@ namespace DamnScript.Runtimes.Cores
         public static T PointerToReference<T>(void* ptr)
         {
 #if UNITY_5_3_OR_NEWER
-            
             var castHelper = UnsafeUtility.AsRef<ReferenceToPointerCastHelper<T>>(&ptr);
             return castHelper.value;
 #else
@@ -234,7 +233,7 @@ namespace DamnScript.Runtimes.Cores
 #endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ObjectPin Pin<T>(T value) where T : class => 
+        public static PinHandle Pin<T>(T value) where T : class => 
 	        PinHelper.Pin(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -38,7 +38,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public readonly RegionData* regionData; // Rietmon: TODO: Might change to int index?
         public readonly ScriptMetadata* metadata;
         
-        public ObjectPin awaitTaskPin;
+        public PinHandle awaitTaskPin;
     
         public int offset;
         public int savePoint;

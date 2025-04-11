@@ -74,7 +74,7 @@ namespace DamnScript.Runtimes.Natives
         [FieldOffset(TypeSize)] public double doubleValue;
         [FieldOffset(TypeSize)] public char charValue;
         [FieldOffset(TypeSize)] public void* pointerValue;
-        [FieldOffset(TypeSize)] public ObjectPin safeValue;
+        [FieldOffset(TypeSize)] public PinHandle safeValue;
         [FieldOffset(TypeSize)] public NativeString* nativeStringValue;
 
         /// <summary>

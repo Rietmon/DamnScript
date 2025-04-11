@@ -32,7 +32,7 @@ namespace DamnScript.Runtimes.Cores.Pins
 #endif
 		};
 
-		public static ObjectPin Pin(object obj)
+		public static PinHandle Pin(object obj)
 		{
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj), "Cannot pin a null object.");
@@ -42,39 +42,39 @@ namespace DamnScript.Runtimes.Cores.Pins
 			var objHash = obj.GetHashCode();
 			var hash = objHash + slotIndex;
 
-			var handle = new PinHandle(hash, obj);
+			var handle = new ObjectPin(hash, obj);
 
 			ref var bucket = ref _buckets[bucketIndex];
 			bucket.pinnedObjects[slotIndex] = handle;
 			bucket.freeSlots--;
 
-			return new ObjectPin(hash, bucketIndex, slotIndex);
+			return new PinHandle(hash, bucketIndex, slotIndex);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void* GetAddress(ObjectPin pin)
+		public static void* GetAddress(PinHandle pin)
 		{
-			ref var handle = ref GetRefHandle(pin);
+			ref var handle = ref GetRefPin(pin);
 			return UnsafeUtilities.ReferenceToPointer(handle.target);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static object GetTarget(ObjectPin pin)
+		public static object GetTarget(PinHandle pin)
 		{
-			ref var handle = ref GetRefHandle(pin);
+			ref var handle = ref GetRefPin(pin);
 			return handle.target;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void Free(ObjectPin pin)
+		public static void Free(PinHandle pin)
 		{
-			ref var handle = ref GetRefHandle(pin);
+			ref var handle = ref GetRefPin(pin);
 			handle = default;
 			_buckets[pin.bucketIndex].freeSlots++;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static ref PinHandle GetRefHandle(ObjectPin pin)
+		private static ref ObjectPin GetRefPin(PinHandle pin)
 		{
 			ref var h = ref _buckets[pin.bucketIndex].pinnedObjects[pin.slotIndex];
 			if (h.hash == pin.hash)

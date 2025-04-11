@@ -51,7 +51,7 @@ namespace DamnScript.Runtimes.Natives
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(ObjectPin value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
+        public ScriptValue(PinHandle value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(NativeString* value) : this()
@@ -103,7 +103,7 @@ namespace DamnScript.Runtimes.Natives
         public static implicit operator ScriptValue(NativeString* value) => new(value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScriptValue(ObjectPin value) => new(value);
+        public static implicit operator ScriptValue(PinHandle value) => new(value);
         
         #endregion
 	}

@@ -162,3 +162,8 @@ public static void TestRun()
 - ⏳ Migration when bytecode changes
 - ⏳ Hot-reload
 - 💡 And much more...
+
+---
+
+You can also support the project by buying me a coffee, so I can keep spending sleepless nights developing it.  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/rietmon)

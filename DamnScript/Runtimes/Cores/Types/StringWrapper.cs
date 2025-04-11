@@ -17,7 +17,7 @@ namespace DamnScript.Runtimes.Cores.Types
         public bool IsManaged => type is SafeStringType.Managed or SafeStringType.ManagedAlreadyPinned;
     
         [FieldOffset(0)] public SafeStringType type;
-        [FieldOffset(UnsafeUtilities.PointerSize)] public ObjectPin safeValue;
+        [FieldOffset(UnsafeUtilities.PointerSize)] public PinHandle safeValue;
         [FieldOffset(UnsafeUtilities.PointerSize)] public NativeString* unsafeValue;
 
         public StringWrapper(string value) : this()
@@ -26,7 +26,7 @@ namespace DamnScript.Runtimes.Cores.Types
             safeValue = UnsafeUtilities.Pin(value);
         }
 
-        public StringWrapper(ObjectPin value) : this()
+        public StringWrapper(PinHandle value) : this()
         {
             type = SafeStringType.ManagedAlreadyPinned;
             safeValue = value;
@@ -58,7 +58,7 @@ namespace DamnScript.Runtimes.Cores.Types
         }
 
         public static implicit operator StringWrapper(string value) => new(value);
-        public static implicit operator StringWrapper(ObjectPin value) => new(value);
+        public static implicit operator StringWrapper(PinHandle value) => new(value);
         public static implicit operator StringWrapper(NativeString* value) => new(value);
     
         public enum SafeStringType

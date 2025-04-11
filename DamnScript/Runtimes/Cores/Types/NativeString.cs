@@ -27,7 +27,7 @@ namespace DamnScript.Runtimes.Cores.Types
     public unsafe struct NativeString
     {
         private static string _buffer;
-        private static ObjectPin _bufferPinHandle;
+        private static PinHandle _bufferPinHandle;
 
         public ref char this[int index]
         {

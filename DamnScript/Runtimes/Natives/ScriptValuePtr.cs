@@ -29,7 +29,7 @@ namespace DamnScript.Runtimes.Natives
         public double DoubleValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->doubleValue; }
         public char CharValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->charValue; }
         public void* PointerValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->pointerValue; }
-        public ObjectPin SafeValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->safeValue; }
+        public PinHandle SafeValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => value->safeValue; }
         
         public ref ScriptValue RefValue { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref UnsafeUtilities.AsRef<ScriptValue>(value); }
         
@@ -116,6 +116,6 @@ namespace DamnScript.Runtimes.Natives
          public static ScriptValuePtr Return(this float value) => new ScriptValue(value).Return();
          public static ScriptValuePtr Return(this double value) => new ScriptValue(value).Return();
          public static ScriptValuePtr Return(this char value) => new ScriptValue(value).Return();
-         public static ScriptValuePtr Return(this ObjectPin value) => new ScriptValue(value).Return();
+         public static ScriptValuePtr Return(this PinHandle value) => new ScriptValue(value).Return();
      }
 }

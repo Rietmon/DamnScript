@@ -20,7 +20,7 @@ public class TestPin
 [Config(typeof(BenchmarksConfig))]
 public class PinBenchmark
 {
-	public static ObjectPin[] pinsDS = new ObjectPin[64];
+	public static PinHandle[] pinsDS = new PinHandle[64];
 	public static GCHandle[] pinsNET = new GCHandle[64];
 	
 	[Benchmark, MethodImpl(MethodImplOptions.NoOptimization)]

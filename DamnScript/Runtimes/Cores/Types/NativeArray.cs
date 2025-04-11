@@ -6,9 +6,9 @@ namespace DamnScript.Runtimes.Cores.Types
 {
     public unsafe struct NativeArray<T> : IDisposable where T : unmanaged
     {
-        public int Length { get; }
     
         public T* Begin { get; }
+        public int Length { get; }
     
         public T* Last => End - 1;
         
@@ -46,6 +46,12 @@ namespace DamnScript.Runtimes.Cores.Types
         {
             UnsafeUtilities.Free(Begin);
             this = default;
+        }
+
+        public static void ReAlloc(NativeArray<T>* ptr, int newSize)
+        {
+            var newBegin = (T*)UnsafeUtilities.ReAlloc(ptr->Begin, sizeof(T) * newSize);
+            *ptr = new NativeArray<T>(newSize, newBegin);
         }
     }
 }

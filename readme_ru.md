@@ -164,3 +164,8 @@ public static void TestRun()
 - ⏳ Миграция при изменении байткода
 - ⏳ Hot-reload
 - 💡 И многое другое…
+
+---
+
+Вы так же можете поддержать проект, купив мне кофе, чтобы я и дальше, ночи на пролет, мог развивать этот проект.  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/rietmon)
