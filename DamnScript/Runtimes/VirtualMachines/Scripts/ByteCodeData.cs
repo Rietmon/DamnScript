@@ -2,12 +2,12 @@
 using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Cores;
 
-namespace DamnScript.Runtimes.Metadatas
+namespace DamnScript.Runtimes.VirtualMachines.Scripts
 {
-    public readonly unsafe struct ByteCodeData : IDisposable
+    public unsafe struct ByteCodeData : IDisposable
     {
-        public readonly byte* start;
-        public readonly int length;
+        public byte* start;
+        public int length;
 
         public ByteCodeData(byte* start, int length)
         {

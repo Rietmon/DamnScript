@@ -4,13 +4,14 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.VirtualMachines.Methods;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
-namespace DamnScript.Runtimes.VirtualMachines.Datas
+namespace DamnScript.Runtimes
 {
-    public static unsafe class VirtualMachineData
+    public static unsafe class MethodsStorage
     {
         private static readonly Type voidType = typeof(void);
         private static readonly Type scriptValuePtrType = typeof(ScriptValuePtr);

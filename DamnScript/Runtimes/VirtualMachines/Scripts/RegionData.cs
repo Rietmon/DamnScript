@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.Debugs;
 
-namespace DamnScript.Runtimes.Metadatas
+namespace DamnScript.Runtimes.VirtualMachines.Scripts
 {
     public readonly unsafe struct RegionDataPtr
     {
@@ -18,11 +20,15 @@ namespace DamnScript.Runtimes.Metadatas
         public static implicit operator RegionData*(RegionDataPtr ptr) => ptr.value;
     }
     
-    public readonly struct RegionData : IDisposable
+    public struct RegionData : IDisposable
     {
-        public readonly String32 name;
+        public String32 name;
 
-        public readonly ByteCodeData byteCode;
+        public ByteCodeData byteCode;
+        
+#if DAMN_SCRIPT_REGION_DEBUG
+        public string Dissasemble => ScriptDisassembler.DisassembleRegionToString(new RegionDataPtr(ref this));
+#endif
 
         public RegionData(String32 name, ByteCodeData byteCode)
         {

@@ -2,8 +2,7 @@
 using System.Text;
 using DamnScript.Runtimes;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Natives;
-using DamnScript.Runtimes.VirtualMachines.Datas;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 namespace DamnScriptExamples
 {
@@ -19,8 +18,8 @@ namespace DamnScriptExamples
 ";
 
         private static int _counter;
-        public static ScriptValuePtr CanHandle() => new ScriptValue(++_counter < 10).Return();
-        public static ScriptValuePtr GetCounter() => new ScriptValue(_counter).Return();
+        public static ScriptValuePtr CanHandle() => (++_counter < 10).Return();
+        public static ScriptValuePtr GetCounter() => _counter.Return();
     
         public static void Run()
         {

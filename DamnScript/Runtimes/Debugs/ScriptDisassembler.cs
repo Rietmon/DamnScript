@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text;
-using DamnScript.Runtimes.Metadatas;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
 
 namespace DamnScript.Runtimes.Debugs
 {
@@ -35,15 +36,17 @@ namespace DamnScript.Runtimes.Debugs
 
             return sb.ToString();
         }
-        
-        public static string DisassembleRegionToString(RegionDataPtr region, ScriptMetadata metadata)
+
+        public static string DisassembleRegionToString(RegionDataPtr region, ScriptMetadata metadata = default)
         {
+            var noMetadata = metadata.constants.methods.Begin == null || metadata.constants.strings.Begin == null;
+            
             var ptr = region.value;
             var sb = new StringBuilder();
-            sb.Append("           ");         
+            sb.Append("           ");
             sb.Append(ptr->name.ToString());
             sb.AppendLine(":");
-            
+
             var offset = 0;
             var data = ptr->byteCode;
             while (data.IsInRange(offset))
@@ -57,7 +60,7 @@ namespace DamnScript.Runtimes.Debugs
                         var nativeCall = *(NativeCall*)byteCode;
                         sb.AppendLine(
                             $"{offset.ToString()}: CALL {nativeCall.MethodIndex} " +
-                            $"({metadata.GetMethodName(nativeCall.MethodIndex)->ToString32()}) " +
+                            $"({(noMetadata ? "N/A" : metadata.GetMethodName(nativeCall.MethodIndex)->ToString32())}) " +
                             $"{nativeCall.ArgumentsCount.ToString()}");
                         offset += sizeof(NativeCall);
                         break;
@@ -78,7 +81,8 @@ namespace DamnScript.Runtimes.Debugs
                     }
                     case SetSavePoint.OpCode:
                     {
-                        sb.AppendLine($"{offset.ToString()}: SAVE");
+                        var setSavePoint = *(SetSavePoint*)byteCode;
+                        sb.AppendLine($"{offset.ToString()}: SAVE {setSavePoint.hash.ToString()}");
                         offset += sizeof(SetSavePoint);
                         break;
                     }
@@ -106,9 +110,9 @@ namespace DamnScript.Runtimes.Debugs
                     case PushStringToStack.OpCode:
                     {
                         var pushStringToStack = *(PushStringToStack*)byteCode;
-                        var str = metadata.GetNativeString(pushStringToStack.index);
+                        var str = noMetadata ? new String32("N/A") : metadata.GetNativeString(pushStringToStack.index)->ToString32();
                         sb.AppendLine(
-                            $"{offset.ToString()}: PUSHSTR {pushStringToStack.index.ToString()} ({str->ToString()})");
+                            $"{offset.ToString()}: PUSHSTR {pushStringToStack.index.ToString()} ({str})");
                         offset += sizeof(JumpEquals);
                         break;
                     }

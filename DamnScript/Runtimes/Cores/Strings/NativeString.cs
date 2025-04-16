@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Cores.Pins;
 
-namespace DamnScript.Runtimes.Cores.Types
+namespace DamnScript.Runtimes.Cores.Strings
 {
     public readonly unsafe struct NativeStringPtr
     {

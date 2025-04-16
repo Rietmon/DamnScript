@@ -8,7 +8,7 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 #else 
     [StructLayout(LayoutKind.Sequential)]
 #endif
-    public readonly unsafe struct StoreToRegister
+    public readonly unsafe struct StoreToRegister : IOpCode
     {
         public const OpCodeType OpCode = OpCodeType.StoreToRegister;
         public static readonly int size = sizeof(StoreToRegister);
@@ -19,6 +19,11 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         {
             opCode = OpCode;
             this.register = register;
+        }
+
+        public int CalculateHash()
+        {
+            return opCode.GetHashCode() + register;
         }
     }
 }

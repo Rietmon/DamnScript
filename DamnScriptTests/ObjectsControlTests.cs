@@ -1,90 +1,92 @@
 using DamnScript.Runtimes.Cores.Pins;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
-namespace DamnScriptTests;
-
-public class ObjectsControlTests
+namespace DamnScriptTests
 {
-	public class TestClass
+	public class ObjectsControlTests
 	{
-		public int Value { get; set; }
-		
-		public ScriptValuePtr Add(ScriptValuePtr value)
+		public class TestClass
 		{
-			var thisValue = this;
-			Value += value.IntValue;
-			return ScriptValue.FromReferenceUnsafe(thisValue).Return();
-		}
+			public int Value { get; set; }
 		
-		public ScriptValuePtr Simulate(ScriptValuePtr value1, ScriptValuePtr value2, ScriptValuePtr value3, ScriptValuePtr value4, 
-			ScriptValuePtr value5, ScriptValuePtr value6, ScriptValuePtr value7, ScriptValuePtr value8, ScriptValuePtr value9)
+			public ScriptValuePtr Add(ScriptValuePtr value)
+			{
+				var thisValue = this;
+				Value += value.IntValue;
+				return ScriptValue.FromReferenceUnsafe(thisValue).Return();
+			}
+		
+			public ScriptValuePtr Simulate(ScriptValuePtr value1, ScriptValuePtr value2, ScriptValuePtr value3, ScriptValuePtr value4, 
+				ScriptValuePtr value5, ScriptValuePtr value6, ScriptValuePtr value7, ScriptValuePtr value8, ScriptValuePtr value9)
+			{
+				Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
+				         value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
+				return ScriptValue.FromReferenceUnsafe(this).Return();
+			}
+		
+			public async Task<ScriptValuePtr> SimulateAsync(ScriptValuePtr value1, ScriptValuePtr value2, ScriptValuePtr value3, ScriptValuePtr value4, 
+				ScriptValuePtr value5, ScriptValuePtr value6, ScriptValuePtr value7, ScriptValuePtr value8, ScriptValuePtr value9)
+			{
+				var handle = ScriptEngine.CurrentThreadHandle;
+				await Task.Delay(100);
+				Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
+				         value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
+				return ScriptValue.FromReferencePin(this).ReturnAsync(handle);
+			}
+		}
+	
+		private static ScriptValuePtr Create() => ScriptValue.FromReferenceUnsafe(new TestClass() { Value = 5 }).Return();
+	
+		[Test]
+		public void CreationAndGetTest()
 		{
-			Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
-				value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
-			return ScriptValue.FromReferenceUnsafe(this).Return();
-		}
+			ScriptEngine.mainPtr.RefValue.Dispose();
+			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+
+			ScriptEngine.RegisterNativeMethod(Create);
 		
-		public async Task<ScriptValuePtr> SimulateAsync(ScriptValuePtr value1, ScriptValuePtr value2, ScriptValuePtr value3, ScriptValuePtr value4, 
-			ScriptValuePtr value5, ScriptValuePtr value6, ScriptValuePtr value7, ScriptValuePtr value8, ScriptValuePtr value9)
+			Assert.That(Run("Create();").GetReference<TestClass>().Value, Is.EqualTo(5));
+		}
+	
+		[Test]
+		public void MethodCallTest()
 		{
-			var handle = ScriptEngine.CurrentThreadHandle;
-			await Task.Delay(100);
-			Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
-			         value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
-			return ScriptValue.FromReferencePin(this).ReturnAsync(handle);
+			ScriptEngine.mainPtr.RefValue.Dispose();
+			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+		
+			ScriptEngine.RegisterNativeMethod(Create);
+			ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Add)));
+		
+			Assert.That(Run("Add(Create(), 10);").GetReference<TestClass>()?.Value, Is.EqualTo(15));
+			Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
 		}
-	}
 	
-	private static ScriptValuePtr Create() => ScriptValue.FromReferenceUnsafe(new TestClass() { Value = 5 }).Return();
-	
-	[Test]
-	public void CreationAndGetTest()
-	{
-		ScriptEngine.mainPtr.RefValue.Dispose();
-		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+		[Test]
+		public void MethodCallWithManyArgumentsTest()
+		{
+			ScriptEngine.mainPtr.RefValue.Dispose();
+			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
 
-		ScriptEngine.RegisterNativeMethod(Create);
+			ScriptEngine.RegisterNativeMethod(Create);
+			ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Simulate)));
 		
-		Assert.That(Run("Create();").GetReference<TestClass>().Value, Is.EqualTo(5));
-	}
+			Assert.That(Run("Simulate(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90);").GetReference<TestClass>()?.Value, Is.EqualTo(455));
+			Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
+		}
 	
-	[Test]
-	public void MethodCallTest()
-	{
-		ScriptEngine.mainPtr.RefValue.Dispose();
-		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
-		
-		ScriptEngine.RegisterNativeMethod(Create);
-		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Add)));
-		
-		Assert.That(Run("Add(Create(), 10);").GetReference<TestClass>()?.Value, Is.EqualTo(15));
-		Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
-	}
-	
-	[Test]
-	public void MethodCallWithManyArgumentsTest()
-	{
-		ScriptEngine.mainPtr.RefValue.Dispose();
-		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+		[Test]
+		public void MethodCallWithManyArgumentsAsyncTest()
+		{
+			ScriptEngine.mainPtr.RefValue.Dispose();
+			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
 
-		ScriptEngine.RegisterNativeMethod(Create);
-		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Simulate)));
+			ScriptEngine.RegisterNativeMethod(Create);
+			ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.SimulateAsync)));
 		
-		Assert.That(Run("Simulate(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90);").GetReference<TestClass>()?.Value, Is.EqualTo(455));
-		Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
-	}
-	
-	[Test]
-	public void MethodCallWithManyArgumentsAsyncTest()
-	{
-		ScriptEngine.mainPtr.RefValue.Dispose();
-		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
-
-		ScriptEngine.RegisterNativeMethod(Create);
-		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.SimulateAsync)));
-		
-		var result = Run("SimulateAsync(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90);");
-		Assert.That(result.GetReference<TestClass>().Value, Is.EqualTo(455));
-		result.UnpinManagedPointer();
-		Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
+			var result = Run("SimulateAsync(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90);");
+			Assert.That(result.GetReference<TestClass>().Value, Is.EqualTo(455));
+			result.UnpinManagedPointer();
+			Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
+		}
 	}
 }

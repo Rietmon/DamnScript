@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Pins;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.VirtualMachines.Threads;
 
-namespace DamnScript.Runtimes.Natives
+namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 {
     /// <summary>
     /// This struct is a wrapper to handle any type of value in the DamnScript.
@@ -19,7 +18,7 @@ namespace DamnScript.Runtimes.Natives
         public const int TypeSize = UnsafeUtilities.PointerSize;
         public const int Size = TypeSize + 8;
         
-        public static ScriptValue* returnValuePtr;
+        public static ScriptValue* ReturnValuePtr { get; set; }
 
         public bool IsRefOrPtr
         {
@@ -85,15 +84,15 @@ namespace DamnScript.Runtimes.Natives
         public ScriptValuePtr Return()
         {
 #if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
-            if (returnValuePtr != &ScriptEngine.CurrentThreadPtr.value->returnValue)
+            if (ScriptEngine.CurrentThreadPtr.value == null || ReturnValuePtr != &ScriptEngine.CurrentThreadPtr.value->returnValue)
                 throw new Exception("For async calls please use ReturnAsync method!");
             
-            if (returnValuePtr == null)
+            if (ReturnValuePtr == null)
                 throw new Exception("Call return only from VM thread call!");
 #endif
             
-            *returnValuePtr = this;
-            return new ScriptValuePtr(returnValuePtr);
+            *ReturnValuePtr = this;
+            return new ScriptValuePtr(ReturnValuePtr);
         }
 
         /// <summary>
@@ -108,11 +107,11 @@ namespace DamnScript.Runtimes.Natives
                 throw new Exception("Please cache your VM thread handle on method start!");
 #endif
 
-            var cached = returnValuePtr;
-            returnValuePtr = &handle.Ptr.value->returnValue;
-            *returnValuePtr = this;
-            var value = new ScriptValuePtr(returnValuePtr);
-            returnValuePtr = cached;
+            var cached = ReturnValuePtr;
+            ReturnValuePtr = &handle.Ptr.value->returnValue;
+            *ReturnValuePtr = this;
+            var value = new ScriptValuePtr(ReturnValuePtr);
+            ReturnValuePtr = cached;
             return value;
         }
         

@@ -2,9 +2,8 @@ using System;
 using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Natives;
-using DamnScript.Runtimes.VirtualMachines.Datas;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 // ReSharper disable EqualExpressionComparison
 
@@ -20,7 +19,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #endif
 			var methodName = metadata->GetMethodName(nativeCall.MethodIndex)->ToString32();
 			var argumentsCount = nativeCall.ArgumentsCount;
-			if (!VirtualMachineData.TryGetNativeMethod(methodName, argumentsCount, out var method))
+			if (!MethodsStorage.TryGetNativeMethod(methodName, argumentsCount, out var method))
 				throw new Exception($"Method \"{methodName}\" with {argumentsCount} arguments not found!");
 
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
@@ -34,7 +33,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 				argumentsStack[i] = StackPop();
 
 			// Rietmon: Result will be in the "returnValue" field
-			ScriptValue.returnValuePtr = UnsafeUtilities.AsPointer(ref returnValue);
+			ScriptValue.ReturnValuePtr = UnsafeUtilities.AsPointer(ref returnValue);
 			VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out var task);
 
 			if (task != null)
@@ -57,7 +56,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 				StackPush(returnValue);
 			}
 
-			ScriptValue.returnValuePtr = null;
+			ScriptValue.ReturnValuePtr = null;
 
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 			Debugging.Log($"End native call.");

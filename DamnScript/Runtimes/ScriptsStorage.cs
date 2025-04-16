@@ -3,13 +3,14 @@ using System.IO;
 using DamnScript.Parsings.Antlrs;
 using DamnScript.Parsings.Compilings;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Collections;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Metadatas;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
 
-namespace DamnScript.Parsings
+namespace DamnScript.Runtimes
 {
-    public static unsafe class ScriptsDataManager
+    public static unsafe class ScriptsStorage
     {
         private const int MaxStackBufferSize = 1024 * 16;
     
@@ -48,6 +49,52 @@ namespace DamnScript.Parsings
             _scripts.Add(scriptDataPtr);
         
             return scriptDataPtr;
+        }
+
+        public static ScriptDataPtr ReloadScript(Stream input, String32 name)
+        {
+            var loadedScriptData = GetScriptData(name).value;
+            if (loadedScriptData == null)
+                throw new Exception("Unable to reload script because no script was loaded.");
+
+            var newScriptData = new ScriptData();
+            ScriptParser.ParseScript(input, name, &newScriptData);
+            
+            if (loadedScriptData->regions.Length != newScriptData.regions.Length)
+                throw new NotSupportedException("Not support different number of regions");
+
+            var loadedConsts = loadedScriptData->metadata.constants;
+            var newConsts = newScriptData.metadata.constants;
+            
+            if (loadedConsts.strings.Length < newConsts.strings.Length)
+                NativeArray<NativeStringPtr>.ReAlloc(&loadedConsts.strings, newConsts.strings.Length);
+            if (loadedConsts.methods.Length < newConsts.methods.Length)
+                NativeArray<NativeStringPtr>.ReAlloc(&loadedConsts.methods, newConsts.methods.Length);
+
+            loadedScriptData->metadata.constants = new ConstantsData(loadedConsts.strings, loadedConsts.methods);
+            
+            for (var i = 0; i < newConsts.strings.Length; i++)
+                *(loadedConsts.strings.Begin + i) = *(newConsts.strings.Begin + i);
+            for (var i = 0; i < newConsts.methods.Length; i++)
+                *(loadedConsts.methods.Begin + i) = *(newConsts.methods.Begin + i);
+            
+            newConsts.strings.Dispose();
+            newConsts.methods.Dispose();
+            
+            for (var i = 0; i < newScriptData.regions.Length; i++)
+            {
+                var newRegion = newScriptData.regions.Begin + i;
+                var loadedRegion = loadedScriptData->regions.Begin + i;
+                if (loadedRegion->byteCode.length < newRegion->byteCode.length)
+                {
+                    UnsafeUtilities.ReAlloc(loadedRegion->byteCode.start, newRegion->byteCode.length);
+                    loadedRegion->byteCode.length = newRegion->byteCode.length;
+                }
+                
+                UnsafeUtilities.Memcpy(newRegion->byteCode.start, loadedRegion->byteCode.start, newRegion->byteCode.length);
+            }
+            
+            return loadedScriptData;
         }
     
         public static ScriptDataPtr LoadCompiledScript(Stream input, String32 name)
@@ -109,7 +156,7 @@ namespace DamnScript.Parsings
         {
             if (!_scripts.Remove(scriptDataPtr))
             {
-                Debugging.LogError($"[{nameof(ScriptsDataManager)}] ({nameof(UnloadScript)}) " +
+                Debugging.LogError($"[{nameof(ScriptsStorage)}] ({nameof(UnloadScript)}) " +
                                    $"Attempt to unload script which is not present in cache! Name: {scriptDataPtr.value->name.ToString()}");
                 return;
             }

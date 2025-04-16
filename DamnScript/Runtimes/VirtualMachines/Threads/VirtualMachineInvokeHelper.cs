@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Natives;
-using SV = DamnScript.Runtimes.Natives.ScriptValue;
+using DamnScript.Runtimes.VirtualMachines.Methods;
+using SV = DamnScript.Runtimes.VirtualMachines.ScriptValues.ScriptValue;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {

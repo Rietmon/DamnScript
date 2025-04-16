@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace DamnScript.Runtimes.Cores.Types
+namespace DamnScript.Runtimes.Cores.Strings
 {
     /// <summary>
     /// String buffer with fixed length of 32, without last null terminator.

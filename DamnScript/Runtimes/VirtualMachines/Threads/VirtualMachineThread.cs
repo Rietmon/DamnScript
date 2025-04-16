@@ -3,11 +3,9 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Pins;
-using DamnScript.Runtimes.Cores.Types;
-using DamnScript.Runtimes.Metadatas;
-using DamnScript.Runtimes.Natives;
-using DamnScript.Runtimes.VirtualMachines.Datas;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {

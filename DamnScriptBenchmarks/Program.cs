@@ -8,7 +8,6 @@ using DamnScript.Runtimes;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Pins;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Natives;
 using MoonSharp.Interpreter;
 
 namespace DamnScriptBenchmarks

@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.Natives;
-using DamnScript.Runtimes.VirtualMachines.Datas;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 namespace DamnScriptExamples
 {
@@ -10,7 +9,7 @@ namespace DamnScriptExamples
         private const string Code = @"
         region Main
         {
-            Print(""Now should be a print with the delay..."");
+            Print(2);
             PrintWithDelay(GetInt() + 5 * 2));
             Print(""Print has done!"");
         }
@@ -18,7 +17,7 @@ namespace DamnScriptExamples
 
         // This is an exception to the rule, because we are using async/await
         // Async methods can use Task as a return type ("Task" == "void")
-        // If we gonna return any value from async method - it should be "Task<ScriptValue>"
+        // If we gonna return any value from async method - it should be "Task<ScriptValuePtr>"
         public static async Task PrintWithDelay(ScriptValuePtr value)
         {
             await Task.Delay(1000);
@@ -27,7 +26,7 @@ namespace DamnScriptExamples
     
         public static ScriptValuePtr GetInt()
         {
-            return new ScriptValue(5).Return();
+            return 5.Return();
         }
     
         public static void Run()

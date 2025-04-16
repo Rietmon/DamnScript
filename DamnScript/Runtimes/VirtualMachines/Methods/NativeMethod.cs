@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
-namespace DamnScript.Runtimes.Natives
+namespace DamnScript.Runtimes.VirtualMachines.Methods
 {
     public readonly unsafe struct NativeMethod
     {

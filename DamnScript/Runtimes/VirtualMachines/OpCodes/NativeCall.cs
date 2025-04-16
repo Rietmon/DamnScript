@@ -1,10 +1,13 @@
 ﻿using System.Runtime.InteropServices;
-using DamnScript.Runtimes.Cores.Types;
 
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
+#if DAMN_SCRIPT_DISABLE_ALIGNMENT_OPCODES
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+#else 
     [StructLayout(LayoutKind.Sequential)]
-    public readonly unsafe struct NativeCall
+#endif
+    public readonly unsafe struct NativeCall : IOpCode
     {
         public const OpCodeType OpCode = OpCodeType.NativeCall;
         public static readonly int size = sizeof(NativeCall);
@@ -19,6 +22,11 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         {
             opCode = OpCode;
             methodIndexAndArgumentsCount = (methodIndex & 0xFFFFFF) | ((argumentsCount & 0xFFFFFF) << 24);
+        }
+
+        public int CalculateHash()
+        {
+            return opCode.GetHashCode() + methodIndexAndArgumentsCount;
         }
     }
 }

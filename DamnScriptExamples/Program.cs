@@ -1,9 +1,11 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text;
 using DamnScript.Runtimes;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Allocators;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 using DamnScript.Runtimes.VirtualMachines.Threads;
 
 namespace DamnScriptExamples
@@ -36,6 +38,7 @@ namespace DamnScriptExamples
                 Console.WriteLine("6: Print from \"while\" loop with counter");
                 Console.WriteLine("7: If-elseif-else statement");
                 Console.WriteLine("8: Save point");
+                Console.WriteLine("9: Hot reload");
                 Console.WriteLine("Q: Exit");
                 Console.WriteLine("---------------------------------");
 
@@ -51,6 +54,7 @@ namespace DamnScriptExamples
                     case "6": Example6.Run(); break;
                     case "7": Example7.Run(); break;
                     case "8": Example8.Run(); break;
+                    case "9": Example9.Run(); break;
                     case "Q": return;
                 }
             }

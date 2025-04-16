@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Strings;
 
-namespace DamnScript.Runtimes.Metadatas
+namespace DamnScript.Runtimes.VirtualMachines.Scripts
 {
     public unsafe struct ScriptMetadata : IDisposable
     {

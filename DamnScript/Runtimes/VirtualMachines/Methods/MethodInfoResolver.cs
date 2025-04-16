@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace DamnScript.Runtimes.VirtualMachines.Datas
+namespace DamnScript.Runtimes.VirtualMachines.Methods
 {
 	public static class MethodInfoResolver
 	{

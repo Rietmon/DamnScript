@@ -1,8 +1,6 @@
-using System;
-using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Cores;
 
-namespace DamnScript.Runtimes.Natives
+namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 {
 	public partial struct ScriptValue
 	{

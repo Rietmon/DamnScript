@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Collections;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Metadatas;
-using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.Serializations;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
 using DamnScript.Runtimes.VirtualMachines.Threads;
 
 namespace DamnScript.Runtimes.VirtualMachines

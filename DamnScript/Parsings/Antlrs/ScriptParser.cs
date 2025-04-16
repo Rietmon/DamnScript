@@ -3,12 +3,13 @@ using System.IO;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Collections;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Metadatas;
-using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.Assemblers;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 namespace DamnScript.Parsings.Antlrs
 {
@@ -82,6 +83,7 @@ namespace DamnScript.Parsings.Antlrs
                 {
                     case DamnScriptParser.CallStatementContext callStatement:
                         ParseCallStatement(callStatement, context);
+                        context->assembler->SetSavePoint();
                         break;
                     case DamnScriptParser.IfStatementContext ifStatement:
                         ParseIfStatement(ifStatement, context);

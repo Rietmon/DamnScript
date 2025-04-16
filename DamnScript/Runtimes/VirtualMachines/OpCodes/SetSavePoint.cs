@@ -8,16 +8,23 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 #else 
     [StructLayout(LayoutKind.Sequential)]
 #endif
-    public readonly unsafe struct SetSavePoint
+    public readonly unsafe struct SetSavePoint : IOpCode
     {
         public const OpCodeType OpCode = OpCodeType.SetSavePoint;
         public static readonly int size = sizeof(SetSavePoint);
         
         public readonly OpCodeType opCode;
+        public readonly int hash;
     
-        public SetSavePoint(int _) 
+        public SetSavePoint(int hash) 
         { 
             opCode = OpCode;
+            this.hash = hash;
+        }
+
+        public int CalculateHash()
+        {
+            return 0;
         }
     }
 }

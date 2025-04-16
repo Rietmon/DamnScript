@@ -9,7 +9,7 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       <OutputPath>../_Binaries/Debug/</OutputPath>
-      <DefineConstants>TRACE;DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG;DAMN_SCRIPT_ENABLE_EXECUTION_LOG;DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS;DAMN_SCRIPT_ENABLE_MEMORY_DEBUG;DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE;</DefineConstants>
+      <DefineConstants>TRACE;DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG;DAMN_SCRIPT_ENABLE_EXECUTION_LOG;DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS;DAMN_SCRIPT_ENABLE_MEMORY_DEBUG;DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE;DAMN_SCRIPT_REGION_DEBUG;</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -24,6 +24,27 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Runtimes\Natives\ScriptValue.Constructors.cs">
+        <DependentUpon>ScriptValue.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Runtimes\Natives\ScriptValue.Get.cs">
+        <DependentUpon>ScriptValue.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Runtimes\Natives\ScriptValue.Math.cs">
+        <DependentUpon>ScriptValue.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Runtimes\Natives\ScriptValue.Safe.cs">
+        <DependentUpon>ScriptValue.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Runtimes\Natives\ScriptValue.Unsafe.cs">
+        <DependentUpon>ScriptValue.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Runtimes\Natives\ScriptValue.ValueType.cs">
+        <DependentUpon>ScriptValue.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

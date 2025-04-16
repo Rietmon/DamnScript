@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using DamnScript.Runtimes.Metadatas;
 
-namespace DamnScript.Runtimes.Cores.Types
+namespace DamnScript.Runtimes.Cores.Collections
 {
     public unsafe struct NativeArray<T> : IDisposable where T : unmanaged
     {
-    
         public T* Begin { get; }
         public int Length { get; }
     
@@ -18,7 +16,15 @@ namespace DamnScript.Runtimes.Cores.Types
 
         public ref T this[int index]
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref Begin[index];
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+#if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
+                if (index < 0 || index >= Length)
+                    throw new IndexOutOfRangeException();
+#endif
+                return ref Begin[index];
+            }
         }
     
         public NativeArray(int length, bool clear = false)
@@ -33,6 +39,17 @@ namespace DamnScript.Runtimes.Cores.Types
         {
             Length = length;
             Begin = begin;
+        }
+
+        public void CopyFrom(NativeArray<T> other)
+        {
+            if (Length < other.Length)
+            {
+                fixed (NativeArray<T>* p = &this)
+                    ReAlloc(p, other.Length);
+            }
+            
+            UnsafeUtilities.Memcpy(other.Begin, Begin, Length);
         }
     
         public NativeList<T> ToListAlloc()

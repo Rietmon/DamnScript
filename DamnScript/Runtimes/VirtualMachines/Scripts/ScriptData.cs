@@ -1,8 +1,9 @@
 ﻿using System;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Collections;
+using DamnScript.Runtimes.Cores.Strings;
 
-namespace DamnScript.Runtimes.Metadatas
+namespace DamnScript.Runtimes.VirtualMachines.Scripts
 {
     public readonly unsafe struct ScriptDataPtr
     {

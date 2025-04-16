@@ -1,6 +1,7 @@
 ﻿using System;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Collections;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
 
 namespace DamnScript.Parsings.Serializations

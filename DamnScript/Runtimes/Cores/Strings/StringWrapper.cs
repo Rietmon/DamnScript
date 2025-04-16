@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores.Pins;
 
-namespace DamnScript.Runtimes.Cores.Types
+namespace DamnScript.Runtimes.Cores.Strings
 {
     /// <summary>
     /// Wrapper for string and NativeString.

@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Metadatas;
-using DamnScript.Runtimes.Natives;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 namespace DamnScript.Runtimes.VirtualMachines.Assemblers
 {
@@ -15,12 +15,16 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public byte* byteCode;
         public int size;
         public int offset;
+
+        public int currentHash;
     
         public ScriptAssembler(int capacity)
         {
             byteCode = (byte*)UnsafeUtilities.Alloc(capacity <= 0 ? DefaultSize : capacity);
             size = DefaultSize;
             offset = 0;
+            
+            currentHash = 0;
         }
     
         public ScriptAssembler PushToStack(ScriptValue value) =>
@@ -31,9 +35,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
     
         public ScriptAssembler ExpressionCall(ExpressionCall.ExpressionCallType type) =>
             Add(new ExpressionCall(type));
-    
-        public ScriptAssembler SetSavePoint() =>
-            Add(new SetSavePoint(0));
+
+        public ScriptAssembler SetSavePoint()
+        {
+            Add(new SetSavePoint(currentHash));
+            currentHash = 0;
+            return this;
+        }
     
         public ScriptAssembler JumpNotEquals(int jumpOffset) =>
             Add(new JumpNotEquals(jumpOffset));
@@ -59,7 +67,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public ScriptAssembler DuplicateStack() =>
             Add(new DuplicateStack(0));
 
-        public ScriptAssembler Add<T>(T value) where T : unmanaged
+        public ScriptAssembler Add<T>(T value) where T : unmanaged, IOpCode
         {
             var length = sizeof(T);
             if (offset + length > size)
@@ -72,7 +80,14 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
 #if DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG
             Debugging.Log($"Add {typeof(T).Name} at {offset} with value {value} (length: {length})");
 #endif
-        
+
+            var opcodeHash = value.CalculateHash();
+            
+            if (currentHash == 0)
+                currentHash = opcodeHash;
+            else
+                currentHash *= opcodeHash;
+            
             var ptr = byteCode + offset;
             *(T*)ptr = value;
             offset += length;

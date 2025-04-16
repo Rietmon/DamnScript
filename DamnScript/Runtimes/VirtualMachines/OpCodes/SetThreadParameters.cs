@@ -8,7 +8,7 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 #else 
     [StructLayout(LayoutKind.Sequential)]
 #endif
-    public unsafe struct SetThreadParameters
+    public unsafe struct SetThreadParameters : IOpCode
     {
         public const OpCodeType OpCode = OpCodeType.SetThreadParameters;
         public static readonly int size = sizeof(SetThreadParameters);
@@ -27,6 +27,11 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         {
             None = 0,
             NoAwait = 0x1,
+        }
+
+        public int CalculateHash()
+        {
+            return opCode.GetHashCode() + parameters.GetHashCode();
         }
     }
 }

@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Debugs;
-using SV = DamnScript.Runtimes.Natives.ScriptValue;
-using SVP = DamnScript.Runtimes.Natives.ScriptValuePtr;
-using SVT = DamnScript.Runtimes.Natives.ScriptValue.ValueType;
+using SV = DamnScript.Runtimes.VirtualMachines.ScriptValues.ScriptValue;
+using SVP = DamnScript.Runtimes.VirtualMachines.ScriptValues.ScriptValuePtr;
+using SVT = DamnScript.Runtimes.VirtualMachines.ScriptValues.ScriptValue.ValueType;
 
 namespace DamnScript.Runtimes.BuiltIns
 {

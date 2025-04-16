@@ -7,7 +7,7 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 #else 
     [StructLayout(LayoutKind.Sequential)]
 #endif
-    public readonly unsafe struct JumpNotEquals
+    public readonly unsafe struct JumpNotEquals : IOpCode
     {
         public const OpCodeType OpCode = OpCodeType.JumpNotEquals;
         public static readonly int size = sizeof(JumpNotEquals);
@@ -19,6 +19,11 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         {
             opCode = OpCode;
             this.jumpOffset = jumpOffset;
+        }
+
+        public int CalculateHash()
+        {
+            return opCode.GetHashCode() + jumpOffset;
         }
     }
 }

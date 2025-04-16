@@ -7,7 +7,7 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 #else 
     [StructLayout(LayoutKind.Sequential)]
 #endif
-    public readonly unsafe struct PushStringToStack
+    public readonly unsafe struct PushStringToStack : IOpCode
     {
         public const OpCodeType OpCode = OpCodeType.PushStringToStack;
         public static readonly int size = sizeof(PushStringToStack);
@@ -19,6 +19,11 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         {
             opCode = OpCode;
             this.index = index;
+        }
+
+        public int CalculateHash()
+        {
+            return opCode.GetHashCode();
         }
     }
 }

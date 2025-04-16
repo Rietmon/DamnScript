@@ -1,14 +1,16 @@
 using System;
 using DamnScript.Parsings.Serializations;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Collections;
 using DamnScript.Runtimes.VirtualMachines;
 
 namespace DamnScript.Runtimes.Serializations
 {
     public static unsafe class VirtualMachineSerialization
     {
-        public static SerializationStream SerializeToSerializationStream(VirtualMachine* vm)
+        public static SerializationStream SerializeToSerializationStream(VirtualMachinePtr vmPtr)
         {
+            var vm = vmPtr.value;
+            
             var stream = new SerializationStream(4096);
             
             stream.Write(VirtualMachine.Version);

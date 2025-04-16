@@ -1,5 +1,5 @@
 ﻿using System;
-using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {

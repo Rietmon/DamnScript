@@ -6,48 +6,48 @@ using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Loggers;
 using DamnScript.Parsings.Compilings;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 using MoonSharp.Interpreter;
 
-namespace DamnScriptBenchmarks;
-
-[Config(typeof(BenchmarksConfig))]
-public class LoadLargeScriptBenchmark
+namespace DamnScriptBenchmarks
 {
-	public static int result;
-            
-	public static int ExternalGetLuaValue()
+	[Config(typeof(BenchmarksConfig))]
+	public class LoadLargeScriptBenchmark
 	{
-		return 5;
-	}
+		public static int result;
+            
+		public static int ExternalGetLuaValue()
+		{
+			return 5;
+		}
 
-	public static void ExternalPrintLua(int value)
-	{
-		result = value;
-	}
+		public static void ExternalPrintLua(int value)
+		{
+			result = value;
+		}
             
-	public static ScriptValuePtr ExternalGetDamnScriptValue()
-	{
-		return new ScriptValue(5).Return();
-	}
+		public static ScriptValuePtr ExternalGetDamnScriptValue()
+		{
+			return new ScriptValue(5).Return();
+		}
             
-	public static void ExternalPrintDamnScript(ScriptValuePtr value)
-	{
-		result = value.IntValue;
-	}
+		public static void ExternalPrintDamnScript(ScriptValuePtr value)
+		{
+			result = value.IntValue;
+		}
             
-	[GlobalSetup]
-	public void Initialize()
-	{
-		ScriptEngine.RegisterNativeMethod(ExternalGetDamnScriptValue);
-		ScriptEngine.RegisterNativeMethod(ExternalPrintDamnScript);
-	}
+		[GlobalSetup]
+		public void Initialize()
+		{
+			ScriptEngine.RegisterNativeMethod(ExternalGetDamnScriptValue);
+			ScriptEngine.RegisterNativeMethod(ExternalPrintDamnScript);
+		}
             
-	[Benchmark]
-	public void LuaBenchmark()
-	{
-		var script = new Script();
-		script.LoadString(@"
+		[Benchmark]
+		public void LuaBenchmark()
+		{
+			var script = new Script();
+			script.LoadString(@"
 								ExternalPrintLua(ExternalGetLuaValue())
 								ExternalPrintLua(ExternalGetLuaValue())
 								ExternalPrintLua(ExternalGetLuaValue())
@@ -97,12 +97,12 @@ public class LoadLargeScriptBenchmark
 								ExternalPrintLua(ExternalGetLuaValue())
 								ExternalPrintLua(ExternalGetLuaValue())
 								");
-	}
+		}
             
-	[Benchmark]
-	public void DamnScriptBenchmark()
-	{
-		var code = @"
+		[Benchmark]
+		public void DamnScriptBenchmark()
+		{
+			var code = @"
                 region Main
                 {
                     ExternalPrintDamnScript(ExternalGetDamnScript());
@@ -156,15 +156,16 @@ public class LoadLargeScriptBenchmark
                 }
                 ";
                 
-		var scriptData = ScriptEngine.LoadScript(new MemoryStream(Encoding.UTF8.GetBytes(code)), "Main");
-		ScriptEngine.UnloadScript(scriptData);
-	}
+			var scriptData = ScriptEngine.LoadScript(new MemoryStream(Encoding.UTF8.GetBytes(code)), "Main");
+			ScriptEngine.UnloadScript(scriptData);
+		}
 
-	[Benchmark]
-	public void CompiledScriptParserBenchmark()
-	{
-		var scriptData = ScriptEngine.LoadCompiledScript(File.Open("/Users/rietmon/Documents/Projects/DamnScript/DamnScriptBenchmarks/bin/Release/net7.0/Main.dsc", FileMode.Open), "Main");
+		[Benchmark]
+		public void CompiledScriptParserBenchmark()
+		{
+			var scriptData = ScriptEngine.LoadCompiledScript(File.Open("/Users/rietmon/Documents/Projects/DamnScript/DamnScriptBenchmarks/bin/Release/net7.0/Main.dsc", FileMode.Open), "Main");
 		
-		ScriptEngine.UnloadScript(scriptData);
+			ScriptEngine.UnloadScript(scriptData);
+		}
 	}
 }

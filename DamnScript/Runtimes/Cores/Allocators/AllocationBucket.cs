@@ -28,6 +28,28 @@ namespace DamnScript.Runtimes.Cores.Allocators
 			}
 		}
 
+		public int TotalAllocated
+		{
+			get
+			{
+				var allocated = 0;
+				var begin = Data;
+				var end = begin + allocated;
+				while (begin < end)
+				{
+					var header = (AllocationHeader*)begin;
+					if (!header->isFree)
+						allocated += header->size;
+					
+					begin += AllocationHeader.Size + header->size;
+				}
+
+				return allocated;
+			}
+		}
+		
+		public int TotalFree => dataSize - TotalAllocated;
+
 		public AllocationBucketType type;
 		public int dataSize;
 		public fixed byte data[0xff];

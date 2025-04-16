@@ -1,7 +1,7 @@
 using System;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Strings;
 
-namespace DamnScript.Runtimes.Natives
+namespace DamnScript.Runtimes.VirtualMachines.Methods
 {
     public readonly struct NativeMethodId : IEquatable<NativeMethodId>
     {

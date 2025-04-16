@@ -7,7 +7,7 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 #else 
     [StructLayout(LayoutKind.Sequential)]
 #endif
-    public readonly unsafe struct ExpressionCall
+    public readonly unsafe struct ExpressionCall : IOpCode
     {
         public const OpCodeType OpCode = OpCodeType.ExpressionCall;
         public static readonly int size = sizeof(ExpressionCall);
@@ -19,6 +19,11 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         {
             opCode = OpCode;
             this.type = type;
+        }
+
+        public int CalculateHash()
+        {
+            return opCode.GetHashCode();
         }
 
         public enum ExpressionCallType

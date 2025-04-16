@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace DamnScript.Runtimes.Cores.Types
+namespace DamnScript.Runtimes.Cores.Collections
 {
     public unsafe struct NativeList<T> where T : unmanaged
     {

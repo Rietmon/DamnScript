@@ -1,5 +1,6 @@
 ﻿using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Collections;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.VirtualMachines.Assemblers;
 
 namespace DamnScript.Parsings.Antlrs

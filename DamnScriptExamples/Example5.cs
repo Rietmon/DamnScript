@@ -2,8 +2,6 @@
 using System.Text;
 using DamnScript.Runtimes;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Natives;
-using DamnScript.Runtimes.VirtualMachines.Datas;
 
 namespace DamnScriptExamples
 {

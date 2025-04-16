@@ -1,5 +1,5 @@
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Metadatas;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
 
 namespace DamnScriptExamples
 {
@@ -7,9 +7,8 @@ namespace DamnScriptExamples
     {
         public static void PrintDisassembly(ScriptDataPtr scriptData)
         {
-            var disassembly = ScriptDisassembler.DisassembleRegionToString(
-                new RegionDataPtr(ref scriptData.RefValue.regions[0]), 
-                scriptData.RefValue.metadata);
+            var disassembly = ScriptDisassembler.DisassembleScriptToString(
+                scriptData);
             Console.WriteLine(disassembly);
         }
     }

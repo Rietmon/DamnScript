@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.VirtualMachines.Threads;
 
 namespace DamnScript.Runtimes.Serializations

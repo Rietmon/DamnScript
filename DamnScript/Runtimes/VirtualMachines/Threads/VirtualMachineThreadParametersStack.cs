@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {

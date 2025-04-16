@@ -1,9 +1,10 @@
 ﻿using System;
 using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Collections;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Metadatas;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
 
 namespace DamnScript.Parsings.Compilings
 {

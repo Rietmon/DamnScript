@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 namespace DamnScriptExamples
 {

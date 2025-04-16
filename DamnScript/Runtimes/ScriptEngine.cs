@@ -6,12 +6,11 @@ using DamnScript.Parsings;
 using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes.BuiltIns;
 using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
-using DamnScript.Runtimes.Metadatas;
 using DamnScript.Runtimes.Serializations;
 using DamnScript.Runtimes.VirtualMachines;
-using DamnScript.Runtimes.VirtualMachines.Datas;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
 using DamnScript.Runtimes.VirtualMachines.Threads;
 
 namespace DamnScript.Runtimes
@@ -43,7 +42,9 @@ namespace DamnScript.Runtimes
         
         static ScriptEngine()
         {
+#if !DAMN_SCRIPT_DISABLE_ALLOC_DEFAULT_VIRTUAL_MACHINE
             mainPtr = VirtualMachine.Alloc();
+#endif
             BuiltInMethods.Register();
         }
         
@@ -55,7 +56,7 @@ namespace DamnScript.Runtimes
         /// <param name="d">Delegate to method</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterNativeMethod(Delegate d) => 
-            VirtualMachineData.RegisterNativeMethod(d, d.Method.Name);
+            MethodsStorage.RegisterNativeMethod(d, d.Method.Name);
         
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -65,7 +66,7 @@ namespace DamnScript.Runtimes
         /// <param name="method">Method info</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterNativeMethod(MethodInfo method) => 
-            VirtualMachineData.RegisterNativeMethod(method, method.Name);
+            MethodsStorage.RegisterNativeMethod(method, method.Name);
 
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -76,7 +77,7 @@ namespace DamnScript.Runtimes
         /// <param name="name">Override method name</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterNativeMethod(Delegate d, String32 name) => 
-            VirtualMachineData.RegisterNativeMethod(d, name);
+            MethodsStorage.RegisterNativeMethod(d, name);
 
         /// <summary>
         /// Will register native method in the virtual machine.
@@ -87,7 +88,7 @@ namespace DamnScript.Runtimes
         /// <param name="name">Override method name</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterNativeMethod(MethodInfo method, String32 name) => 
-            VirtualMachineData.RegisterNativeMethod(method, name);
+            MethodsStorage.RegisterNativeMethod(method, name);
     
         /// <summary>
         /// Load script from provided stream.
@@ -99,7 +100,7 @@ namespace DamnScript.Runtimes
         /// <returns>Pointer to script data</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDataPtr LoadScript(Stream input, String32 name) => 
-            ScriptsDataManager.LoadScript(input, name);
+            ScriptsStorage.LoadScript(input, name);
     
         /// <summary>
         /// Load compiled script from provided stream.
@@ -111,7 +112,7 @@ namespace DamnScript.Runtimes
         /// <returns>Pointer to script data</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDataPtr LoadCompiledScript(Stream input, String32 name) => 
-            ScriptsDataManager.LoadCompiledScript(input, name);
+            ScriptsStorage.LoadCompiledScript(input, name);
 
         /// <summary>
         /// Run thread with provided region name from script data.
@@ -143,7 +144,7 @@ namespace DamnScript.Runtimes
         /// <returns>Pointer to script data</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptDataPtr GetScriptDataFromCache(String32 scriptName) => 
-            ScriptsDataManager.GetScriptData(scriptName);
+            ScriptsStorage.GetScriptData(scriptName);
     
         /// <summary>
         /// Unload script from cache by provided pointer.
@@ -152,7 +153,7 @@ namespace DamnScript.Runtimes
         /// <param name="scriptData">Name of the script</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnloadScript(ScriptDataPtr scriptData) => 
-            ScriptsDataManager.UnloadScript(scriptData);
+            ScriptsStorage.UnloadScript(scriptData);
 
         /// <summary>
         /// Serialize the Main virtual machine to bytes then return it.

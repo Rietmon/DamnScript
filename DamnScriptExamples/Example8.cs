@@ -1,7 +1,7 @@
 using System.Text;
 using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.Natives;
+using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 using DamnScript.Runtimes.VirtualMachines.Threads;
 
 namespace DamnScriptExamples

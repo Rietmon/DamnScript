@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
 using DamnScript.Parsings.Serializations;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes;
+using DamnScript.Runtimes.Cores.Strings;
 
 namespace DamnScript.Parsings.Compilings
 {
@@ -11,7 +12,7 @@ namespace DamnScript.Parsings.Compilings
         
         public static void Compile(Stream input, String32 name, Stream output)
         {
-            var scriptData = ScriptsDataManager.LoadScript(input, name);
+            var scriptData = ScriptsStorage.LoadScript(input, name);
         
             var stream = new SerializationStream(1024);
         

@@ -1,21 +1,66 @@
 using System;
-using DamnScript.Runtimes.Cores.Types;
+using DamnScript.Runtimes.Cores.Collections;
 
 namespace DamnScript.Runtimes.Cores.Allocators
 {
+	public readonly unsafe struct AllocationStoragePtr
+	{
+		public ref AllocationStorage RefValue => ref UnsafeUtilities.AsRef<AllocationStorage>(value);
+		
+		public readonly AllocationStorage* value;
+
+		public AllocationStoragePtr(AllocationStorage* value)
+		{
+			this.value = value;
+		}
+		
+		public static implicit operator AllocationStoragePtr(AllocationStorage* value) => new(value);
+		public static implicit operator AllocationStorage*(AllocationStoragePtr value) => value.value;
+	}
+	
 	public unsafe struct AllocationStorage : IDisposable
 	{
+		public bool IsAlive => label != AllocationStorageLabel.Invalid;
+
+		public int TotalAllocated
+		{
+			get
+			{
+				var allocated = 0;
+				var begin = buckets.Begin;
+				var end = buckets.End;
+				while (begin < end)
+				{
+					allocated += begin->value->TotalAllocated;
+					begin++;
+				}
+				return allocated;
+			}
+		}
+
+		public int TotalFree
+		{
+			get
+			{
+				var free = 0;
+				var begin = buckets.Begin;
+				var end = buckets.End;
+				while (begin < end)
+				{
+					free += begin->value->TotalFree;
+					begin++;
+				}
+				return free;
+			}
+		}
+		
+		public readonly AllocationStorageLabel label;
+		
 		public NativeArray<AllocationBucketPtr> buckets;
 
-		public int smallBucketsCount;
-		public int mediumBucketsCount;
-		public int largeBucketsCount;
-
-		public AllocationStorage(int smallBucketsCount, int mediumBucketsCount, int largeBucketsCount)
+		public AllocationStorage(AllocationStorageLabel label, int smallBucketsCount, int mediumBucketsCount, int largeBucketsCount)
 		{
-			this.smallBucketsCount = smallBucketsCount;
-			this.mediumBucketsCount = mediumBucketsCount;
-			this.largeBucketsCount = largeBucketsCount;
+			this.label = label;
 			
 			buckets = new NativeArray<AllocationBucketPtr>(smallBucketsCount + mediumBucketsCount + largeBucketsCount);
 			for (var i = 0; i < smallBucketsCount; i++)
