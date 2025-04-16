@@ -34,6 +34,7 @@ namespace DamnScriptTests
             for (var i = 0; i < 16; i++)
             {
                 var thread = ScriptEngine.RunThread(scriptDataPtr, "Main");
+                thread.Ptr.RefValue.threadParameters |= ThreadParameters.NoSavePoint;
                 Assert.That((IntPtr)thread.Ptr.RefValue.regionData, Is.EqualTo((IntPtr)scriptDataPtr.value->regions.Begin));
             
                 while (ScriptEngine.ExecuteVirtualMachineNext())
@@ -73,6 +74,7 @@ namespace DamnScriptTests
             for (var i = 0; i < 32; i++)
             {
                 threads[i] = ScriptEngine.RunThread(scriptData, "Main");
+                threads[i].Ptr.RefValue.threadParameters |= ThreadParameters.NoSavePoint;
                 threads[i].Ptr.RefValue.offset = i;
             }
 
@@ -162,6 +164,7 @@ namespace DamnScriptTests
             stream.Dispose();
         
             var thread = ScriptEngine.RunThread(scriptData, "Main");
+            thread.Ptr.RefValue.threadParameters |= ThreadParameters.NoSavePoint;
             while (ScriptEngine.ExecuteVirtualMachineNext())
                 Thread.Sleep(10);
             
@@ -209,7 +212,7 @@ namespace DamnScriptTests
             var scriptData = ScriptEngine.LoadScript(stream, "Main");
             stream.Dispose();
         
-            ScriptEngine.RunThread(scriptData, "Main");
+            ScriptEngine.RunThread(scriptData, "Main").Ptr.RefValue.threadParameters |= ThreadParameters.NoSavePoint;
             var asyncCount = 0;
         
             var exception = Assert.Throws<Exception>(() => 

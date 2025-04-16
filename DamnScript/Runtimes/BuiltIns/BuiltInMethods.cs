@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Debugs;
+using DamnScript.Runtimes.VirtualMachines.Threads;
 using SV = DamnScript.Runtimes.VirtualMachines.ScriptValues.ScriptValue;
 using SVP = DamnScript.Runtimes.VirtualMachines.ScriptValues.ScriptValuePtr;
 using SVT = DamnScript.Runtimes.VirtualMachines.ScriptValues.ScriptValue.ValueType;
@@ -16,6 +17,9 @@ namespace DamnScript.Runtimes.BuiltIns
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)Log);
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)LogWarning);
 			ScriptEngine.RegisterNativeMethod((Action<SVP>)LogError);
+			
+			ScriptEngine.RegisterNativeMethod((Action<SVP>)SetNoSavePointsEnable);
+			ScriptEngine.RegisterNativeMethod((Action<SVP>)SetNoAwaitEnable);
 			
 			ScriptEngine.RegisterNativeMethod((Func<SVP>)GetCurrentThreadHandle);
 			ScriptEngine.RegisterNativeMethod((Func<SVP>)GetCurrentThreadPtr);
@@ -45,6 +49,22 @@ namespace DamnScript.Runtimes.BuiltIns
 		private static void LogWarning(SVP value) => Debugging.LogWarning($"DS: {value.ToString()}");
 		
 		private static void LogError(SVP value) => Debugging.LogError($"DS: {value.ToString()}");
+
+		private static unsafe void SetNoSavePointsEnable(SVP value)
+		{
+			if (value.BoolValue)
+				ScriptEngine.CurrentThreadPtr.value->threadParameters |= ThreadParameters.NoSavePoint;
+			else
+				ScriptEngine.CurrentThreadPtr.value->threadParameters &= ~ThreadParameters.NoSavePoint;
+		}
+
+		private static unsafe void SetNoAwaitEnable(SVP value)
+		{
+			if (value.BoolValue)
+				ScriptEngine.CurrentThreadPtr.value->threadParameters |= ThreadParameters.NoAwait;
+			else
+				ScriptEngine.CurrentThreadPtr.value->threadParameters &= ~ThreadParameters.NoAwait;
+		}
 
 		private static SVP GetCurrentThreadHandle() =>
 			new SV(ScriptEngine.CurrentThreadHandle.threadId).Return();

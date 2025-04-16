@@ -116,17 +116,6 @@ namespace DamnScript.Runtimes.Debugs
                         offset += sizeof(JumpEquals);
                         break;
                     }
-                    case SetThreadParameters.OpCode:
-                    {
-                        var setThreadParameters = *(SetThreadParameters*)byteCode;
-                        sb.Append($"{offset.ToString()}: STP ");
-                        if ((setThreadParameters.parameters & SetThreadParameters.ThreadParameters.NoAwait) != 0)
-                            sb.Append("ASYNC");
-                        else
-                            sb.Append("NOTHING");
-                        offset += sizeof(SetThreadParameters);
-                        break;
-                    }
                     case StoreToRegister.OpCode:
                     {
                         var pushToRegister = *(StoreToRegister*)byteCode;

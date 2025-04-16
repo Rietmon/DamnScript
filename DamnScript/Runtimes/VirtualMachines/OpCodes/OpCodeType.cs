@@ -18,7 +18,6 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 		SetSavePoint,
 		JumpNotEquals,
 		JumpEquals,
-		SetThreadParameters,
 		PushStringToStack,
 		Jump,
 		StoreToRegister,

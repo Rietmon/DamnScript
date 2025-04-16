@@ -37,6 +37,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public readonly ScriptMetadata* metadata;
         
         public PinHandle awaitTaskPin;
+        
+        public ThreadParameters threadParameters;
     
         public int offset;
         public int savePoint;
@@ -56,6 +58,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             this.metadata = metadata;
             
             awaitTaskPin = default;
+            
+            threadParameters = default;
             
             offset = 0;
             savePoint = 0;
@@ -128,12 +132,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 {
                     ExecutePushStringToStack(*(PushStringToStack*)byteCode);
                     offset += PushStringToStack.size;
-                    break;
-                }
-                case SetThreadParameters.OpCode:
-                {
-                    ExecuteSetThreadParameters(*(SetThreadParameters*)byteCode);
-                    offset += SetThreadParameters.size;
                     break;
                 }
                 case StoreToRegister.OpCode:

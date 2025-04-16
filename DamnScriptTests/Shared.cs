@@ -27,6 +27,7 @@ namespace DamnScriptTests
 			var scriptData = ScriptEngine.LoadScript(stream, "Main");
 			stream.Dispose();
 			var thread = ScriptEngine.RunThread(scriptData, "Main");
+			thread.Ptr.RefValue.threadParameters |= ThreadParameters.NoSavePoint;
 			while (ScriptEngine.ExecuteVirtualMachineNext())
 			{
 				Assert.That(thread.Ptr.RefValue.awaitTaskPin.hash, Is.Not.EqualTo(0));

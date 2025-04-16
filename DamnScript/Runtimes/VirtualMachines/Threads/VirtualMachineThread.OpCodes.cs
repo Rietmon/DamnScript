@@ -38,17 +38,26 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 
 			if (task != null)
 			{
+				if ((threadParameters & ThreadParameters.NoAwait) != 0)
+				{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-				Debugging.Log($"Method is async, pin result...");
+					Debugging.Log($"Skipping awaiting async");
 #endif
-				awaitTaskPin = UnsafeUtilities.Pin(task);
+				}
+				else
+				{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+					Debugging.Log($"Method is async, pin result...");
+#endif
+					awaitTaskPin = UnsafeUtilities.Pin(task);
+				}
 			}
 
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 			Debugging.Log($"Free arguments stack...");
 #endif
 
-			if (method.HasReturnValue && !method.IsAsync)
+			if (method is { HasReturnValue: true, IsAsync: false })
 			{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 				Debugging.Log($"Push return value ({returnValue.type}):({returnValue.longValue}) to stack...");
@@ -161,6 +170,14 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ExecuteSetSavePoint()
 		{
+			if ((threadParameters & ThreadParameters.NoSavePoint) != 0)
+			{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+				Debugging.Log($"Skipping save point");
+#endif
+				return;
+			}
+
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 			Debugging.Log($"Set save point...");
 #endif
@@ -226,12 +243,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 				throw new Exception($"String not found by index: {index}");
 
 			StackPush(str);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ExecuteSetThreadParameters(SetThreadParameters setThreadParameters)
-		{
-			throw new NotImplementedException();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

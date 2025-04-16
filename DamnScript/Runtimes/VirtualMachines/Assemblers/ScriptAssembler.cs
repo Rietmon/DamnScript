@@ -52,9 +52,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
         public ScriptAssembler Jump(int jumpOffset) =>
             Add(new Jump(jumpOffset));
     
-        public ScriptAssembler SetThreadParameters(SetThreadParameters.ThreadParameters parameters) =>
-            Add(new SetThreadParameters(parameters));
-    
         public ScriptAssembler PushStringToStack(int index) =>
             Add(new PushStringToStack(index));
         
