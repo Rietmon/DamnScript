@@ -12,8 +12,8 @@ It is designed for writing game behavior logic with deep integration into C# and
 - ⚡ Lightning-fast execution and loading speed
 - 💾 Minimal memory and resource consumption
 - 🛠 JIT and AOT compilation
-- 🧱 No managed allocations (*when using unmanaged types and corresponding API)
-- 🛡 High level of security
+- 🧱 Minimal managed allocations (*when using unmanaged types and corresponding API)
+- 🛡 High level of safety
 - 🔗 Full support for calling C# methods (including async)
 - 🔁 Control structures: `if`, `else`, `for`, `while`
 - ✍️ Working with all C# data types
@@ -156,8 +156,8 @@ public static void TestRun()
 - ✅ Conditions, loops, serialization
 - ✅ Memory checks
 - ✅ Manual saves
-- 🔧 Unit Tests
-- ⏳ Auto-saves
+- ✅ Unit Tests
+- 🔧 Auto-saves
 - ⏳ Unloading inactive metadata
 - ⏳ Migration when bytecode changes
 - ⏳ Hot-reload
