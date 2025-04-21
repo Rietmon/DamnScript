@@ -26,5 +26,10 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         {
             return 0;
         }
+        
+        public string GetAssemblerDebugInfo()
+        {
+            return hash.ToString();
+        }
     }
 }

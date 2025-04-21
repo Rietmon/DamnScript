@@ -25,5 +25,10 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
         {
             return opCode.GetHashCode() + jumpOffset;
         }
+        
+        public string GetAssemblerDebugInfo()
+        {
+            return jumpOffset.ToString();
+        }
     }
 }

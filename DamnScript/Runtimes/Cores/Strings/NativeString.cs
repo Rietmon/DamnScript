@@ -68,6 +68,9 @@ namespace DamnScript.Runtimes.Cores.Strings
     
         public override string ToString()
         {
+            if (length > 1024)
+                throw new ArgumentException("String length must be less than or equal to 1024.");
+            
             fixed (char* ptr = data)
                 return new string(ptr, 0, length);
         }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
@@ -23,10 +24,15 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
             opCode = OpCode;
             methodIndexAndArgumentsCount = (methodIndex & 0xFFFFFF) | ((argumentsCount & 0xFFFFFF) << 24);
         }
-
+        
         public int CalculateHash()
         {
             return opCode.GetHashCode() + methodIndexAndArgumentsCount;
+        }
+        
+        public string GetAssemblerDebugInfo()
+        {
+            return $"{MethodIndex} {ArgumentsCount}";
         }
     }
 }

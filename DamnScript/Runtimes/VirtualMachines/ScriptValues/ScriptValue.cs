@@ -16,7 +16,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
     public unsafe partial struct ScriptValue : IEquatable<ScriptValue>
     {
         public const int TypeSize = UnsafeUtilities.PointerSize;
-        public const int Size = TypeSize + 8;
+        public const int Size = TypeSize + UnsafeUtilities.PointerSize;
         
         public static ScriptValue* ReturnValuePtr { get; set; }
 
@@ -118,6 +118,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
         /// <summary>
         /// Unpin safe pointer if a value type is it.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnpinManagedPointer()
         {
             if (type != ValueType.ReferenceSafePointer)
@@ -131,6 +132,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
         /// <summary>
         /// Free unmanaged pointer if a value type is it.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FreeUnmanagedPointer()
         {
             if (type != ValueType.Pointer)
@@ -141,10 +143,13 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
             type = ValueType.FreedPointer;
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(ScriptValue other) => Equal(this, other);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) => obj is ScriptValue other && Equals(other);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() => HashCode.Combine((int)type, longValue);
     }
 }

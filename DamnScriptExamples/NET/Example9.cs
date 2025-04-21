@@ -1,24 +1,23 @@
 using System.Text;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.VirtualMachines.Scripts;
 using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
-namespace DamnScriptExamples
+namespace DamnScriptExamples.NET
 {
 	public static class Example9
 	{
 		public const string ExampleOrigin = @"
 		region Main {
-			Print(""Hello from origin"");
+			Log(""Hello from origin"");
 			Swap();
-			Print(""Still hello from origin"");
+			Log(""Still hello from origin"");
 		}
 ";
 		public const string ExampleNew = @"
 		region Main {
-			Print(""Hello from new"");
+			Log(""Hello from new"");
 			Swap();
-			Print(GetUnexpectedString());
+			Log(GetUnexpectedString());
 		}
 ";
 

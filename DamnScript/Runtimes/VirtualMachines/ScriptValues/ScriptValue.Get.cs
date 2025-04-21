@@ -8,6 +8,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 {
 	public unsafe partial struct ScriptValue
 	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public T GetReference<T>() where T : class => type switch
 		{
 			ValueType.ReferenceSafePointer => GetReferencePin<T>(),
@@ -82,6 +83,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		/// </summary>
 		/// <returns></returns>
 		/// <exception cref="Exception">Will throw exception if you try to get safe string if ScriptValue is based on primitive or initialized incorrectly</exception>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void* GetReferencePointer() => type switch
 		{
 			ValueType.ReferenceUnsafePointer => pointerValue,
@@ -146,6 +148,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
         /// </summary>
         /// <returns>String value</returns>
         /// <exception cref="Exception">If ScriptValue initialized incorrectly or attempt to convert an anonymous pointer, it will throw an exception</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString()
         {
             switch (type)

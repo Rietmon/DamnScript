@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace DamnScript.Runtimes.Debugs
     {
 	    public static Action<(LogType type, string message)> OnLog { get; set; }
 
+	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	    public static void Log(string message)
 	    {
 #if UNITY_5_3_OR_NEWER
@@ -21,6 +23,7 @@ namespace DamnScript.Runtimes.Debugs
 		    OnLog?.Invoke((LogType.Log, message));
 	    }
 	    
+	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	    public static void LogWarning(string message)
 	    {
 #if UNITY_5_3_OR_NEWER
@@ -32,6 +35,7 @@ namespace DamnScript.Runtimes.Debugs
 		    OnLog?.Invoke((LogType.Warning, message));
 	    }
 	    
+	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	    public static void LogError(string message)
 	    {
 #if UNITY_5_3_OR_NEWER

@@ -26,6 +26,11 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
             return opCode.GetHashCode();
         }
 
+        public string GetAssemblerDebugInfo()
+        {
+            return type.ToString();
+        }
+
         public enum ExpressionCallType
         {
             Invalid,

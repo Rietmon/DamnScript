@@ -6,7 +6,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Scripts
 {
     public unsafe struct ByteCodeData : IDisposable
     {
-        public byte* start;
+        public readonly byte* start;
         public int length;
 
         public ByteCodeData(byte* start, int length)

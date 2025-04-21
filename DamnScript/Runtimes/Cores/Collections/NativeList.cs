@@ -5,17 +5,41 @@ namespace DamnScript.Runtimes.Cores.Collections
 {
     public unsafe struct NativeList<T> where T : unmanaged
     {
-        public bool IsInitialized => Begin != null;
         public int Count { get; private set; }
         public int Capacity { get; private set; }
         public T* Begin { get; private set; }
-    
-        public T* Last => End - 1;
-        public T* End => Begin + Count;
 
-        public ref T this[int index]
+        public T* Last
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)] get => ref Begin[index];
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => End - 1;
+        }
+
+        public T* End
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Begin + Count;
+        }
+        
+        public bool IsValid
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Begin != null;
+        }
+
+        public ref T this[Index index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                var i = index.GetOffset(Count);
+#if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
+                if (i < 0 || i >= Count)
+                    throw new IndexOutOfRangeException();
+#endif
+                
+                return ref Begin[i];
+            }
         }
 
         public NativeList(int capacity)
@@ -24,42 +48,30 @@ namespace DamnScript.Runtimes.Cores.Collections
                 throw new ArgumentOutOfRangeException(nameof(capacity), "Capacity must be greater than 0.");
         
             Begin = (T*)UnsafeUtilities.Alloc(sizeof(T) * capacity);
-            if (Begin == null)
-                throw new OutOfMemoryException("Failed to allocate memory for NativeList.");
             Count = 0;
             Capacity = capacity;
         }
 
         public void Add(T value)
         {
-            if (Begin == null)
-                throw new NullReferenceException("NativeList is not initialized.");
+            AssertIfNotInitialized();
         
             if (Count == Capacity)
             {
                 Capacity *= 2;
-                var newData = (T*)UnsafeUtilities.ReAlloc(Begin, Capacity * sizeof(T));
-                if (newData == null)
-                    throw new OutOfMemoryException("Failed to reallocate memory for NativeList.");
-            
-                Begin = newData;
+                Begin = (T*)UnsafeUtilities.ReAlloc(Begin, Capacity * sizeof(T));
             }
             Begin[Count++] = value;
         }
     
         public void AddRange(T* values, int length)
         {
-            if (Begin == null)
-                throw new NullReferenceException("NativeList is not initialized.");
+            AssertIfNotInitialized();
         
             if (Count + length > Capacity)
             {
                 Capacity = Count + length;
-                var newData = (T*)UnsafeUtilities.ReAlloc(Begin, Capacity * sizeof(T));
-                if (newData == null)
-                    throw new OutOfMemoryException("Failed to reallocate memory for NativeList.");
-            
-                Begin = newData;
+                Begin = (T*)UnsafeUtilities.ReAlloc(Begin, Capacity * sizeof(T));
             }
             UnsafeUtilities.Memcpy(values, Begin + Count, length * sizeof(T));
             Count += length;
@@ -67,8 +79,7 @@ namespace DamnScript.Runtimes.Cores.Collections
     
         public bool Remove(T value)
         {
-            if (Begin == null)
-                throw new NullReferenceException("NativeList is not initialized.");
+            AssertIfNotInitialized();
         
             var begin = Begin;
             var end = End;
@@ -89,8 +100,7 @@ namespace DamnScript.Runtimes.Cores.Collections
     
         public void RemoveAt(int index)
         {
-            if (Begin == null)
-                throw new NullReferenceException("NativeList is not initialized.");
+            AssertIfNotInitialized();
         
             if (index < 0 || index >= Count)
                 throw new IndexOutOfRangeException("Index is out of range.");
@@ -101,8 +111,7 @@ namespace DamnScript.Runtimes.Cores.Collections
         
         public int IndexOf(T value)
         {
-            if (Begin == null)
-                throw new NullReferenceException("NativeList is not initialized.");
+            AssertIfNotInitialized();
         
             var begin = Begin;
             var end = End;
@@ -120,8 +129,7 @@ namespace DamnScript.Runtimes.Cores.Collections
         
         public int IndexOf(Func<T, bool> predicate)
         {
-            if (Begin == null)
-                throw new NullReferenceException("NativeList is not initialized.");
+            AssertIfNotInitialized();
         
             var begin = Begin;
             var end = End;
@@ -139,31 +147,33 @@ namespace DamnScript.Runtimes.Cores.Collections
     
         public void Clear()
         {
-            if (Begin == null)
-                throw new NullReferenceException("NativeList is not initialized.");
+            AssertIfNotInitialized();
         
             Count = 0;
         }
     
         public NativeArray<T> ToArrayAlloc()
         {
-            if (Begin == null)
-                throw new NullReferenceException("NativeList is not initialized.");
+            AssertIfNotInitialized();
         
             var copiedData = (T*)UnsafeUtilities.Alloc(sizeof(T) * Count);
-            if (copiedData == null)
-                throw new OutOfMemoryException("Failed to allocate memory for NativeArray.");
             UnsafeUtilities.Memcpy(Begin, copiedData, Count * sizeof(T));
             return new NativeArray<T>(Count, copiedData);
         }
     
         public void Dispose()
         {
-            if (Begin == null)
-                throw new NullReferenceException("NativeList is not initialized.");
+            AssertIfNotInitialized();
         
             UnsafeUtilities.Free(Begin);
             this = default;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AssertIfNotInitialized()
+        {
+            if (!IsValid)
+                throw new NullReferenceException("NativeArray is not initialized.");
         }
     }
 }

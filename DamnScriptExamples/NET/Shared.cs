@@ -1,7 +1,7 @@
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.VirtualMachines.Scripts;
 
-namespace DamnScriptExamples
+namespace DamnScriptExamples.NET
 {
     public static class Shared
     {
@@ -9,7 +9,7 @@ namespace DamnScriptExamples
         {
             var disassembly = ScriptDisassembler.DisassembleScriptToString(
                 scriptData);
-            Console.WriteLine(disassembly);
+            Debugging.Log(disassembly);
         }
     }
 }

@@ -73,9 +73,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
                 var newByteCode = (byte*)UnsafeUtilities.ReAlloc(byteCode, size);
                 byteCode = newByteCode;
             }
-        
+            
 #if DAMN_SCRIPT_ENABLE_ASSEMBLER_DEBUG
-            Debugging.Log($"Add {typeof(T).Name} at {offset} with value {value} (length: {length})");
+            var info = value.GetAssemblerDebugInfo();
+            var debugInfo = info == null ? "" : $"with info: {info}";
+            Debugging.Log($"Add {typeof(T).Name} at {offset} {debugInfo} (length: {length})");
 #endif
 
             var opcodeHash = value.CalculateHash();

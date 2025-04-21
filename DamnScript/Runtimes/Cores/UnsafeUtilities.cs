@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores.Pins;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
 
 #if UNITY_5_3_OR_NEWER
@@ -36,7 +37,10 @@ namespace DamnScript.Runtimes.Cores
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
 		    AllocInfos.Add(new AllocInfo
 		    {
-			    address = ptr,
+			    debugValue =
+			    {
+				    address = ptr
+			    },
 			    size = size,
 			    stack = Environment.StackTrace
 		    });
@@ -64,12 +68,12 @@ namespace DamnScript.Runtimes.Cores
 	        var newPtr = Marshal.ReAllocHGlobal(new IntPtr(ptr), new IntPtr(size)).ToPointer();
 	        
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
-	        var info = AllocInfos.Find((x) => x.address == ptr);
-	        if (info.address == null)
+	        var info = AllocInfos.Find((x) => x.debugValue.address == ptr);
+	        if (info.debugValue.address == null)
 		        throw new Exception("Failed to find the address while realloc in AllocInfos!");
 	        
 	        AllocInfos.Remove(info);
-	        info.address = newPtr;
+	        info.debugValue.address = newPtr;
 	        info.size = size;
 	        AllocInfos.Add(info);
 #endif
@@ -93,7 +97,7 @@ namespace DamnScript.Runtimes.Cores
 	        Marshal.FreeHGlobal(new IntPtr(ptr));
 	        
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
-	        AllocInfos.RemoveAll((x) => x.address == ptr);
+	        AllocInfos.RemoveAll((x) => x.debugValue.address == ptr);
 #endif
 	        
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
@@ -265,20 +269,27 @@ namespace DamnScript.Runtimes.Cores
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
         public struct AllocInfo : IEquatable<AllocInfo>
         {
-	        public void* address;
+	        public PotentialDebugValue debugValue;
 	        public int size;
 	        public string stack;
 
 	        public bool Equals(AllocInfo other) => this == other;
 	        public override bool Equals(object obj) => obj is AllocInfo other && Equals(other);
 
-	        public override int GetHashCode() => HashCode.Combine(unchecked((int)(long)address), size, stack);
+	        public override int GetHashCode() => HashCode.Combine(unchecked((int)(long)debugValue.address), size, stack);
 
 	        public static bool operator ==(AllocInfo left, AllocInfo right) =>
-		        left.address == right.address && left.size == right.size && left.stack == right.stack;
+		        left.debugValue.address == right.debugValue.address && left.size == right.size && left.stack == right.stack;
 
             public static bool operator !=(AllocInfo left, AllocInfo right) => 
 	            !(left == right);
+        }
+
+        public struct PotentialDebugValue
+        {
+	        public void* address;
+	        public NativeString* NativeString => (NativeString*)address;
+	        public String32* String32 => (String32*)address;
         }
 #endif
     }

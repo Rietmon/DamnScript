@@ -26,8 +26,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Scripts
 
         public ByteCodeData byteCode;
         
-#if DAMN_SCRIPT_REGION_DEBUG
-        public string Dissasemble => ScriptDisassembler.DisassembleRegionToString(new RegionDataPtr(ref this));
+#if DEBUG
+        public string DebugOnlyDisassemble => ScriptDisassembler.DisassembleRegionToString(new RegionDataPtr(ref this));
 #endif
 
         public RegionData(String32 name, ByteCodeData byteCode)

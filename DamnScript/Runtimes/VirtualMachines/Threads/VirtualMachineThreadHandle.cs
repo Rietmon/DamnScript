@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
@@ -12,14 +13,18 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		/// <summary>
 		/// Pointer to the thread.
 		/// </summary>
-		public VirtualMachineThreadPtr Ptr => 
+		public VirtualMachineThreadPtr Ptr
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => 
 #if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
-			virtualMachinePtr.value->IsAlive 
-				? new VirtualMachineThreadPtr(virtualMachinePtr.value->threads.Begin + threadId) 
-				: throw new InvalidOperationException("Virtual machine is not alive!");
+				virtualMachinePtr.value->IsAlive 
+					? new VirtualMachineThreadPtr(virtualMachinePtr.value->threads.Begin + threadId) 
+					: throw new InvalidOperationException("Virtual machine is not alive!");
 #else
-			new(virtualMachinePtr.value->threads.Begin + threadId);
+				new(virtualMachinePtr.value->threads.Begin + threadId);
 #endif
+		}
 		
 		public readonly long threadId;
 		public readonly VirtualMachinePtr virtualMachinePtr;

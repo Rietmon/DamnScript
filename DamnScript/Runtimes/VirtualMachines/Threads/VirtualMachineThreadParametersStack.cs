@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.VirtualMachines.ScriptValues;
@@ -19,7 +20,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		public ScriptValue p8;
 		public ScriptValue p9;
 		public ScriptValue p10;
-		
-		public ScriptValue* BeginPtr => UnsafeUtilities.AsPointer(ref p1);
+
+		public ScriptValue* BeginPtr
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => UnsafeUtilities.AsPointer(ref p1);
+		}
 	}
 }

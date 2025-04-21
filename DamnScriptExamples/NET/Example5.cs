@@ -1,23 +1,17 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.Debugs;
 
-namespace DamnScriptExamples
+namespace DamnScriptExamples.NET
 {
-    public static class Example7
+    public static class Example5
     {
         private const string Code = @"
         region Main
         {
-            if (0) {
-                Print(""IF"");
-            }
-            elseif (0) {
-                Print(""ELSEIF"");
-            }
-            else {
-                Print(""ELSE"");
+            for (i in 5) {
+                for (j in 5) {
+                    Log((i + 1) * (j + 1));
+                }
             }
         }
 ";
@@ -25,7 +19,7 @@ namespace DamnScriptExamples
         public static void Run()
         {
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Code));
-            var scriptData = ScriptEngine.LoadScript(memoryStream, "Example7");
+            var scriptData = ScriptEngine.LoadScript(memoryStream, "Example5");
             Shared.PrintDisassembly(scriptData);
             var thread = ScriptEngine.RunThread(scriptData, "Main");
         

@@ -2,20 +2,19 @@ using System.Text;
 using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes;
 using DamnScript.Runtimes.VirtualMachines.ScriptValues;
-using DamnScript.Runtimes.VirtualMachines.Threads;
 
-namespace DamnScriptExamples
+namespace DamnScriptExamples.NET
 {
 	public static class Example8
 	{
 		private const string Code = @"
 		region Main 
 		{
-			Print(1);
-			Print(""Not shutdown the application"");
+			Log(1);
+			Log(""Not shutdown the application"");
 			MakeSavePoint();
 			Await(5000);
-			Print(2);
+			Log(2);
 		}
 ";
 

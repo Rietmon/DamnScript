@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
@@ -6,6 +7,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
     {
         public long this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => index switch
             {
                 0 => registers[0],
@@ -14,6 +16,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 3 => registers[3],
                 _ => throw new IndexOutOfRangeException()
             };
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 switch (index)

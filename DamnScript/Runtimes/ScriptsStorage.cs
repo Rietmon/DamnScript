@@ -14,18 +14,18 @@ namespace DamnScript.Runtimes
     {
         private const int MaxStackBufferSize = 1024 * 16;
     
-        private static NativeList<ScriptDataPtr> _scripts = new(16);
+        private static NativeList<ScriptDataPtr> _scriptsStorage = new(16);
 
         private static byte* _buffer;
         private static int _bufferSize;
     
         public static ScriptDataPtr GetScriptData(String32 name)
         {
-            if (_scripts.Count == 0)
+            if (_scriptsStorage.Count == 0)
                 return default;
         
-            var begin = _scripts.Begin;
-            var end = _scripts.End;
+            var begin = _scriptsStorage.Begin;
+            var end = _scriptsStorage.End;
         
             while (begin < end)
             {
@@ -46,7 +46,7 @@ namespace DamnScript.Runtimes
             var scriptData = ScriptData.Alloc();
             ScriptParser.ParseScript(input, name, scriptData);
             var scriptDataPtr = new ScriptDataPtr(scriptData);
-            _scripts.Add(scriptDataPtr);
+            _scriptsStorage.Add(scriptDataPtr);
         
             return scriptDataPtr;
         }
@@ -66,6 +66,9 @@ namespace DamnScript.Runtimes
             var loadedConsts = loadedScriptData->metadata.constants;
             var newConsts = newScriptData.metadata.constants;
             
+            loadedConsts.strings.FreePointersInside();
+            loadedConsts.methods.FreePointersInside();
+            
             if (loadedConsts.strings.Length < newConsts.strings.Length)
                 NativeArray<NativeStringPtr>.ReAlloc(&loadedConsts.strings, newConsts.strings.Length);
             if (loadedConsts.methods.Length < newConsts.methods.Length)
@@ -73,10 +76,10 @@ namespace DamnScript.Runtimes
 
             loadedScriptData->metadata.constants = new ConstantsData(loadedConsts.strings, loadedConsts.methods);
             
-            for (var i = 0; i < newConsts.strings.Length; i++)
-                *(loadedConsts.strings.Begin + i) = *(newConsts.strings.Begin + i);
-            for (var i = 0; i < newConsts.methods.Length; i++)
-                *(loadedConsts.methods.Begin + i) = *(newConsts.methods.Begin + i);
+            UnsafeUtilities.Memcpy(newConsts.strings.Begin, loadedConsts.strings.Begin, 
+                UnsafeUtilities.PointerSize * loadedConsts.strings.Length);
+            UnsafeUtilities.Memcpy(newConsts.methods.Begin, loadedConsts.methods.Begin, 
+                UnsafeUtilities.PointerSize * loadedConsts.methods.Length);
             
             newConsts.strings.Dispose();
             newConsts.methods.Dispose();
@@ -92,7 +95,10 @@ namespace DamnScript.Runtimes
                 }
                 
                 UnsafeUtilities.Memcpy(newRegion->byteCode.start, loadedRegion->byteCode.start, newRegion->byteCode.length);
+                newRegion->byteCode.Dispose();
             }
+            
+            newScriptData.regions.Dispose();
             
             return loadedScriptData;
         }
@@ -128,7 +134,7 @@ namespace DamnScript.Runtimes
             var scriptData = ScriptData.Alloc();
             CompiledScriptParser.ParseCompiledScript(_buffer, _bufferSize, name, scriptData);
             var scriptDataPtr = new ScriptDataPtr(scriptData);
-            _scripts.Add(scriptDataPtr);
+            _scriptsStorage.Add(scriptDataPtr);
         
             return scriptDataPtr;
         }
@@ -147,14 +153,14 @@ namespace DamnScript.Runtimes
             input.Dispose();
             CompiledScriptParser.ParseCompiledScript(buffer, length, name, scriptData);
             var scriptDataPtr = new ScriptDataPtr(scriptData);
-            _scripts.Add(scriptDataPtr);
+            _scriptsStorage.Add(scriptDataPtr);
         
             return scriptDataPtr;
         }
     
         public static void UnloadScript(ScriptDataPtr scriptDataPtr)
         {
-            if (!_scripts.Remove(scriptDataPtr))
+            if (!_scriptsStorage.Remove(scriptDataPtr))
             {
                 Debugging.LogError($"[{nameof(ScriptsStorage)}] ({nameof(UnloadScript)}) " +
                                    $"Attempt to unload script which is not present in cache! Name: {scriptDataPtr.value->name.ToString()}");

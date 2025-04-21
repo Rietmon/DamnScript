@@ -1,26 +1,15 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Reflection;
+using System.Reflection.Emit;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.Cores;
-using DamnScript.Runtimes.Cores.Allocators;
-using DamnScript.Runtimes.Debugs;
+using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.VirtualMachines.ScriptValues;
-using DamnScript.Runtimes.VirtualMachines.Threads;
 
-namespace DamnScriptExamples
+namespace DamnScriptExamples.NET
 {
     public static class Program
     {
-        public static void Print(ScriptValuePtr value)
-        {
-            Console.WriteLine($"DAMN SCRIPT: {value.RefValue.ToString()}");
-        }
-        
         public static void Main()
         {
-            ScriptEngine.RegisterNativeMethod(Print);
-            
             Begin();
         }
 

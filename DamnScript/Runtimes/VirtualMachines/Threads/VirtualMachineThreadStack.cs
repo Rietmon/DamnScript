@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
     public unsafe struct VirtualMachineThreadStack
     {
-        private static readonly int sizeOfScriptValue = sizeof(ScriptValue);
-    
 #if DAMN_SCRIPT_STACK_SIZE_16
         private const int StackSize = 16 * ScriptValue.Size;
 #elif DAMN_SCRIPT_STACK_SIZE_64
@@ -18,38 +17,41 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public fixed byte stack[StackSize];
         public int stackOffset;
     
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Push(ScriptValue value)
         {
-            if (stackOffset + sizeOfScriptValue > StackSize)
+            if (stackOffset + ScriptValue.Size > StackSize)
                 throw new InvalidOperationException("VirtualMachineThreadStack overflow!");
 
             fixed (byte* pStack = stack)
             {
                 *(ScriptValue*)(pStack + stackOffset) = value;
-                stackOffset += sizeOfScriptValue;
+                stackOffset += ScriptValue.Size;
             }
         }
     
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue Pop()
         {
-            if (stackOffset - sizeOfScriptValue < 0)
+            if (stackOffset - ScriptValue.Size < 0)
                 throw new InvalidOperationException("VirtualMachineThreadStack underflow!");
         
             fixed (byte* pStack = stack)
             {
-                stackOffset -= sizeOfScriptValue;
+                stackOffset -= ScriptValue.Size;
                 return *(ScriptValue*)(pStack + stackOffset);
             }
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue Peek()
         {
-            if (stackOffset - sizeOfScriptValue < 0)
+            if (stackOffset - ScriptValue.Size < 0)
                 throw new InvalidOperationException("VirtualMachineThreadStack underflow!");
         
             fixed (byte* pStack = stack)
             {
-                return *(ScriptValue*)(pStack + stackOffset - sizeOfScriptValue);
+                return *(ScriptValue*)(pStack + stackOffset - ScriptValue.Size);
             }
         }
     }

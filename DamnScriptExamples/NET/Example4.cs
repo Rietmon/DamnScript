@@ -1,18 +1,16 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 using DamnScript.Runtimes;
-using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.VirtualMachines.ScriptValues;
 
-namespace DamnScriptExamples
+namespace DamnScriptExamples.NET
 {
     public static class Example4
     {
         private const string Code = @"
         region Main
         {
-            TestManagedPrint(GetObject(0));
-            TestManagedPrint(GetObject(1));
+            TestManagedLog(GetObject(0));
+            TestManagedLog(GetObject(1));
         }
 ";
 
@@ -22,7 +20,7 @@ namespace DamnScriptExamples
             public int age = 20;
             public TestOop parent;
         
-            public void TestManagedPrint()
+            public void TestManagedLog()
             {
                 Console.WriteLine($"Hello! I'm {name}, {age} y.o.");
                 if (parent != null)
@@ -47,7 +45,7 @@ namespace DamnScriptExamples
             // Registering as present in the example below will allow us to invoke method for different objects.
             // If we pass as a delegate from an exact object, it will be allocated one more special method.
             // For this method, you don't need to pass an object pointer, it did C# for you.
-            ScriptEngine.RegisterNativeMethod(typeof(TestOop).GetMethod(nameof(TestOop.TestManagedPrint)));
+            ScriptEngine.RegisterNativeMethod(typeof(TestOop).GetMethod(nameof(TestOop.TestManagedLog)));
 
             objects[0] = new TestOop
             {

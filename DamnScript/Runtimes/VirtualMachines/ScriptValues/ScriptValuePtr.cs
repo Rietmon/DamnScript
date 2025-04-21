@@ -186,56 +186,82 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 #if !DAMN_SCRIPT_DISABLE_RETURN_EXTENSIONS
 	public static class ScriptValuePtrExtensions
 	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this bool value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this byte value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this sbyte value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this short value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this ushort value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this int value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this uint value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this long value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this ulong value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this float value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this double value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this char value) => new ScriptValue(value).Return();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr Return(this PinHandle value) => new ScriptValue(value).Return();
-
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this bool value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this byte value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this sbyte value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this short value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this ushort value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this int value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this uint value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this long value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this ulong value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this float value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this double value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this char value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ScriptValuePtr ReturnAsync(this PinHandle value, VirtualMachineThreadHandle handle) =>
 			new ScriptValue(value).ReturnAsync(handle);
 	}
