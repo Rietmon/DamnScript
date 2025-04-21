@@ -32,7 +32,7 @@ namespace DamnScript.Runtimes
                 throw new Exception("Dynamic or builder methods are not supported for native method registration. Please use Delegate instead!");
 #endif
             
-            var parameters = MethodInfoResolver.GetParameters(method);
+            var parameters = MethodInfoUtilities.GetParameters(method);
             var argumentsCount = parameters!.Length;
             foreach (var parameter in parameters)
             {
@@ -49,8 +49,8 @@ namespace DamnScript.Runtimes
                 throw new Exception("Invalid return type for native method. " +
                                     "Only void, ScriptValuePtr, Task and Task<ScriptValuePtr> are supported.");
             }
-            
-            var methodPointer = method.MethodHandle.GetFunctionPointer().ToPointer();
+
+            var methodPointer = MethodInfoUtilities.GetFunctionPointer(method);
             var isAsync = method.GetCustomAttribute(asyncStateMachineAttributeType) != null;
             var isStatic = method.IsStatic;
             if (!isStatic)

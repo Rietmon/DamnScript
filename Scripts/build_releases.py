@@ -73,7 +73,7 @@ def create_zip_package(source_dir, files_to_include, output_filename):
                             file_path = os.path.join(root, file)
                             arcname = os.path.relpath(file_path, source_dir)
                             if arcname.startswith("obj/"):
-                                arcname = os.path.join("Antrls", os.path.basename(file_path))
+                                arcname = os.path.join("Antlrs", os.path.basename(file_path))
                             print(f"Adding {arcname} to zip")
                             zipf.write(file_path, arcname)
                 else:
@@ -85,7 +85,7 @@ def create_zip_package(source_dir, files_to_include, output_filename):
                         if os.path.isfile(match) and os.path.basename(match) not in ignore_files:
                             arcname = os.path.basename(match)
                             if "Antlr4.Runtime.dll" in match or "obj/" in match:
-                                arcname = os.path.join("Antrls", os.path.basename(match))
+                                arcname = os.path.join("Antlrs", os.path.basename(match))
                             print(f"Adding {arcname} to zip")
                             zipf.write(match, arcname)
                 else:
