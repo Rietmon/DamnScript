@@ -1,6 +1,6 @@
 namespace DamnScriptTests
 {
-	public class SimpleMathTests
+	public class MathTests
 	{
 		[Test]
 		public void AddTest()

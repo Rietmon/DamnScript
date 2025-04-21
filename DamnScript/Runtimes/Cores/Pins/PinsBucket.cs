@@ -15,7 +15,7 @@ namespace DamnScript.Runtimes.Cores.Pins
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public short FastFind()
+		public short FastFindFreeSlot()
 		{
 			const int hashStride = ObjectPin.HashOffsetAsIntPtr + 1;
 

@@ -28,8 +28,8 @@ namespace DamnScript.Runtimes
         public static void RegisterNativeMethod(MethodInfo method, String32 name)
         {
 #if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
-            if (method is DynamicMethod)
-                throw new Exception("Dynamic methods are not supported for native method registration. Please use Delegate instead!");
+            if (method is DynamicMethod or MethodBuilder)
+                throw new Exception("Dynamic or builder methods are not supported for native method registration. Please use Delegate instead!");
 #endif
             
             var parameters = MethodInfoResolver.GetParameters(method);

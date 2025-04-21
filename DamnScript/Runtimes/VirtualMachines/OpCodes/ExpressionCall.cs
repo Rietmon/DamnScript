@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 {
@@ -23,7 +24,7 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 
         public int CalculateHash()
         {
-            return opCode.GetHashCode();
+            return HashCode.Combine(opCode);
         }
 
         public string GetAssemblerDebugInfo()

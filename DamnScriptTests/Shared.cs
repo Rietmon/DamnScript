@@ -14,7 +14,7 @@ namespace DamnScriptTests
 {
 	public static class Shared
 	{
-		public static ScriptValue Run(string method)
+		public static ScriptValue Run(string method, bool noCheckStack = false)
 		{
 			var code = $@"
 				region Main
@@ -36,7 +36,8 @@ namespace DamnScriptTests
 			Assert.That(thread.Ptr.RefValue.isAlive, Is.False);
 			ScriptEngine.UnloadScript(scriptData);
 			var value = thread.Ptr.RefValue.StackPop();
-			Assert.That(thread.Ptr.RefValue.stack.stackOffset, Is.EqualTo(0));
+			if (!noCheckStack)
+				Assert.That(thread.Ptr.RefValue.stack.stackOffset, Is.EqualTo(0));
 			return value;
 		}
 	}

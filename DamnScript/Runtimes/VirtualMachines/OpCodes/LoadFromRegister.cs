@@ -24,7 +24,7 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 
         public int CalculateHash()
         {
-            return opCode.GetHashCode() + register;
+            return HashCode.Combine(opCode, register);
         }
         
         public string GetAssemblerDebugInfo()

@@ -23,6 +23,12 @@ namespace DamnScript.Runtimes.Cores.Pins
 				return count;
 			}
 		}
+		
+		public static PinsBucket[] Buckets
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => _buckets;
+		}
 
 		private static PinsBucket[] _buckets =
 		{
@@ -90,7 +96,7 @@ namespace DamnScript.Runtimes.Cores.Pins
 				ref var bucket = ref _buckets[i];
 				if (bucket.freeSlots > 0)
 				{
-					var index = bucket.FastFind();
+					var index = bucket.FastFindFreeSlot();
 					if (index == -1)
 						throw new Exception($"Failed to find empty slot in bucket {i}! Mismatched free slots count!");
 					
