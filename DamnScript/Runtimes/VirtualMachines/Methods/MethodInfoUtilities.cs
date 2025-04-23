@@ -41,13 +41,14 @@ namespace DamnScript.Runtimes.VirtualMachines.Methods
 			method.GetParameters();
 #endif
 
+#if DAMN_SCRIPT_ENABLE_IL2CPP
 		[StructLayout(LayoutKind.Sequential)]
 		private struct UnmanagedMonoMethodInfo
 		{
-			public void* vmt;
-			public void* lockObject;
+			public UnsafeUtilities.UnmanagedClassHeader header;
 			public void* methodPointer;
 		}
+#endif
 
 		public static void* GetFunctionPointer(MethodInfo method)
 		{

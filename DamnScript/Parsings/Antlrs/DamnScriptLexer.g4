@@ -1,7 +1,7 @@
 ﻿lexer grammar DamnScriptLexer;
 
 REGION : 'region';
-KEYWORD: '%' NAME '%';
+ROUTINE : 'routine';
 
 NUMBER  : [0-9]+;
 STRING  : '"' .*? '"';

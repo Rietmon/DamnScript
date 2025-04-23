@@ -2,9 +2,11 @@
 
 options { tokenVocab=DamnScriptLexer; }
 
-program: region+;
+program: region+ (routine*?);
 
 region: REGION name block;
+
+routine: ROUTINE name (LEFT_PAREN (var (COMMA var)*)* RIGHT_PAREN) block;
 
 block: LEFT_BRACKET statement* RIGHT_BRACKET;
 

@@ -170,5 +170,17 @@ namespace DamnScript.Runtimes
             scriptDataPtr.value->Dispose();
             UnsafeUtilities.Free(scriptDataPtr.value);
         }
+
+        public static void UnloadAllUnusedScripts()
+        {
+            var begin = _scriptsStorage.Begin;
+            var end = _scriptsStorage.End;
+            while (begin < end)
+            {
+                if (begin->value->referencesCount == 0)
+                    UnloadScript(begin->value);
+                begin++;
+            }
+        }
     }
 }

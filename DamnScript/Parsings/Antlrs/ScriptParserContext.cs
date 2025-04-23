@@ -1,85 +1,78 @@
-﻿using DamnScript.Runtimes.Cores;
+﻿using System;
+using System.Runtime.InteropServices;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Collections;
 using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.VirtualMachines.Assemblers;
 
 namespace DamnScript.Parsings.Antlrs
 {
-    public unsafe struct ScriptParserContext
-    {
-        public String32 name;
-        
-        public NativeList<NativeStringPtr>* strings;
-        public NativeList<NativeStringPtr>* methods;
-        public ScriptAssembler* assembler;
+	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct ScriptParserContext
+	{
+		public const int RegistersCount = 4;
 
-        public String32 loopRegisterIdentifier0;
-        public String32 loopRegisterIdentifier1;
-        public String32 loopRegisterIdentifier2;
-        public String32 loopRegisterIdentifier3;
+		public String32* RegistersPtr
+		{
+			get
+			{
+				fixed (String32* ptr = &registerId0)
+					return ptr;
+			}
+		}
 
-        public bool isError;
-        
-        public int ReserveIdentifier(String32 identifier)
-        {
-            if (loopRegisterIdentifier0 == default)
-            {
-                loopRegisterIdentifier0 = identifier;
-                return 0;
-            }
+		public String32 name;
 
-            if (loopRegisterIdentifier1 == default)
-            {
-                loopRegisterIdentifier1 = identifier;
-                return 1;
-            }
+		public NativeList<NativeStringPtr>* strings;
+		public NativeList<NativeStringPtr>* methods;
+		public ScriptAssembler* assembler;
 
-            if (loopRegisterIdentifier2 == default)
-            {
-                loopRegisterIdentifier2 = identifier;
-                return 2;
-            }
+		public String32 registerId0;
+		public String32 registerId1;
+		public String32 registerId2;
+		public String32 registerId3;
 
-            if (loopRegisterIdentifier3 == default)
-            {
-                loopRegisterIdentifier3 = identifier;
-                return 3;
-            }
+		public bool isError;
 
-            return -1;
-        }
-        
-        public int GetRegisterIndex(String32 identifier)
-        {
-            if (loopRegisterIdentifier0 == identifier)
-                return 0;
-            if (loopRegisterIdentifier1 == identifier)
-                return 1;
-            if (loopRegisterIdentifier2 == identifier)
-                return 2;
-            if (loopRegisterIdentifier3 == identifier)
-                return 3;
+		public int ReserveIdentifier(String32 identifier)
+		{
+			var begin = RegistersPtr;
+			var end = begin + RegistersCount;
+			while (begin < end)
+			{
+				if (*begin == default)
+				{
+					*begin = identifier;
+					return (int)(begin - RegistersPtr);
+				}
 
-            return -1;
-        }
-        
-        public void FreeRegister(int index)
-        {
-            switch (index)
-            {
-                case 0:
-                    loopRegisterIdentifier0 = default;
-                    break;
-                case 1:
-                    loopRegisterIdentifier1 = default;
-                    break;
-                case 2:
-                    loopRegisterIdentifier2 = default;
-                    break;
-                case 3:
-                    loopRegisterIdentifier3 = default;
-                    break;
-            }
-        }
-    }
+				begin++;
+			}
+
+			throw new Exception("Out of 4 registers");
+		}
+
+		public int GetRegisterIndex(String32 identifier)
+		{
+			var begin = RegistersPtr;
+			var end = begin + RegistersCount;
+			while (begin < end)
+			{
+				if (*begin == identifier)
+					return (int)(begin - RegistersPtr);
+				begin++;
+			}
+
+			throw new Exception($"Not found register with identifier {identifier.ToString()}");
+		}
+
+		public void FreeRegister(int index)
+		{
+			if (index is < 0 or >= RegistersCount)
+				throw new IndexOutOfRangeException();
+
+			fixed (String32* ptr = &registerId0)
+				*(ptr + index) = default;
+		}
+	}
 }

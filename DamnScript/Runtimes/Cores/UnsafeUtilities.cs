@@ -265,6 +265,15 @@ namespace DamnScript.Runtimes.Cores
             }
             return hash;
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ClassHeader
+        {
+	        public void* methodVTable;
+#if DAMN_SCRIPT_ENBALE_MONO || UNITY_5_3_OR_NEWER
+            public void* syncRoot;
+#endif	
+        }
         
 #if DAMN_SCRIPT_ENABLE_MEMORY_DEBUG
         public struct AllocInfo : IEquatable<AllocInfo>

@@ -54,9 +54,9 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
         public ScriptValue(PinHandle value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(NativeString* value) : this()
+        public ScriptValue(NativeString* ptrValue) : this()
         {
-            nativeStringValue = value;
+            nativeStringPtrValue = ptrValue;
             type = ValueType.NativeStringPointer;
         }
 

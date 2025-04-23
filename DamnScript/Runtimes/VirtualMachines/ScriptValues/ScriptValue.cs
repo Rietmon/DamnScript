@@ -74,7 +74,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
         [FieldOffset(TypeSize)] public char charValue;
         [FieldOffset(TypeSize)] public void* pointerValue;
         [FieldOffset(TypeSize)] public PinHandle safeValue;
-        [FieldOffset(TypeSize)] public NativeString* nativeStringValue;
+        [FieldOffset(TypeSize)] public NativeStringPtr nativeStringPtrValue;
 
         /// <summary>
         /// Convert value to an internal constant pointer and use it as a return value.
@@ -107,12 +107,9 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
                 throw new Exception("Please cache your VM thread handle on method start!");
 #endif
 
-            var cached = ReturnValuePtr;
-            ReturnValuePtr = &handle.Ptr.value->returnValue;
-            *ReturnValuePtr = this;
-            var value = new ScriptValuePtr(ReturnValuePtr);
-            ReturnValuePtr = cached;
-            return value;
+            var toReturn = &handle.Ptr.value->returnValue;
+            *toReturn = this;
+            return new ScriptValuePtr(toReturn);
         }
         
         /// <summary>
@@ -133,7 +130,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
         /// Free unmanaged pointer if a value type is it.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void FreeUnmanagedPointer()
+        public void FreePointer()
         {
             if (type != ValueType.Pointer)
                 throw new NotSupportedException("For FreeUnmanagedPointer use only " +

@@ -57,20 +57,17 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 			var value = UnsafeUtilities.PointerToReference<T>(pointerValue);
 			return value;
 		}
-#endif
-    
 		
-#if DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
 		/// <summary>
 		/// Get struct value from the pointer and can free it.
 		/// </summary>
 		/// <typeparam name="T">Type of the struct</typeparam>
 		/// <returns>Struct from the pointer</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public T GetStruct<T>() where T : unmanaged
+		public T GetStructAlloc<T>() where T : unmanaged
 		{
 			if (type != ValueType.Pointer)
-				throw new NotSupportedException("For GetStruct use only " +
+				throw new NotSupportedException("For GetStructAlloc use only " +
 				                                $"{nameof(ValueType.Pointer)}!");
             
 			var value = *(T*)pointerValue;

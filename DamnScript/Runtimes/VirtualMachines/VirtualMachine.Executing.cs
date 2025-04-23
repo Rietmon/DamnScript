@@ -12,20 +12,20 @@ namespace DamnScript.Runtimes.VirtualMachines
 		{
 			ExecuteThreads();
 
-			HasThreads = false;
+			var hasThreads = false;
 			var begin = threads.Begin;
 			var end = threads.End;
 			while (begin < end)
 			{
 				if (begin->isAlive)
 				{
-					HasThreads = true;
+					hasThreads = true;
 					break;
 				}
 
 				begin++;
 			}
-			return HasThreads;
+			return hasThreads;
 		}
     
 		private void ExecuteThreads()

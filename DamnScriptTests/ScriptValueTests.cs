@@ -473,7 +473,7 @@ namespace DamnScriptTests
 
 			Assert.That(value.type, Is.EqualTo(SV.ValueType.Pointer));
 
-			var retrievedStruct = value.GetStruct<TestStruct>();
+			var retrievedStruct = value.GetStructAlloc<TestStruct>();
 			Assert.That(retrievedStruct.x, Is.EqualTo(10));
 			Assert.That(retrievedStruct.y, Is.EqualTo(20));
 		}
@@ -778,13 +778,13 @@ namespace DamnScriptTests
 			var testStruct = new TestStruct { x = 15, y = 25 };
 			var value = SV.FromStructAlloc(testStruct);
 
-			var retrievedStruct1 = value.GetStruct<TestStruct>();
+			var retrievedStruct1 = value.GetStructAlloc<TestStruct>();
 			Assert.That(retrievedStruct1.x, Is.EqualTo(15));
 
-			var retrievedStruct2 = value.GetStruct<TestStruct>();
+			var retrievedStruct2 = value.GetStructAlloc<TestStruct>();
 			Assert.That(retrievedStruct2.y, Is.EqualTo(25));
 		
-			value.FreeUnmanagedPointer();
+			value.FreePointer();
 		}
 
 		[Test]
@@ -824,7 +824,7 @@ namespace DamnScriptTests
 			};
 
 			var value = SV.FromStructAlloc(outer);
-			var retrieved = value.GetStruct<OuterStruct>();
+			var retrieved = value.GetStructAlloc<OuterStruct>();
 
 			Assert.That(retrieved.inner.x, Is.EqualTo(10));
 			Assert.That(retrieved.inner.y, Is.EqualTo(20));
@@ -996,7 +996,7 @@ namespace DamnScriptTests
 
 			var value = SV.FromStructAlloc(nested);
 
-			var retrieved = value.GetStruct<OuterStruct>();
+			var retrieved = value.GetStructAlloc<OuterStruct>();
 			Assert.That(retrieved.value, Is.EqualTo(30));
 			Assert.That(retrieved.inner.x, Is.EqualTo(10));
 			Assert.That(retrieved.inner.y, Is.EqualTo(20));

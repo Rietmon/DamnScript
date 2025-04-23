@@ -27,20 +27,16 @@ namespace DamnScript.Runtimes.VirtualMachines
     public unsafe partial struct VirtualMachine : IDisposable
     {
         public const int Version = 1;
-        public bool HasThreads { get; private set; }
+        public bool IsAlive => threads.Begin != null;
 
         public NativeArray<VirtualMachineThread> threads;
 
         public VirtualMachineThread* currentThread;
 
-        public bool IsAlive { get; private set; }
-
         public VirtualMachine(int capacity)
         {
-            HasThreads = false;
             threads = new NativeArray<VirtualMachineThread>(capacity, true);
             currentThread = null;
-            IsAlive = true;
         }
         
         public VirtualMachineThreadHandle RunThread(ScriptDataPtr scriptData, String32 regionName)
@@ -52,7 +48,6 @@ namespace DamnScript.Runtimes.VirtualMachines
             var thread = new VirtualMachineThread(scriptData.value, regionData, &scriptData.value->metadata);
             var slot = GetEmptySlotOrReAlloc();
             threads[slot] = thread;
-            HasThreads = true;
             return new VirtualMachineThreadHandle(slot, new VirtualMachinePtr(ref this));
         }
         
@@ -72,7 +67,6 @@ namespace DamnScript.Runtimes.VirtualMachines
             };
             var slot = GetEmptySlotOrReAlloc();
             threads[slot] = thread;
-            HasThreads = true;
             return new VirtualMachineThreadHandle(slot, new VirtualMachinePtr(ref this));
         }
 
@@ -118,17 +112,14 @@ namespace DamnScript.Runtimes.VirtualMachines
         /// </summary>
         public void Dispose()
         {
-            if (HasThreads)
+            var begin = threads.Begin;
+            var end = threads.End;
+            while (begin < end)
             {
-                var begin = threads.Begin;
-                var end = threads.End;
-                while (begin < end)
-                {
-                    if (begin->isAlive)
-                        begin->Dispose();
+                if (begin->isAlive)
+                    begin->Dispose();
 
-                    begin++;
-                }
+                begin++;
             }
 
             threads.Dispose();

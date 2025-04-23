@@ -146,10 +146,10 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 
 #if DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
 		/// <summary>
-		/// <inheritdoc cref="ScriptValue.GetStruct{T}"/>
+		/// <inheritdoc cref="ScriptValue.GetStructAlloc{T}"/>
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public T GetStruct<T>() where T : unmanaged => value->GetStruct<T>();
+		public T GetStruct<T>() where T : unmanaged => value->GetStructAlloc<T>();
 #endif
 
 		/// <summary>

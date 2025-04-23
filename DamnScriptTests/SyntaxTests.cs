@@ -34,15 +34,34 @@ public class SyntaxTests
 		Assert.That(Run("while (GetCounter() < 15) { PushToStack(GetCounter()); } ", true).intValue, Is.EqualTo(15));
 		_counter = 0;
 	}
+
+	public static ScriptValuePtr GetUntil() => 15.Return();
 	
 	[Test]
 	public void ForTest()
 	{
+		ScriptEngine.RegisterNativeMethod(GetUntil);
+		
 		ScriptEngine.mainPtr.RefValue.Dispose();
 		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
-
+		
 		Assert.That(Run("for (i in 5) { PushToStack(i); } ", true).intValue, Is.EqualTo(4));
 		Assert.That(Run("for (i in 10) { PushToStack(i); }", true).intValue, Is.EqualTo(9));
 		Assert.That(Run("for (i in 20) { PushToStack(i); }", true).intValue, Is.EqualTo(19));
+		Assert.That(Run("for (i in 20 + 1) { PushToStack(i); }", true).intValue, Is.EqualTo(20));
+		Assert.That(Run("for (i in GetUntil()) { PushToStack(i); }", true).intValue, Is.EqualTo(14));
+		Assert.That(Run("for (i in GetUntil() + 1) { PushToStack(i); }", true).intValue, Is.EqualTo(15));
+		const string code = @"
+for (i in 1) {
+	for (j in 1) {
+		for (k in 1) {
+			for (l in 1) {		
+				PushToStack(1);
+			}
+		}
+	}
+}
+";
+		Assert.That(Run(code, true).intValue, Is.EqualTo(1));
 	}
 }

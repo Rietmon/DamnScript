@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using DamnScript.Runtimes.Cores.Pins;
 
 namespace DamnScript.Runtimes.Cores.Strings
@@ -115,18 +116,16 @@ namespace DamnScript.Runtimes.Cores.Strings
         }
 
         [DebuggerDisplay("{ToString()}")]
+        [StructLayout(LayoutKind.Sequential)]
         public struct UnmanagedString
         {
-            public void* methodVTable;
-#if DAMN_SCRIPT_ENBALE_MONO || UNITY_5_3_OR_NEWER
-            public void* syncRoot;
-#endif
+            public UnsafeUtilities.ClassHeader header;
             public int length;
             public fixed char data[1];
 
             public UnmanagedString(void* methodVTable, int length, char* data) : this()
             {
-                this.methodVTable = methodVTable;
+                header.methodVTable = methodVTable;
                 this.length = length;
                 fixed (char* ptr = this.data)
                     UnsafeUtilities.Memcpy(data, ptr, length * sizeof(char));
