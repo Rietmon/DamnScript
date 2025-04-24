@@ -11,15 +11,17 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public T GetReference<T>() where T : class => type switch
 		{
-			ValueType.ReferenceSafePointer => GetReferencePin<T>(),
+			ValueType.ReferenceSafePointer or ValueType.ReferencePersistentSafePointer => GetReferencePin<T>(),
 #if DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
 			ValueType.ReferenceUnsafePointer => GetReferenceUnsafe<T>(),
 #endif
 #if !DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
 			_ => throw new NotSupportedException("For GetReference use only " +
+			                                     $"{nameof(ValueType.ReferencePersistentSafePointer)} or " +
 			                                     $"{nameof(ValueType.ReferenceSafePointer)}!")
 #else
 			_ => throw new NotSupportedException("For GetReference use only " +
+			                                     $"{nameof(ValueType.ReferencePersistentSafePointer)} or " +
 			                                     $"{nameof(ValueType.ReferenceSafePointer)} or " +
 			                                     $"{nameof(ValueType.ReferenceUnsafePointer)}!")
 #endif
@@ -33,9 +35,10 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public T GetReferencePin<T>() where T : class
 		{
-			if (type != ValueType.ReferenceSafePointer)
-				throw new NotSupportedException("For GetStruct use only " +
-				                                $"{nameof(ValueType.Pointer)}!");
+			if (type is not (ValueType.ReferenceSafePointer or ValueType.ReferencePersistentSafePointer))
+				throw new NotSupportedException("For GetReferencePin use only " +
+				                                $"{nameof(ValueType.ReferenceSafePointer)}!" +
+				                                $"{nameof(ValueType.ReferencePersistentSafePointer)}!");
             
 			var value = (T)safeValue.Target;
 			return value;

@@ -165,10 +165,10 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		public void* GetReferencePointer() => value->GetReferencePointer();
 
 		/// <summary>
-		/// <inheritdoc cref="ScriptValue.UnpinManagedPointer"/>
+		/// <inheritdoc cref="ScriptValue.UnpinSafePointer"/>
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UnpinManagedPointer() => value->UnpinManagedPointer();
+		public void UnpinManagedPointer() => value->UnpinSafePointer();
 
 		/// <summary>
 		/// <inheritdoc cref="ScriptValue.ToString"/>

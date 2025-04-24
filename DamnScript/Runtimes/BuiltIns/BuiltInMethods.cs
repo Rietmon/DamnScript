@@ -137,7 +137,7 @@ namespace DamnScript.Runtimes.BuiltIns
 		private static unsafe void PushToStack(SVP value)
 		{
 			var thread = ScriptEngine.CurrentThreadPtr.value;
-			thread->StackPush(*value.value);
+			thread->returnValue = *value.value;
 		}
 		
 		private static unsafe SVP PopFromStack()

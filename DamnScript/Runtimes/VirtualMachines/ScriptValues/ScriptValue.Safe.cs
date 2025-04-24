@@ -6,10 +6,10 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 	public partial struct ScriptValue
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ScriptValue FromReferencePin(object value)
+		public static ScriptValue FromReferencePin(object value, bool isPersistent = false)
 		{
 			var pin = UnsafeUtilities.Pin(value);
-			return new ScriptValue(pin);
+			return new ScriptValue(pin, isPersistent);
 		}
 	}
 }

@@ -27,9 +27,10 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         private byte* ByteCode => regionData->byteCode.start + offset;
 
         public VirtualMachineThreadStack stack;
-        public VirtualMachineThreadParametersStack parametersStack;
         public VirtualMachineRegisters registers;
 
+        public VirtualMachineThreadNativeCallInfo nativeCallInfo;
+        
         public ScriptValue returnValue;
 
         public readonly ScriptData* scriptData;
@@ -48,8 +49,8 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public VirtualMachineThread(ScriptData* scriptData, RegionData* regionData, ScriptMetadata* metadata)
         {
             stack = new VirtualMachineThreadStack();
-            parametersStack = new VirtualMachineThreadParametersStack();
             registers = new VirtualMachineRegisters();
+            nativeCallInfo = VirtualMachineThreadNativeCallInfo.invalid;
             
             returnValue = new ScriptValue();
             
@@ -160,16 +161,17 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             return true;
         }
         
-        public void UnpinParameters()
+        public void ClearStackAfterNativeCall()
         {
-            var begin = parametersStack.BeginPtr;
-            for (var i = 0; i < 10; i++)
+            var begin = stack.Ptr;
+            var end = begin - nativeCallInfo.argumentsCount;
+            for (var i = begin; i > end; i--)
             {
-                if (begin->type != ScriptValue.ValueType.ReferenceSafePointer)
+                var value = stack.Pop();
+                if (value.type is not (ScriptValue.ValueType.ReferenceSafePointer or ScriptValue.ValueType.ReferencePersistentSafePointer))
                     continue;
 
-                begin->UnpinManagedPointer();
-                begin++;
+                value.UnpinSafePointer();
             }
         }
 

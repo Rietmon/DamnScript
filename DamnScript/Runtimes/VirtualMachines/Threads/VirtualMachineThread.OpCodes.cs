@@ -26,12 +26,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 			Debugging.Log($"Found native method \"{methodName}\" with {argumentsCount} arguments.");
 #endif
 
-			var argumentsStack = parametersStack.BeginPtr;
-			UnsafeUtilities.Memset(argumentsStack, 0,
-				ScriptValue.Size * VirtualMachineThreadParametersStack.MaxParameters);
-			for (var i = method.argumentsCount - 1; i >= 0; i--)
-				argumentsStack[i] = StackPop();
-
+			if (nativeCallInfo != VirtualMachineThreadNativeCallInfo.invalid)
+				throw new Exception($"Native call already in progress!");
+			
+			nativeCallInfo = new VirtualMachineThreadNativeCallInfo(argumentsCount);
+			
+			var argumentsStack = stack.GetPointer(argumentsCount);
 			// Rietmon: Result will be in the "returnValue" field
 			ScriptValue.ReturnValuePtr = UnsafeUtilities.AsPointer(ref returnValue);
 			VirtualMachineInvokeHelper.Invoke(method, argumentsStack, out var task);
@@ -57,12 +57,18 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 			Debugging.Log($"Free arguments stack...");
 #endif
 
-			if (method is { HasReturnValue: true, IsAsync: false })
+			if (!method.IsAsync)
 			{
+				ClearStackAfterNativeCall();
+				nativeCallInfo = VirtualMachineThreadNativeCallInfo.invalid;
+				
+				if (method.HasReturnValue)
+				{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-				Debugging.Log($"Push return value ({returnValue.type}):({returnValue.longValue}) to stack...");
+					Debugging.Log($"Push return value ({returnValue.type}):({returnValue.longValue}) to stack...");
 #endif
-				StackPush(returnValue);
+					StackPush(returnValue);
+				}
 			}
 
 			ScriptValue.ReturnValuePtr = null;
@@ -283,6 +289,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void StackPush(ScriptValue value)
 		{
+			if (nativeCallInfo != VirtualMachineThreadNativeCallInfo.invalid)
+				throw new Exception($"Push to stack is not allowed in native call!");
+
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 			Debugging.Log($"STACK: Push value ({value.type}):({value.longValue}) to stack...");
 #endif
@@ -292,6 +301,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ScriptValue StackPop()
 		{
+			if (nativeCallInfo != VirtualMachineThreadNativeCallInfo.invalid)
+				throw new Exception($"Pop from stack is not allowed in native call!");
+
 			var value = stack.Pop();
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 			Debugging.Log($"STACK: Pop value ({value.type}):({value.longValue}) from stack...");

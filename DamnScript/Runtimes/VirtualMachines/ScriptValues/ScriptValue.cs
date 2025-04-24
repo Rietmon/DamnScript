@@ -116,10 +116,11 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
         /// Unpin safe pointer if a value type is it.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void UnpinManagedPointer()
+        public void UnpinSafePointer()
         {
-            if (type != ValueType.ReferenceSafePointer)
-                throw new NotSupportedException("For UnpinManagedPointer use only " +
+            if (type is not (ValueType.ReferenceSafePointer or ValueType.ReferencePersistentSafePointer))
+                throw new NotSupportedException("For UnpinSafePointer use only " +
+                                                $"{nameof(ValueType.ReferencePersistentSafePointer)}!" +
                                                 $"{nameof(ValueType.ReferenceSafePointer)}!");
             
             safeValue.Free();

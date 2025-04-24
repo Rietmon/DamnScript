@@ -489,7 +489,7 @@ namespace DamnScriptTests
 			var retrievedObject = value.GetReference<TestClass>();
 			Assert.That(retrievedObject.Value, Is.EqualTo("Test"));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -543,7 +543,7 @@ namespace DamnScriptTests
 			var safeValue = SV.FromReferencePin(testObject);
 			var safePointer = (IntPtr)safeValue.GetReferencePointer();
 			Assert.That(safePointer, Is.Not.EqualTo(IntPtr.Zero));
-			safeValue.UnpinManagedPointer();
+			safeValue.UnpinSafePointer();
 		}
 
 		[Test]
@@ -732,7 +732,7 @@ namespace DamnScriptTests
 			var retrievedObject = valuePtr.GetReference<TestClass>();
 			Assert.That(retrievedObject.Value, Is.EqualTo("RefTest"));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -811,7 +811,7 @@ namespace DamnScriptTests
 			var retrievedString = value.GetStringWrapper().ToString();
 			Assert.That(retrievedString, Is.EqualTo(testString));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -969,7 +969,7 @@ namespace DamnScriptTests
 				var obj = new TestClass { Value = $"Test{i}" };
 				var value = SV.FromReferencePin(obj);
 				Assert.That(PinHelper.PinsCount, Is.EqualTo(count + 1));
-				value.UnpinManagedPointer();
+				value.UnpinSafePointer();
 				Assert.That(PinHelper.PinsCount, Is.EqualTo(count));
 			}
 		}
@@ -1017,7 +1017,7 @@ namespace DamnScriptTests
 			Assert.That(asDerived.Value, Is.EqualTo("Base"));
 			Assert.That(asDerived.ExtraValue, Is.EqualTo("Derived"));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -1037,7 +1037,7 @@ namespace DamnScriptTests
 			Assert.That(retrieved[1].y, Is.EqualTo(40));
 			Assert.That(retrieved[2].x, Is.EqualTo(50));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -1056,7 +1056,7 @@ namespace DamnScriptTests
 			Assert.That(retrieved.Next, Is.Not.Null);
 			Assert.That(retrieved.Next.Next, Is.SameAs(retrieved));
 		
-			value1.UnpinManagedPointer();
+			value1.UnpinSafePointer();
 		}
 
 		[Test]

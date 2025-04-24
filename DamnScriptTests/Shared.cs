@@ -35,7 +35,7 @@ namespace DamnScriptTests
 			}
 			Assert.That(thread.Ptr.RefValue.isAlive, Is.False);
 			ScriptEngine.UnloadScript(scriptData);
-			var value = thread.Ptr.RefValue.StackPop();
+			var value = thread.Ptr.RefValue.returnValue;
 			if (!noCheckStack)
 				Assert.That(thread.Ptr.RefValue.stack.stackOffset, Is.EqualTo(0));
 			return value;

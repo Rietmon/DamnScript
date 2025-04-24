@@ -64,7 +64,8 @@ namespace DamnScript.Runtimes.VirtualMachines
 					{
 						begin->awaitTaskPin.Free();
 						begin->awaitTaskPin = default;
-						begin->UnpinParameters();
+						begin->ClearStackAfterNativeCall();
+						begin->nativeCallInfo = VirtualMachineThreadNativeCallInfo.invalid;
 						if (result is Task<ScriptValuePtr> task)
 						{
 							var scriptValue = *task.Result.value;

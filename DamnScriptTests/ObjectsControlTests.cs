@@ -31,7 +31,7 @@ namespace DamnScriptTests
 				await Task.Delay(100);
 				Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
 				         value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
-				return ScriptValue.FromReferencePin(this).ReturnAsync(handle);
+				return ScriptValue.FromReferencePin(this, true).ReturnAsync(handle);
 			}
 		}
 	
@@ -45,7 +45,7 @@ namespace DamnScriptTests
 
 			ScriptEngine.RegisterNativeMethod(Create);
 		
-			Assert.That(Run("Create();").GetReference<TestClass>().Value, Is.EqualTo(5));
+			Assert.That(Run("PushToStack(Create());").GetReference<TestClass>().Value, Is.EqualTo(5));
 		}
 	
 		[Test]
@@ -57,7 +57,7 @@ namespace DamnScriptTests
 			ScriptEngine.RegisterNativeMethod(Create);
 			ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Add)));
 		
-			Assert.That(Run("Add(Create(), 10);").GetReference<TestClass>()?.Value, Is.EqualTo(15));
+			Assert.That(Run("PushToStack(Add(Create(), 10));").GetReference<TestClass>()?.Value, Is.EqualTo(15));
 			Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
 		}
 	
@@ -70,7 +70,7 @@ namespace DamnScriptTests
 			ScriptEngine.RegisterNativeMethod(Create);
 			ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.Simulate)));
 		
-			Assert.That(Run("Simulate(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90);").GetReference<TestClass>()?.Value, Is.EqualTo(455));
+			Assert.That(Run("PushToStack(Simulate(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90));").GetReference<TestClass>()?.Value, Is.EqualTo(455));
 			Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
 		}
 	
@@ -83,9 +83,9 @@ namespace DamnScriptTests
 			ScriptEngine.RegisterNativeMethod(Create);
 			ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod(nameof(TestClass.SimulateAsync)));
 		
-			var result = Run("SimulateAsync(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90);");
+			var result = Run("PushToStack(SimulateAsync(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90));");
 			Assert.That(result.GetReference<TestClass>().Value, Is.EqualTo(455));
-			result.UnpinManagedPointer();
+			result.UnpinSafePointer();
 			Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
 		}
 	}

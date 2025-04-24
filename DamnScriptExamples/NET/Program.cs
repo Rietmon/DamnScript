@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 using DamnScript.Runtimes;
 using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.VirtualMachines.ScriptValues;
@@ -8,8 +9,24 @@ namespace DamnScriptExamples.NET
 {
     public static class Program
     {
+        public static void test(ScriptValuePtr a, ScriptValuePtr b)
+        {
+            Console.WriteLine($"a: {a}, b: {b}");
+        }
+        
         public static void Main()
         {
+            var code = @"
+            region Main {
+            test(1, 2);
+}
+";
+            ScriptEngine.RegisterNativeMethod(test);
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(code));
+            var script = ScriptEngine.LoadScript(stream, "Main");
+            ScriptEngine.RunThread(script, "Main");
+            ScriptEngine.ExecuteVirtualMachineNext();
+            return;
             Begin();
         }
 
