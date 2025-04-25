@@ -28,7 +28,7 @@ namespace DamnScriptBenchmarks
             
 		public static void ExternalPrintDamnScript(ScriptValuePtr value)
 		{
-			result = value.IntValue;
+			result = value.RawInt;
 		}
             
 		[GlobalSetup]

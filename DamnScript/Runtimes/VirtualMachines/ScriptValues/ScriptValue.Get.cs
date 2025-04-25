@@ -11,15 +11,17 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public T GetReference<T>() where T : class => type switch
 		{
-			ValueType.ReferenceSafePointer => GetReferencePin<T>(),
+			ValueType.ReferenceSafePointer or ValueType.ReferencePersistentSafePointer => GetReferencePin<T>(),
 #if DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
 			ValueType.ReferenceUnsafePointer => GetReferenceUnsafe<T>(),
 #endif
 #if !DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
 			_ => throw new NotSupportedException("For GetReference use only " +
+			                                     $"{nameof(ValueType.ReferencePersistentSafePointer)} or " +
 			                                     $"{nameof(ValueType.ReferenceSafePointer)}!")
 #else
 			_ => throw new NotSupportedException("For GetReference use only " +
+			                                     $"{nameof(ValueType.ReferencePersistentSafePointer)} or " +
 			                                     $"{nameof(ValueType.ReferenceSafePointer)} or " +
 			                                     $"{nameof(ValueType.ReferenceUnsafePointer)}!")
 #endif
@@ -33,11 +35,12 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public T GetReferencePin<T>() where T : class
 		{
-			if (type != ValueType.ReferenceSafePointer)
-				throw new NotSupportedException("For GetStruct use only " +
-				                                $"{nameof(ValueType.Pointer)}!");
+			if (type is not (ValueType.ReferenceSafePointer or ValueType.ReferencePersistentSafePointer))
+				throw new NotSupportedException("For GetReferencePin use only " +
+				                                $"{nameof(ValueType.ReferenceSafePointer)}!" +
+				                                $"{nameof(ValueType.ReferencePersistentSafePointer)}!");
             
-			var value = (T)safeValue.Target;
+			var value = (T)rawSafeValue.Target;
 			return value;
 		}
 
@@ -54,7 +57,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 				throw new NotSupportedException("For GetReferenceUnsafe use only " +
 				                                $"{nameof(ValueType.ReferenceUnsafePointer)}!");
 			
-			var value = UnsafeUtilities.PointerToReference<T>(pointerValue);
+			var value = UnsafeUtilities.PointerToReference<T>(rawPointerValue);
 			return value;
 		}
 		
@@ -70,7 +73,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 				throw new NotSupportedException("For GetStructAlloc use only " +
 				                                $"{nameof(ValueType.Pointer)}!");
             
-			var value = *(T*)pointerValue;
+			var value = *(T*)rawPointerValue;
 			return value;
 		}
 #endif
@@ -83,8 +86,8 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void* GetReferencePointer() => type switch
 		{
-			ValueType.ReferenceUnsafePointer => pointerValue,
-			ValueType.ReferenceSafePointer => safeValue.Address,
+			ValueType.ReferenceUnsafePointer => rawPointerValue,
+			ValueType.ReferenceSafePointer => rawSafeValue.Address,
 			_ => throw new NotSupportedException("For GetReferencePointer use only " +
 			                                     $"{nameof(ValueType.ReferenceUnsafePointer)} or " +
 			                                     $"{nameof(ValueType.ReferenceSafePointer)}!")
@@ -105,13 +108,13 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
             {
                 case ValueType.NativeStringPointer:
                 {
-                    var value = (NativeString*)pointerValue;
+                    var value = (NativeString*)rawPointerValue;
                     return value;
                 }
                 case ValueType.ReferenceUnsafePointer:
                 {
 #if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
-                    var obj = UnsafeUtilities.PointerToReference<object>(pointerValue);
+                    var obj = UnsafeUtilities.PointerToReference<object>(rawPointerValue);
                     if (obj is string str)
                         return str;
                     
@@ -124,8 +127,8 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
                 case ValueType.ReferenceSafePointer:
                 {
 #if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
-	                if (safeValue.Target is string)
-		                return safeValue;
+	                if (rawSafeValue.Target is string)
+		                return rawSafeValue;
                     
                     throw new NotSupportedException($"Attempt to get SafeString from non-string value! If you want to convert into string, use ToString() method.");
 #else
@@ -152,23 +155,23 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
             {
                 case ValueType.Integer:
                 {
-                    return longValue.ToString();
+                    return rawLong.ToString();
                 }
                 case ValueType.Float32:
                 {
-                    return floatValue.ToString(CultureInfo.InvariantCulture);
+                    return rawFloat.ToString(CultureInfo.InvariantCulture);
                 }
                 case ValueType.Float64:
                 {
-                    return doubleValue.ToString(CultureInfo.InvariantCulture);
+                    return rawDouble.ToString(CultureInfo.InvariantCulture);
                 }
                 case ValueType.NativeStringPointer:
                 {
-                    return ((NativeString*)pointerValue)->ToString();
+                    return ((NativeString*)rawPointerValue)->ToString();
                 }
                 case ValueType.ReferenceUnsafePointer:
                 {
-                    var value = UnsafeUtilities.PointerToReference<object>(pointerValue);
+                    var value = UnsafeUtilities.PointerToReference<object>(rawPointerValue);
                     if (value is string str)
                         return str;
                     
@@ -176,7 +179,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
                 }
                 case ValueType.ReferenceSafePointer:
                 {
-                    var target = safeValue.Target;
+                    var target = rawSafeValue.Target;
                     if (target is string str)
                         return str;
                     

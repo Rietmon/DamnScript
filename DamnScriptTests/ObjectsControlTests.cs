@@ -12,15 +12,15 @@ namespace DamnScriptTests
 			public ScriptValuePtr Add(ScriptValuePtr value)
 			{
 				var thisValue = this;
-				Value += value.IntValue;
+				Value += value.RawInt;
 				return ScriptValue.FromReferenceUnsafe(thisValue).Return();
 			}
 		
 			public ScriptValuePtr Simulate(ScriptValuePtr value1, ScriptValuePtr value2, ScriptValuePtr value3, ScriptValuePtr value4, 
 				ScriptValuePtr value5, ScriptValuePtr value6, ScriptValuePtr value7, ScriptValuePtr value8, ScriptValuePtr value9)
 			{
-				Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
-				         value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
+				Value += value1.RawInt + value2.RawInt + value3.RawInt + value4.RawInt +
+				         value5.RawInt + value6.RawInt + value7.RawInt + value8.RawInt + value9.RawInt;
 				return ScriptValue.FromReferenceUnsafe(this).Return();
 			}
 		
@@ -29,8 +29,8 @@ namespace DamnScriptTests
 			{
 				var handle = ScriptEngine.CurrentThreadHandle;
 				await Task.Delay(100);
-				Value += value1.IntValue + value2.IntValue + value3.IntValue + value4.IntValue +
-				         value5.IntValue + value6.IntValue + value7.IntValue + value8.IntValue + value9.IntValue;
+				Value += value1.RawInt + value2.RawInt + value3.RawInt + value4.RawInt +
+				         value5.RawInt + value6.RawInt + value7.RawInt + value8.RawInt + value9.RawInt;
 				return ScriptValue.FromReferencePin(this).ReturnAsync(handle);
 			}
 		}
@@ -85,7 +85,7 @@ namespace DamnScriptTests
 		
 			var result = Run("SimulateAsync(Create(), 10, 20, 30, 40, 50, 60, 70, 80, 90);");
 			Assert.That(result.GetReference<TestClass>().Value, Is.EqualTo(455));
-			result.UnpinManagedPointer();
+			result.UnpinSafePointer();
 			Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
 		}
 	}

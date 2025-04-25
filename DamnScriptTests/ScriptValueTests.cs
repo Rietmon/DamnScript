@@ -269,7 +269,7 @@ namespace DamnScriptTests
 			SV l = 3;
 			SV r = 5;
 
-			Assert.That((l & r).longValue, Is.EqualTo(1));
+			Assert.That((l & r).rawLong, Is.EqualTo(1));
 		}
 
 		[Test]
@@ -278,7 +278,7 @@ namespace DamnScriptTests
 			SV l = 3;
 			SV r = 5;
 
-			Assert.That((l | r).longValue, Is.EqualTo(7));
+			Assert.That((l | r).rawLong, Is.EqualTo(7));
 		}
 
 		[Test]
@@ -287,7 +287,7 @@ namespace DamnScriptTests
 			SV l = 3;
 			SV r = 5;
 
-			Assert.That((l ^ r).longValue, Is.EqualTo(6));
+			Assert.That((l ^ r).rawLong, Is.EqualTo(6));
 		}
 
 		[Test]
@@ -295,7 +295,7 @@ namespace DamnScriptTests
 		{
 			SV value = 5;
 
-			Assert.That((~value).longValue, Is.EqualTo(~5L));
+			Assert.That((~value).rawLong, Is.EqualTo(~5L));
 		}
 
 		[Test]
@@ -304,7 +304,7 @@ namespace DamnScriptTests
 			SV l = 5;
 			int shift = 2;
 
-			Assert.That((l << shift).longValue, Is.EqualTo(20));
+			Assert.That((l << shift).rawLong, Is.EqualTo(20));
 		}
 
 		[Test]
@@ -313,7 +313,7 @@ namespace DamnScriptTests
 			SV l = 8;
 			int shift = 2;
 
-			Assert.That((l >> shift).longValue, Is.EqualTo(2));
+			Assert.That((l >> shift).rawLong, Is.EqualTo(2));
 		}
 
 		[Test]
@@ -322,7 +322,7 @@ namespace DamnScriptTests
 			SV value = 5;
 			SV result = ++value;
 
-			Assert.That(result.longValue, Is.EqualTo(6));
+			Assert.That(result.rawLong, Is.EqualTo(6));
 		}
 
 		[Test]
@@ -331,7 +331,7 @@ namespace DamnScriptTests
 			SV value = 5.5f;
 			SV result = ++value;
 
-			Assert.That(result.floatValue, Is.EqualTo(6.5f));
+			Assert.That(result.rawFloat, Is.EqualTo(6.5f));
 		}
 
 		[Test]
@@ -340,7 +340,7 @@ namespace DamnScriptTests
 			SV value = 5.5;
 			SV result = ++value;
 
-			Assert.That(result.doubleValue, Is.EqualTo(6.5));
+			Assert.That(result.rawDouble, Is.EqualTo(6.5));
 		}
 
 		[Test]
@@ -349,7 +349,7 @@ namespace DamnScriptTests
 			SV value = 5;
 			SV result = --value;
 
-			Assert.That(result.longValue, Is.EqualTo(4));
+			Assert.That(result.rawLong, Is.EqualTo(4));
 		}
 
 		[Test]
@@ -358,7 +358,7 @@ namespace DamnScriptTests
 			SV value = 5.5f;
 			SV result = --value;
 
-			Assert.That(result.floatValue, Is.EqualTo(4.5f));
+			Assert.That(result.rawFloat, Is.EqualTo(4.5f));
 		}
 
 		[Test]
@@ -367,7 +367,7 @@ namespace DamnScriptTests
 			SV value = 5.5;
 			SV result = --value;
 
-			Assert.That(result.doubleValue, Is.EqualTo(4.5));
+			Assert.That(result.rawDouble, Is.EqualTo(4.5));
 		}
 
 		[Test]
@@ -376,7 +376,7 @@ namespace DamnScriptTests
 			SV l = 7;
 			SV r = 3;
 
-			Assert.That((l % r).longValue, Is.EqualTo(1));
+			Assert.That((l % r).rawLong, Is.EqualTo(1));
 		}
 
 		[Test]
@@ -385,7 +385,7 @@ namespace DamnScriptTests
 			SV l = 7.5f;
 			SV r = 2.5f;
 
-			Assert.That((l % r).floatValue, Is.EqualTo(0f));
+			Assert.That((l % r).rawFloat, Is.EqualTo(0f));
 		}
 
 		[Test]
@@ -394,7 +394,7 @@ namespace DamnScriptTests
 			SV l = 7.5;
 			SV r = 2.5;
 
-			Assert.That((l % r).doubleValue, Is.EqualTo(0.0));
+			Assert.That((l % r).rawDouble, Is.EqualTo(0.0));
 		}
 
 		[Test]
@@ -403,7 +403,7 @@ namespace DamnScriptTests
 			SV l = 7;
 			SV r = 2.5f;
 
-			Assert.That((l % r).doubleValue, Is.EqualTo(2.0));
+			Assert.That((l % r).rawDouble, Is.EqualTo(2.0));
 		}
 
 		[Test]
@@ -412,7 +412,7 @@ namespace DamnScriptTests
 			SV l = 3.5;
 			SV r = 2;
 
-			Assert.That((l + r).doubleValue, Is.EqualTo(5.5));
+			Assert.That((l + r).rawDouble, Is.EqualTo(5.5));
 		}
 
 		[Test]
@@ -421,7 +421,7 @@ namespace DamnScriptTests
 			SV l = 5.5;
 			SV r = 2;
 
-			Assert.That((l - r).doubleValue, Is.EqualTo(3.5));
+			Assert.That((l - r).rawDouble, Is.EqualTo(3.5));
 		}
 
 		[Test]
@@ -430,7 +430,7 @@ namespace DamnScriptTests
 			SV l = 2.5f;
 			SV r = 2;
 
-			Assert.That((l * r).doubleValue, Is.EqualTo(5.0));
+			Assert.That((l * r).rawDouble, Is.EqualTo(5.0));
 		}
 
 		[Test]
@@ -439,7 +439,7 @@ namespace DamnScriptTests
 			SV l = 10.0;
 			SV r = 2;
 
-			Assert.That((l / r).doubleValue, Is.EqualTo(5.0));
+			Assert.That((l / r).rawDouble, Is.EqualTo(5.0));
 		}
 
 		[Test]
@@ -450,19 +450,19 @@ namespace DamnScriptTests
 			SV doubleValue = 42.75;
 
 			// SafeFloatValue tests
-			Assert.That(intValue.SafeFloatValue, Is.EqualTo(42f));
-			Assert.That(floatValue.SafeFloatValue, Is.EqualTo(42.5f));
-			Assert.That(doubleValue.SafeFloatValue, Is.EqualTo(42.75f));
+			Assert.That(intValue.FloatValue, Is.EqualTo(42f));
+			Assert.That(floatValue.FloatValue, Is.EqualTo(42.5f));
+			Assert.That(doubleValue.FloatValue, Is.EqualTo(42.75f));
 
 			// SafeDoubleValue tests
-			Assert.That(intValue.SafeDoubleValue, Is.EqualTo(42.0));
-			Assert.That(floatValue.SafeDoubleValue, Is.EqualTo(42.5));
-			Assert.That(doubleValue.SafeDoubleValue, Is.EqualTo(42.75));
+			Assert.That(intValue.DoubleValue, Is.EqualTo(42.0));
+			Assert.That(floatValue.DoubleValue, Is.EqualTo(42.5));
+			Assert.That(doubleValue.DoubleValue, Is.EqualTo(42.75));
 
 			// SafeIntegerValue tests
-			Assert.That(intValue.SafeIntegerValue, Is.EqualTo(42L));
-			Assert.That(floatValue.SafeIntegerValue, Is.EqualTo(42L));
-			Assert.That(doubleValue.SafeIntegerValue, Is.EqualTo(42L));
+			Assert.That(intValue.IntegerValue, Is.EqualTo(42L));
+			Assert.That(floatValue.IntegerValue, Is.EqualTo(42L));
+			Assert.That(doubleValue.IntegerValue, Is.EqualTo(42L));
 		}
 
 		[Test]
@@ -489,7 +489,7 @@ namespace DamnScriptTests
 			var retrievedObject = value.GetReference<TestClass>();
 			Assert.That(retrievedObject.Value, Is.EqualTo("Test"));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -511,9 +511,9 @@ namespace DamnScriptTests
 			SV floatValue = 42.5f;
 			SV doubleValue = 42.75;
 
-			Assert.That((-intValue).longValue, Is.EqualTo(-42L));
-			Assert.That((-floatValue).floatValue, Is.EqualTo(-42.5f));
-			Assert.That((-doubleValue).doubleValue, Is.EqualTo(-42.75));
+			Assert.That((-intValue).rawLong, Is.EqualTo(-42L));
+			Assert.That((-floatValue).rawFloat, Is.EqualTo(-42.5f));
+			Assert.That((-doubleValue).rawDouble, Is.EqualTo(-42.75));
 		}
 
 		[Test]
@@ -524,9 +524,9 @@ namespace DamnScriptTests
 			SV doubleValue = -42.75;
 
 			// The + operator as a unary operator doesn't negate, it just returns the value
-			Assert.That((+intValue).longValue, Is.EqualTo(-42L));
-			Assert.That((+floatValue).floatValue, Is.EqualTo(-42.5f));
-			Assert.That((+doubleValue).doubleValue, Is.EqualTo(-42.75));
+			Assert.That((+intValue).rawLong, Is.EqualTo(-42L));
+			Assert.That((+floatValue).rawFloat, Is.EqualTo(-42.5f));
+			Assert.That((+doubleValue).rawDouble, Is.EqualTo(-42.75));
 		}
 
 		[Test]
@@ -543,7 +543,7 @@ namespace DamnScriptTests
 			var safeValue = SV.FromReferencePin(testObject);
 			var safePointer = (IntPtr)safeValue.GetReferencePointer();
 			Assert.That(safePointer, Is.Not.EqualTo(IntPtr.Zero));
-			safeValue.UnpinManagedPointer();
+			safeValue.UnpinSafePointer();
 		}
 
 		[Test]
@@ -554,7 +554,7 @@ namespace DamnScriptTests
 			var scriptValuePtr = new ScriptValuePtr(valuePtr);
 
 			Assert.That(scriptValuePtr.Type, Is.EqualTo(SV.ValueType.Integer));
-			Assert.That(scriptValuePtr.IntValue, Is.EqualTo(42));
+			Assert.That(scriptValuePtr.RawInt, Is.EqualTo(42));
 		}
 
 		[Test]
@@ -586,18 +586,18 @@ namespace DamnScriptTests
 			SV svDouble = doubleValue;
 			SV svChar = charValue;
 
-			Assert.That(svBool.boolValue, Is.EqualTo(boolValue));
-			Assert.That(svByte.byteValue, Is.EqualTo(byteValue));
-			Assert.That(svSByte.sbyteValue, Is.EqualTo(sbyteValue));
-			Assert.That(svShort.shortValue, Is.EqualTo(shortValue));
-			Assert.That(svUShort.ushortValue, Is.EqualTo(ushortValue));
-			Assert.That(svInt.intValue, Is.EqualTo(intValue));
-			Assert.That(svUInt.uintValue, Is.EqualTo(uintValue));
-			Assert.That(svLong.longValue, Is.EqualTo(longValue));
-			Assert.That(svULong.ulongValue, Is.EqualTo(ulongValue));
-			Assert.That(svFloat.floatValue, Is.EqualTo(floatValue));
-			Assert.That(svDouble.doubleValue, Is.EqualTo(doubleValue));
-			Assert.That(svChar.charValue, Is.EqualTo(charValue));
+			Assert.That(svBool.rawBool, Is.EqualTo(boolValue));
+			Assert.That(svByte.rawByte, Is.EqualTo(byteValue));
+			Assert.That(svSByte.rawSByte, Is.EqualTo(sbyteValue));
+			Assert.That(svShort.rawShort, Is.EqualTo(shortValue));
+			Assert.That(svUShort.rawUShort, Is.EqualTo(ushortValue));
+			Assert.That(svInt.rawInt, Is.EqualTo(intValue));
+			Assert.That(svUInt.rawUInt, Is.EqualTo(uintValue));
+			Assert.That(svLong.rawLong, Is.EqualTo(longValue));
+			Assert.That(svULong.rawULong, Is.EqualTo(ulongValue));
+			Assert.That(svFloat.rawFloat, Is.EqualTo(floatValue));
+			Assert.That(svDouble.rawDouble, Is.EqualTo(doubleValue));
+			Assert.That(svChar.rawChar, Is.EqualTo(charValue));
 		}
 
 		[Test]
@@ -705,7 +705,7 @@ namespace DamnScriptTests
 
 			SV result = a + b * c - a / b;
 
-			Assert.That(result.longValue, Is.EqualTo(9));
+			Assert.That(result.rawLong, Is.EqualTo(9));
 		}
 
 		[Test]
@@ -715,10 +715,10 @@ namespace DamnScriptTests
 			SV minInt = int.MinValue;
 			SV maxLong = long.MaxValue;
 
-			Assert.That((maxInt + 1).longValue, Is.EqualTo((long)int.MaxValue + 1));
-			Assert.That((minInt - 1).longValue, Is.EqualTo((long)int.MinValue - 1));
+			Assert.That((maxInt + 1).rawLong, Is.EqualTo((long)int.MaxValue + 1));
+			Assert.That((minInt - 1).rawLong, Is.EqualTo((long)int.MinValue - 1));
 
-			Assert.That((maxLong * 2).longValue, Is.EqualTo(unchecked(long.MaxValue * 2)));
+			Assert.That((maxLong * 2).rawLong, Is.EqualTo(unchecked(long.MaxValue * 2)));
 		}
 
 		[Test]
@@ -732,7 +732,7 @@ namespace DamnScriptTests
 			var retrievedObject = valuePtr.GetReference<TestClass>();
 			Assert.That(retrievedObject.Value, Is.EqualTo("RefTest"));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -747,13 +747,13 @@ namespace DamnScriptTests
 			SV doubleToInt = doubleValue * 0;
 
 			Assert.That(intToFloat.type, Is.EqualTo(SV.ValueType.Float64));
-			Assert.That(intToFloat.doubleValue, Is.EqualTo(10.5));
+			Assert.That(intToFloat.rawDouble, Is.EqualTo(10.5));
 
 			Assert.That(floatToDouble.type, Is.EqualTo(SV.ValueType.Float64));
-			Assert.That(floatToDouble.doubleValue, Is.EqualTo(10.75));
+			Assert.That(floatToDouble.rawDouble, Is.EqualTo(10.75));
 
 			Assert.That(doubleToInt.type, Is.EqualTo(SV.ValueType.Float64));
-			Assert.That(doubleToInt.doubleValue, Is.EqualTo(0.0));
+			Assert.That(doubleToInt.rawDouble, Is.EqualTo(0.0));
 		}
 
 		[Test]
@@ -797,7 +797,7 @@ namespace DamnScriptTests
 
 			SV result = ((a + b) * c) - (d / b);
 
-			Assert.That(result.longValue, Is.EqualTo(26));
+			Assert.That(result.rawLong, Is.EqualTo(26));
 		}
 
 		[Test]
@@ -811,7 +811,7 @@ namespace DamnScriptTests
 			var retrievedString = value.GetStringWrapper().ToString();
 			Assert.That(retrievedString, Is.EqualTo(testString));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -837,9 +837,9 @@ namespace DamnScriptTests
 			SV value = 42;
 			var valuePtr = new ScriptValuePtr(ref value);
 
-			valuePtr.RefValue.longValue = 84;
+			valuePtr.RefValue.rawLong = 84;
 
-			Assert.That(value.longValue, Is.EqualTo(84));
+			Assert.That(value.rawLong, Is.EqualTo(84));
 		}
 
 		[Test]
@@ -863,25 +863,25 @@ namespace DamnScriptTests
 		{
 			SV originalInt = 42;
 			SV floatValue = originalInt + 0.0f;
-			SV backToInt = new SV((long)floatValue.SafeDoubleValue);
+			SV backToInt = new SV((long)floatValue.DoubleValue);
 
-			Assert.That(backToInt.longValue, Is.EqualTo(originalInt.longValue));
+			Assert.That(backToInt.rawLong, Is.EqualTo(originalInt.rawLong));
 
 			SV originalFloat = 42.5f;
 			SV doubleValue = originalFloat + 0.0;
-			SV backToFloat = new SV((float)doubleValue.doubleValue);
+			SV backToFloat = new SV((float)doubleValue.rawDouble);
 
-			Assert.That(backToFloat.floatValue, Is.EqualTo(originalFloat.floatValue));
+			Assert.That(backToFloat.rawFloat, Is.EqualTo(originalFloat.rawFloat));
 		}
 
 		[Test]
 		public void ScientificNotationNumberTest()
 		{
 			SV value = 1e6;
-			Assert.That(value.doubleValue, Is.EqualTo(1000000.0));
+			Assert.That(value.rawDouble, Is.EqualTo(1000000.0));
 
 			SV floatValue = 1.5e-2f;
-			Assert.That(floatValue.floatValue, Is.EqualTo(0.015f));
+			Assert.That(floatValue.rawFloat, Is.EqualTo(0.015f));
 		}
 
 		[Test]
@@ -904,10 +904,10 @@ namespace DamnScriptTests
 			SV c = 4;
 
 			SV result1 = a + b * c;
-			Assert.That(result1.longValue, Is.EqualTo(14));
+			Assert.That(result1.rawLong, Is.EqualTo(14));
 
 			SV result2 = (a + b) * c;
-			Assert.That(result2.longValue, Is.EqualTo(20));
+			Assert.That(result2.rawLong, Is.EqualTo(20));
 		}
 
 		[Test]
@@ -917,17 +917,17 @@ namespace DamnScriptTests
 			for (var i = 0; i < 5; i++)
 				array[i] = i * 10;
 
-			Assert.That(array[0].longValue, Is.EqualTo(0));
-			Assert.That(array[2].longValue, Is.EqualTo(20));
-			Assert.That(array[4].longValue, Is.EqualTo(40));
+			Assert.That(array[0].rawLong, Is.EqualTo(0));
+			Assert.That(array[2].rawLong, Is.EqualTo(20));
+			Assert.That(array[4].rawLong, Is.EqualTo(40));
 
 			fixed (SV* ptr = &array[2])
 			{
 				var scriptValuePtr = new ScriptValuePtr(ptr);
-				Assert.That(scriptValuePtr.LongValue, Is.EqualTo(20));
+				Assert.That(scriptValuePtr.RawLong, Is.EqualTo(20));
 
-				scriptValuePtr.RefValue.longValue = 25;
-				Assert.That(array[2].longValue, Is.EqualTo(25));
+				scriptValuePtr.RefValue.rawLong = 25;
+				Assert.That(array[2].rawLong, Is.EqualTo(25));
 			}
 		}
 
@@ -937,14 +937,14 @@ namespace DamnScriptTests
 			SV floatValue = 42.7f;
 			SV doubleValue = 42.2;
 
-			Assert.That(floatValue.SafeIntegerValue, Is.EqualTo(42));
-			Assert.That(doubleValue.SafeIntegerValue, Is.EqualTo(42));
+			Assert.That(floatValue.IntegerValue, Is.EqualTo(42));
+			Assert.That(doubleValue.IntegerValue, Is.EqualTo(42));
 
 			SV negativeFloat = -42.7f;
 			SV negativeDouble = -42.2;
 
-			Assert.That(negativeFloat.SafeIntegerValue, Is.EqualTo(-42));
-			Assert.That(negativeDouble.SafeIntegerValue, Is.EqualTo(-42));
+			Assert.That(negativeFloat.IntegerValue, Is.EqualTo(-42));
+			Assert.That(negativeDouble.IntegerValue, Is.EqualTo(-42));
 		}
 
 		private struct InnerStruct
@@ -969,7 +969,7 @@ namespace DamnScriptTests
 				var obj = new TestClass { Value = $"Test{i}" };
 				var value = SV.FromReferencePin(obj);
 				Assert.That(PinHelper.PinsCount, Is.EqualTo(count + 1));
-				value.UnpinManagedPointer();
+				value.UnpinSafePointer();
 				Assert.That(PinHelper.PinsCount, Is.EqualTo(count));
 			}
 		}
@@ -981,7 +981,7 @@ namespace DamnScriptTests
 			SV value = new SV(nullPtr, SV.ValueType.Pointer);
 
 			// Check that null pointers are handled consistently
-			Assert.That((IntPtr)value.pointerValue, Is.EqualTo((IntPtr)nullPtr));
+			Assert.That((IntPtr)value.rawPointerValue, Is.EqualTo((IntPtr)nullPtr));
 			Assert.That(value.type, Is.EqualTo(SV.ValueType.Pointer));
 		}
 
@@ -1017,7 +1017,7 @@ namespace DamnScriptTests
 			Assert.That(asDerived.Value, Is.EqualTo("Base"));
 			Assert.That(asDerived.ExtraValue, Is.EqualTo("Derived"));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -1037,7 +1037,7 @@ namespace DamnScriptTests
 			Assert.That(retrieved[1].y, Is.EqualTo(40));
 			Assert.That(retrieved[2].x, Is.EqualTo(50));
 		
-			value.UnpinManagedPointer();
+			value.UnpinSafePointer();
 		}
 
 		[Test]
@@ -1056,7 +1056,7 @@ namespace DamnScriptTests
 			Assert.That(retrieved.Next, Is.Not.Null);
 			Assert.That(retrieved.Next.Next, Is.SameAs(retrieved));
 		
-			value1.UnpinManagedPointer();
+			value1.UnpinSafePointer();
 		}
 
 		[Test]
@@ -1076,8 +1076,8 @@ namespace DamnScriptTests
 				SV offsetPtr = new SV(ptr + 10, SV.ValueType.Pointer);
 
 				// Verify correct behavior
-				Assert.That(*(byte*)basePtr.pointerValue, Is.EqualTo(0));
-				Assert.That(*(byte*)offsetPtr.pointerValue, Is.EqualTo(10));
+				Assert.That(*(byte*)basePtr.rawPointerValue, Is.EqualTo(0));
+				Assert.That(*(byte*)offsetPtr.rawPointerValue, Is.EqualTo(10));
 			}
 		}
 

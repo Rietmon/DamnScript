@@ -26,55 +26,55 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
             get => type is not ValueType.Invalid and not ValueType.Integer and not ValueType.Float32 and not ValueType.Float64;
         }
 
-        public float SafeFloatValue
+        public float FloatValue
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)] get => type switch
             {
-                ValueType.Integer => longValue,
-                ValueType.Float32 => floatValue,
-                ValueType.Float64 => (float)doubleValue,
+                ValueType.Integer => rawLong,
+                ValueType.Float32 => rawFloat,
+                ValueType.Float64 => (float)rawDouble,
                 _ => throw new NotSupportedException("ScriptValue is not a number type!")
             };
         }
 
-        public double SafeDoubleValue
+        public double DoubleValue
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)] get => type switch
             {
-                ValueType.Integer => longValue,
-                ValueType.Float32 => floatValue,
-                ValueType.Float64 => doubleValue,
+                ValueType.Integer => rawLong,
+                ValueType.Float32 => rawFloat,
+                ValueType.Float64 => rawDouble,
                 _ => throw new NotSupportedException("ScriptValue is not a number type!")
             };
         }
 
-        public long SafeIntegerValue
+        public long IntegerValue
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)] get => type switch
             {
-                ValueType.Integer => longValue,
-                ValueType.Float32 => (long)floatValue,
-                ValueType.Float64 => (long)doubleValue,
+                ValueType.Integer => rawLong,
+                ValueType.Float32 => (long)rawFloat,
+                ValueType.Float64 => (long)rawDouble,
                 _ => throw new NotSupportedException("ScriptValue is not a number type!")
             };
         }
         
         [FieldOffset(0)] public ValueType type;
-        [FieldOffset(TypeSize)] public bool boolValue;
-        [FieldOffset(TypeSize)] public byte byteValue;
-        [FieldOffset(TypeSize)] public sbyte sbyteValue;
-        [FieldOffset(TypeSize)] public short shortValue;
-        [FieldOffset(TypeSize)] public ushort ushortValue;
-        [FieldOffset(TypeSize)] public int intValue;
-        [FieldOffset(TypeSize)] public uint uintValue;
-        [FieldOffset(TypeSize)] public long longValue;
-        [FieldOffset(TypeSize)] public ulong ulongValue;
-        [FieldOffset(TypeSize)] public float floatValue;
-        [FieldOffset(TypeSize)] public double doubleValue;
-        [FieldOffset(TypeSize)] public char charValue;
-        [FieldOffset(TypeSize)] public void* pointerValue;
-        [FieldOffset(TypeSize)] public PinHandle safeValue;
-        [FieldOffset(TypeSize)] public NativeStringPtr nativeStringPtrValue;
+        [FieldOffset(TypeSize)] public bool rawBool;
+        [FieldOffset(TypeSize)] public byte rawByte;
+        [FieldOffset(TypeSize)] public sbyte rawSByte;
+        [FieldOffset(TypeSize)] public short rawShort;
+        [FieldOffset(TypeSize)] public ushort rawUShort;
+        [FieldOffset(TypeSize)] public int rawInt;
+        [FieldOffset(TypeSize)] public uint rawUInt;
+        [FieldOffset(TypeSize)] public long rawLong;
+        [FieldOffset(TypeSize)] public ulong rawULong;
+        [FieldOffset(TypeSize)] public float rawFloat;
+        [FieldOffset(TypeSize)] public double rawDouble;
+        [FieldOffset(TypeSize)] public char rawChar;
+        [FieldOffset(TypeSize)] public void* rawPointerValue;
+        [FieldOffset(TypeSize)] public PinHandle rawSafeValue;
+        [FieldOffset(TypeSize)] public NativeStringPtr rawNativeStringPointerValue;
 
         /// <summary>
         /// Convert value to an internal constant pointer and use it as a return value.
@@ -116,13 +116,14 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
         /// Unpin safe pointer if a value type is it.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void UnpinManagedPointer()
+        public void UnpinSafePointer()
         {
-            if (type != ValueType.ReferenceSafePointer)
-                throw new NotSupportedException("For UnpinManagedPointer use only " +
+            if (type is not (ValueType.ReferenceSafePointer or ValueType.ReferencePersistentSafePointer))
+                throw new NotSupportedException("For UnpinSafePointer use only " +
+                                                $"{nameof(ValueType.ReferencePersistentSafePointer)}!" +
                                                 $"{nameof(ValueType.ReferenceSafePointer)}!");
             
-            safeValue.Free();
+            rawSafeValue.Free();
             type = ValueType.ReferenceUnpinnedSafePointer;
         }
         
@@ -136,7 +137,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
                 throw new NotSupportedException("For FreeUnmanagedPointer use only " +
                                                 $"{nameof(ValueType.Pointer)}!");
             
-            UnsafeUtilities.Free(pointerValue);
+            UnsafeUtilities.Free(rawPointerValue);
             type = ValueType.FreedPointer;
         }
         
@@ -147,6 +148,6 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
         public override bool Equals(object obj) => obj is ScriptValue other && Equals(other);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() => HashCode.Combine((int)type, longValue);
+        public override int GetHashCode() => HashCode.Combine((int)type, rawLong);
     }
 }

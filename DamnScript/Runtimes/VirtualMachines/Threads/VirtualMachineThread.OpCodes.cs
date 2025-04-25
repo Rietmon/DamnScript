@@ -27,8 +27,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #endif
 
 			var argumentsStack = parametersStack.BeginPtr;
-			UnsafeUtilities.Memset(argumentsStack, 0,
-				ScriptValue.Size * VirtualMachineThreadParametersStack.MaxParameters);
 			for (var i = method.argumentsCount - 1; i >= 0; i--)
 				argumentsStack[i] = StackPop();
 
@@ -38,7 +36,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 
 			if (task != null)
 			{
-				if ((threadParameters & ThreadParameters.NoAwait) != 0)
+				if ((threadParameters & VirtualMachineThreadParameters.NoAwait) != 0)
 				{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 					Debugging.Log($"Skipping awaiting async");
@@ -60,9 +58,10 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 			if (method is { HasReturnValue: true, IsAsync: false })
 			{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-				Debugging.Log($"Push return value ({returnValue.type}):({returnValue.longValue}) to stack...");
+				Debugging.Log($"Push return value ({returnValue.type}):({returnValue.rawLong}) to stack...");
 #endif
 				StackPush(returnValue);
+				UnpinParameters();
 			}
 
 			ScriptValue.ReturnValuePtr = null;
@@ -170,7 +169,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ExecuteSetSavePoint()
 		{
-			if ((threadParameters & ThreadParameters.NoSavePoint) != 0)
+			if ((threadParameters & VirtualMachineThreadParameters.NoSavePoint) != 0)
 			{
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 				Debugging.Log($"Skipping save point");
@@ -255,7 +254,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 			Debugging.Log($"Store to ({registerIndex}) register...");
 #endif
-			registers[registerIndex] = StackPop().longValue;
+			threadRegisters[registerIndex] = StackPop().rawLong;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -268,7 +267,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
 			Debugging.Log($"Load from ({registerIndex}) register...");
 #endif
-			StackPush(registers[registerIndex]);
+			StackPush(threadRegisters[registerIndex]);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -278,35 +277,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 			Debugging.Log("Begin duplicate stack...");
 #endif
 			StackPush(StackPeek());
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void StackPush(ScriptValue value)
-		{
-#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-			Debugging.Log($"STACK: Push value ({value.type}):({value.longValue}) to stack...");
-#endif
-			stack.Push(value);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ScriptValue StackPop()
-		{
-			var value = stack.Pop();
-#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-			Debugging.Log($"STACK: Pop value ({value.type}):({value.longValue}) from stack...");
-#endif
-			return value;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ScriptValue StackPeek()
-		{
-			var value = stack.Peek();
-#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
-			Debugging.Log($"STACK: Peek value ({value.type}):({value.longValue}) from stack...");
-#endif
-			return value;
 		}
 	}
 }

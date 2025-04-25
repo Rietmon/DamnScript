@@ -31,7 +31,7 @@ namespace DamnScriptExamples.NET
 		
 		private static async Task Await(ScriptValuePtr ms)
 		{
-			await Task.Delay(ms.IntValue);
+			await Task.Delay(ms.RawInt);
 		}
         
 		public static unsafe void Run()

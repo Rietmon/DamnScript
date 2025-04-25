@@ -52,18 +52,18 @@ namespace DamnScript.Runtimes.BuiltIns
 
 		private static unsafe void SetNoSavePointsEnable(SVP value)
 		{
-			if (value.BoolValue)
-				ScriptEngine.CurrentThreadPtr.value->threadParameters |= ThreadParameters.NoSavePoint;
+			if (value.RawBool)
+				ScriptEngine.CurrentThreadPtr.value->threadParameters |= VirtualMachineThreadParameters.NoSavePoint;
 			else
-				ScriptEngine.CurrentThreadPtr.value->threadParameters &= ~ThreadParameters.NoSavePoint;
+				ScriptEngine.CurrentThreadPtr.value->threadParameters &= ~VirtualMachineThreadParameters.NoSavePoint;
 		}
 
 		private static unsafe void SetNoAwaitEnable(SVP value)
 		{
-			if (value.BoolValue)
-				ScriptEngine.CurrentThreadPtr.value->threadParameters |= ThreadParameters.NoAwait;
+			if (value.RawBool)
+				ScriptEngine.CurrentThreadPtr.value->threadParameters |= VirtualMachineThreadParameters.NoAwait;
 			else
-				ScriptEngine.CurrentThreadPtr.value->threadParameters &= ~ThreadParameters.NoAwait;
+				ScriptEngine.CurrentThreadPtr.value->threadParameters &= ~VirtualMachineThreadParameters.NoAwait;
 		}
 
 		private static SVP GetCurrentThreadHandle() =>
@@ -88,7 +88,7 @@ namespace DamnScript.Runtimes.BuiltIns
 
 		private static unsafe void StopThread(SVP threadHandleId)
 		{
-			var id = threadHandleId.LongValue;
+			var id = threadHandleId.RawLong;
 			var vm = ScriptEngine.mainPtr.value;
 			if (id < 0 || id >= vm->threads.Length)
 				throw new Exception($"Thread handle {id} is out of range.");
@@ -101,7 +101,7 @@ namespace DamnScript.Runtimes.BuiltIns
 		}
 		
 		private static async Task Delay(SVP value) => 
-			await Task.Delay(value.IntValue);
+			await Task.Delay((int)value.SafeIntegerValue);
 
 		private static unsafe void SetSavePoint() =>
 			ScriptEngine.CurrentThreadPtr.value->ExecuteSetSavePoint();
@@ -159,11 +159,11 @@ namespace DamnScript.Runtimes.BuiltIns
 			switch (ptr->type)
 			{
 				case SVT.Integer:
-					return new SV(ptr->longValue).Return();
+					return new SV(ptr->rawLong).Return();
 				case SVT.Float32:
-					return new SV(ptr->floatValue).Return();
+					return new SV(ptr->rawFloat).Return();
 				case SVT.Float64:
-					return new SV(ptr->doubleValue).Return();
+					return new SV(ptr->rawDouble).Return();
 				case SVT.NativeStringPointer or SVT.ReferenceUnsafePointer or SVT.ReferenceSafePointer:
 				{
 					var str = ptr->ToString();

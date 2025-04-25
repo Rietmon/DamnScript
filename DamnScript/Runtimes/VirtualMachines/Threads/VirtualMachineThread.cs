@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Pins;
+using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
 using DamnScript.Runtimes.VirtualMachines.Scripts;
 using DamnScript.Runtimes.VirtualMachines.ScriptValues;
@@ -24,11 +25,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 
     public unsafe partial struct VirtualMachineThread : IDisposable
     {
-        private byte* ByteCode => regionData->byteCode.start + offset;
+        private byte* CurrentOpCode => regionData->byteCode.start + offset;
 
         public VirtualMachineThreadStack stack;
         public VirtualMachineThreadParametersStack parametersStack;
-        public VirtualMachineRegisters registers;
+        public VirtualMachineThreadRegisters threadRegisters;
 
         public ScriptValue returnValue;
 
@@ -38,7 +39,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         
         public PinHandle awaitTaskPin;
         
-        public ThreadParameters threadParameters;
+        public VirtualMachineThreadParameters threadParameters;
     
         public int offset;
         public int savePoint;
@@ -49,7 +50,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         {
             stack = new VirtualMachineThreadStack();
             parametersStack = new VirtualMachineThreadParametersStack();
-            registers = new VirtualMachineRegisters();
+            threadRegisters = new VirtualMachineThreadRegisters();
             
             returnValue = new ScriptValue();
             
@@ -82,25 +83,25 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             if (!regionData->byteCode.IsInRange(offset))
                 return false;
         
-            var byteCode = ByteCode;
-            var opCode = *(OpCodeType*)byteCode;
-            switch (opCode)
+            var opCode = CurrentOpCode;
+            var type = *(OpCodeType*)opCode;
+            switch (type)
             {
                 case NativeCall.OpCode:
                 {
-                    ExecuteNativeCall(*(NativeCall*)byteCode);
+                    ExecuteNativeCall(*(NativeCall*)opCode);
                     offset += NativeCall.size;
                     break;
                 }
                 case PushToStack.OpCode:
                 {
-                    ExecutePushToStack(*(PushToStack*)byteCode);
+                    ExecutePushToStack(*(PushToStack*)opCode);
                     offset += PushToStack.size;
                     break;
                 }
                 case ExpressionCall.OpCode:
                 {
-                    ExecuteExpressionCall(*(ExpressionCall*)byteCode);
+                    ExecuteExpressionCall(*(ExpressionCall*)opCode);
                     offset += ExpressionCall.size;
                     break;
                 }
@@ -112,49 +113,49 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 }
                 case JumpNotEquals.OpCode:
                 {
-                    if (!ExecuteJumpNotEquals(*(JumpNotEquals*)byteCode))
+                    if (!ExecuteJumpNotEquals(*(JumpNotEquals*)opCode))
                         offset += JumpNotEquals.size;
                     break;
                 }
                 case JumpEquals.OpCode:
                 {
-                    if (!ExecuteJumpIfEquals(*(JumpEquals*)byteCode))
+                    if (!ExecuteJumpIfEquals(*(JumpEquals*)opCode))
                         offset += JumpEquals.size;
                     break;
                 }
                 case Jump.OpCode:
                 {
-                    if (!ExecuteJump(*(Jump*)byteCode))
+                    if (!ExecuteJump(*(Jump*)opCode))
                         offset += Jump.size;
                     break;
                 }
                 case PushStringToStack.OpCode:
                 {
-                    ExecutePushStringToStack(*(PushStringToStack*)byteCode);
+                    ExecutePushStringToStack(*(PushStringToStack*)opCode);
                     offset += PushStringToStack.size;
                     break;
                 }
                 case StoreToRegister.OpCode:
                 {
-                    ExecuteStoreToRegister(*(StoreToRegister*)byteCode);
+                    ExecuteStoreToRegister(*(StoreToRegister*)opCode);
                     offset += StoreToRegister.size;
                     break;
                 }
                 case LoadFromRegister.OpCode:
                 {
-                    ExecuteLoadFromRegister(*(LoadFromRegister*)byteCode);
+                    ExecuteLoadFromRegister(*(LoadFromRegister*)opCode);
                     offset += LoadFromRegister.size;
                     break;
                 }
                 case DuplicateStack.OpCode:
                 {
-                    ExecuteDuplicateStack(*(DuplicateStack*)byteCode);
+                    ExecuteDuplicateStack(*(DuplicateStack*)opCode);
                     offset += DuplicateStack.size;
                     break;
                 }
                 case OpCodeType.Invalid:
                 default:
-                    throw new NotSupportedException($"Invalid OpCode: {opCode}");
+                    throw new NotSupportedException($"Invalid OpCode: {type}");
             }
 
             return true;
@@ -163,14 +164,43 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
         public void UnpinParameters()
         {
             var begin = parametersStack.BeginPtr;
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < VirtualMachineThreadParametersStack.MaxParameters; i++)
             {
                 if (begin->type != ScriptValue.ValueType.ReferenceSafePointer)
                     continue;
 
-                begin->UnpinManagedPointer();
+                begin->UnpinSafePointer();
                 begin++;
             }
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void StackPush(ScriptValue value)
+        {
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"STACK: Push value ({value.type}):({value.rawLong}) to stack...");
+#endif
+            stack.Push(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ScriptValue StackPop()
+        {
+            var value = stack.Pop();
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"STACK: Pop value ({value.type}):({value.rawLong}) from stack...");
+#endif
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ScriptValue StackPeek()
+        {
+            var value = stack.Peek();
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+            Debugging.Log($"STACK: Peek value ({value.type}):({value.rawLong}) from stack...");
+#endif
+            return value;
         }
 
         /// <summary>

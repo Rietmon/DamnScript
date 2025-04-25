@@ -28,6 +28,6 @@ namespace DamnScript.Runtimes.Serializations
         public int savePoint;
         
         public VirtualMachineThreadStack stack;
-        public VirtualMachineRegisters registers;
+        public VirtualMachineThreadRegisters threadRegisters;
     }
 }

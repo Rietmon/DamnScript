@@ -7,7 +7,7 @@ namespace DamnScriptTests
 		{
 			ScriptEngine.mainPtr.RefValue.Dispose();
 			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
-			Assert.That(Run("PushToStack(5 + 5);").intValue, Is.EqualTo(10));
+			Assert.That(Run("PushToStack(5 + 5);").rawInt, Is.EqualTo(10));
 		}
 	
 		[Test]
@@ -15,7 +15,7 @@ namespace DamnScriptTests
 		{
 			ScriptEngine.mainPtr.RefValue.Dispose();
 			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
-			Assert.That(Run("PushToStack(5 - 5);").intValue, Is.EqualTo(0));
+			Assert.That(Run("PushToStack(5 - 5);").rawInt, Is.EqualTo(0));
 		}
 	
 		[Test]
@@ -23,7 +23,7 @@ namespace DamnScriptTests
 		{
 			ScriptEngine.mainPtr.RefValue.Dispose();
 			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
-			Assert.That(Run("PushToStack(5 * 5);").intValue, Is.EqualTo(25));
+			Assert.That(Run("PushToStack(5 * 5);").rawInt, Is.EqualTo(25));
 		}
 	
 		[Test]
@@ -31,7 +31,7 @@ namespace DamnScriptTests
 		{
 			ScriptEngine.mainPtr.RefValue.Dispose();
 			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
-			Assert.That(Run("PushToStack(5 / 5);").intValue, Is.EqualTo(1));
+			Assert.That(Run("PushToStack(5 / 5);").rawInt, Is.EqualTo(1));
 		}
 	
 		[Test]
@@ -39,7 +39,7 @@ namespace DamnScriptTests
 		{
 			ScriptEngine.mainPtr.RefValue.Dispose();
 			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
-			Assert.That(Run("PushToStack(5 % 5);").intValue, Is.EqualTo(0));
+			Assert.That(Run("PushToStack(5 % 5);").rawInt, Is.EqualTo(0));
 		}
 	}
 }

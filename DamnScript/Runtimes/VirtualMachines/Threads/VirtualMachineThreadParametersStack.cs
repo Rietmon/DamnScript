@@ -9,22 +9,16 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 	public unsafe struct VirtualMachineThreadParametersStack
 	{
 		public const int MaxParameters = 10;
-		
-		public ScriptValue p1;
-		public ScriptValue p2;
-		public ScriptValue p3;
-		public ScriptValue p4;
-		public ScriptValue p5;
-		public ScriptValue p6;
-		public ScriptValue p7;
-		public ScriptValue p8;
-		public ScriptValue p9;
-		public ScriptValue p10;
+
+		public ParametersBuffer parameters;
 
 		public ScriptValue* BeginPtr
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => UnsafeUtilities.AsPointer(ref p1);
+			get => (ScriptValue*)UnsafeUtilities.AsPointer(ref parameters);
 		}
+	
+		[StructLayout(LayoutKind.Sequential, Size = MaxParameters * ScriptValue.Size)]
+		public struct ParametersBuffer { }
 	}
 }

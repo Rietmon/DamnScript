@@ -6,9 +6,9 @@ namespace DamnScript.Runtimes.Cores.Pins
 	public static unsafe class PinHelper
 	{
 #if DAMN_SCRIPT_PINSBUCKET_SIZE_64
-		public const int DefaultPinSize = 64;
+		public const int DefaultPinsBucketSize = 64;
 #else
-		public const int DefaultPinSize = 32;
+		public const int DefaultPinsBucketSize = 32;
 #endif
 
 		public static int PinsCount
@@ -18,7 +18,7 @@ namespace DamnScript.Runtimes.Cores.Pins
 			{
 				var count = 0;
 				for (var i = 0; i < _buckets.Length; i++)
-					count += (int)(DefaultPinSize - _buckets[i].freeSlots);
+					count += (int)(DefaultPinsBucketSize - _buckets[i].freeSlots);
 
 				return count;
 			}
@@ -32,9 +32,9 @@ namespace DamnScript.Runtimes.Cores.Pins
 
 		private static PinsBucket[] _buckets =
 		{
-			new(DefaultPinSize)
+			new(0)
 #if !DAMN_SCRIPT_ENABLE_UNSAFE_SCRIPT_VALUE
-			, new(DefaultPinSize)
+			, new(0)
 #endif
 		};
 
@@ -111,9 +111,21 @@ namespace DamnScript.Runtimes.Cores.Pins
 			
 			Array.Resize(ref _buckets, newSize);
 			for (var i = oldLength; i < newSize; i++)
-				_buckets[i] = new PinsBucket(DefaultPinSize);
+				_buckets[i] = new PinsBucket(DefaultPinsBucketSize);
 
 			return ((short)oldLength, 0);
+		}
+
+		public static void FreeAllPins()
+		{
+			for (var i = 0; i < _buckets.Length; i++)
+			{
+				ref var bucket = ref _buckets[i];
+				for (var j = 0; j < DefaultPinsBucketSize; j++)
+					bucket.pinnedObjects[j] = default;
+
+				bucket.freeSlots = DefaultPinsBucketSize;
+			}
 		}
 	}
 }

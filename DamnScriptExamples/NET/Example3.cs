@@ -21,7 +21,7 @@ namespace DamnScriptExamples.NET
         public static async Task LogWithDelay(ScriptValuePtr value)
         {
             await Task.Delay(1000);
-            Console.WriteLine(value.LongValue);
+            Console.WriteLine(value.RawLong);
         }
     
         public static ScriptValuePtr GetInt()

@@ -358,7 +358,8 @@ namespace DamnScript.Parsings.Antlrs
             }
 
             var index = AddStringToConstantsIfNotExists(context->methods, functionName);
-            context->assembler->NativeCall(index, arguments?.ChildCount ?? 0);
+            var argumentCount = arguments?.ChildCount / 2 + 1 ?? 0;
+            context->assembler->NativeCall(index, argumentCount);
         }
         
         public static void AssemblyString(DamnScriptParser.StringContext stringContext, ScriptParserContext* context)

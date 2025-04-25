@@ -4,22 +4,16 @@ using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Collections;
 using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.VirtualMachines.Assemblers;
+using DamnScript.Runtimes.VirtualMachines.Threads;
 
 namespace DamnScript.Parsings.Antlrs
 {
 	[StructLayout(LayoutKind.Sequential)]
 	public unsafe struct ScriptParserContext
 	{
-		public const int RegistersCount = 4;
+		public const int RegistersCount = VirtualMachineThreadRegisters.RegistersCount;
 
-		public String32* RegistersPtr
-		{
-			get
-			{
-				fixed (String32* ptr = &registerId0)
-					return ptr;
-			}
-		}
+		public String32* RegistersNamesPtr => (String32*)UnsafeUtilities.AsPointer(ref registersNames);
 
 		public String32 name;
 
@@ -27,23 +21,20 @@ namespace DamnScript.Parsings.Antlrs
 		public NativeList<NativeStringPtr>* methods;
 		public ScriptAssembler* assembler;
 
-		public String32 registerId0;
-		public String32 registerId1;
-		public String32 registerId2;
-		public String32 registerId3;
+		public RegistersNamesBuffer registersNames;
 
 		public bool isError;
 
 		public int ReserveIdentifier(String32 identifier)
 		{
-			var begin = RegistersPtr;
+			var begin = RegistersNamesPtr;
 			var end = begin + RegistersCount;
 			while (begin < end)
 			{
 				if (*begin == default)
 				{
 					*begin = identifier;
-					return (int)(begin - RegistersPtr);
+					return (int)(begin - RegistersNamesPtr);
 				}
 
 				begin++;
@@ -54,12 +45,12 @@ namespace DamnScript.Parsings.Antlrs
 
 		public int GetRegisterIndex(String32 identifier)
 		{
-			var begin = RegistersPtr;
+			var begin = RegistersNamesPtr;
 			var end = begin + RegistersCount;
 			while (begin < end)
 			{
 				if (*begin == identifier)
-					return (int)(begin - RegistersPtr);
+					return (int)(begin - RegistersNamesPtr);
 				begin++;
 			}
 
@@ -71,8 +62,10 @@ namespace DamnScript.Parsings.Antlrs
 			if (index is < 0 or >= RegistersCount)
 				throw new IndexOutOfRangeException();
 
-			fixed (String32* ptr = &registerId0)
-				*(ptr + index) = default;
+			*(RegistersNamesPtr + index) = default;
 		}
+
+		[StructLayout(LayoutKind.Sequential, Size = String32.Size * RegistersCount)]
+		public struct RegistersNamesBuffer { }
 	}
 }

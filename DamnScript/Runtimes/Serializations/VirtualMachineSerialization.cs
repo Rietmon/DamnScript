@@ -35,7 +35,7 @@ namespace DamnScript.Runtimes.Serializations
                     regionName = threadsBegin->regionData->name,
                     savePoint = threadsBegin->savePoint,
                     stack = threadsBegin->stack,
-                    registers = threadsBegin->registers
+                    threadRegisters = threadsBegin->threadRegisters
                 };
                 stream.Write(serializedThread);
                 

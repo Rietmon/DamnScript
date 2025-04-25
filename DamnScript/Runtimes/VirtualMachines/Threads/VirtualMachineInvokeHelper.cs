@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.VirtualMachines.Methods;
 using SV = DamnScript.Runtimes.VirtualMachines.ScriptValues.ScriptValue;
+// ReSharper disable UnusedMethodReturnValue.Global
 
 namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
     public static unsafe class VirtualMachineInvokeHelper
     {
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public static SV Invoke(NativeMethod method, SV* arguments, out Task task)
         {
             task = null;
@@ -31,10 +34,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 if (!method.IsAsync)
                 {
                     if (method.HasReturnValue)
-                    {
-                        var resultPtr = (SV*)InvokeValue(method, arguments);
-                        return *resultPtr;
-                    }
+                        return *(SV*)InvokeValue(method, arguments);
 
                     InvokeVoid(method, arguments);
                 }
@@ -48,6 +48,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             return default;
         }
     
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public static void InvokeStaticVoid(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;
@@ -80,6 +81,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             }
         }
     
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public static void* InvokeStaticValue(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;
@@ -113,6 +115,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             return returnValue;
         }
     
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public static void InvokeVoid(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;
@@ -126,7 +129,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                 case 1: ((delegate*<void*, void>)methodPointer)
                     (objectInstance); break;
                 case 2: ((delegate*<void*, SV*, void>)methodPointer)
-                    (objectInstance, a); break;
+                    (objectInstance, a + 1); break;
                 case 3: ((delegate*<void*, SV*, SV*, void>)methodPointer)
                     (objectInstance, a + 1, a + 2); break;
                 case 4: ((delegate*<void*, SV*, SV*, SV*, void>)methodPointer)
@@ -147,6 +150,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             }
         }
     
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public static void* InvokeValue(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;

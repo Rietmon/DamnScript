@@ -9,6 +9,7 @@ namespace DamnScript.Runtimes.Cores.Strings
     public unsafe struct String32 : IEquatable<String32>
     {
         public const int Length = 32;
+        public const int Size = Length * sizeof(char);
 
         public ref char this[int index]
         {
@@ -49,7 +50,7 @@ namespace DamnScript.Runtimes.Cores.Strings
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator==(String32 left, String32 right) => 
-            UnsafeUtilities.Memcmp(left.data, right.data, Length * sizeof(char));
+            UnsafeUtilities.Memcmp(left.data, right.data, Size);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)] 
         public static bool operator !=(String32 left, String32 right) => !(left == right);

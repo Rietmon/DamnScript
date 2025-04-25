@@ -34,7 +34,7 @@ namespace DamnScriptTests
             for (var i = 0; i < 16; i++)
             {
                 var thread = ScriptEngine.RunThread(scriptDataPtr, "Main");
-                thread.Ptr.RefValue.threadParameters |= ThreadParameters.NoSavePoint;
+                thread.Ptr.RefValue.threadParameters |= VirtualMachineThreadParameters.NoSavePoint;
                 Assert.That((IntPtr)thread.Ptr.RefValue.regionData, Is.EqualTo((IntPtr)scriptDataPtr.value->regions.Begin));
             
                 while (ScriptEngine.ExecuteVirtualMachineNext())
@@ -74,7 +74,7 @@ namespace DamnScriptTests
             for (var i = 0; i < 32; i++)
             {
                 threads[i] = ScriptEngine.RunThread(scriptData, "Main");
-                threads[i].Ptr.RefValue.threadParameters |= ThreadParameters.NoSavePoint;
+                threads[i].Ptr.RefValue.threadParameters |= VirtualMachineThreadParameters.NoSavePoint;
                 threads[i].Ptr.RefValue.offset = i;
             }
 
@@ -94,27 +94,27 @@ namespace DamnScriptTests
         [MethodImpl(MethodImplOptions.NoOptimization)]
         private static void BigAlloc(ScriptValuePtr offset)
         {
-            if (offset.IntValue >= 10)
+            if (offset.RawInt >= 10)
             {
-                if (offset.IntValue == 10)
+                if (offset.RawInt == 10)
                     _temp = new string[10][];
 
                 GC.Collect();
             }
 
             var before = GC.GetTotalMemory(false);
-            var array = _temp[offset.IntValue % 10] = new string[Allocs * (offset.IntValue / 2)];
+            var array = _temp[offset.RawInt % 10] = new string[Allocs * (offset.RawInt / 2)];
             for (var i = 0; i < array.Length; i++)
-                array[i] = new string((char)(i % 30 + offset.IntValue), Allocs + i);
+                array[i] = new string((char)(i % 30 + offset.RawInt), Allocs + i);
 
             Console.WriteLine(array);
             var after = GC.GetTotalMemory(false);
-            Console.WriteLine($"Alloc {offset.IntValue} - {before} -> {after} = {after - before}");
+            Console.WriteLine($"Alloc {offset.RawInt} - {before} -> {after} = {after - before}");
 
             before = GC.GetTotalMemory(false);
             _ = new TestClass();
             after = GC.GetTotalMemory(false);
-            Console.WriteLine($"Checkup {offset.IntValue} - {before} -> {after} = {after - before}");
+            Console.WriteLine($"Checkup {offset.RawInt} - {before} -> {after} = {after - before}");
         }
 
         private static async Task<ScriptValuePtr> PrintTestClassAndAlloc(ScriptValuePtr value)
@@ -164,14 +164,14 @@ namespace DamnScriptTests
             stream.Dispose();
         
             var thread = ScriptEngine.RunThread(scriptData, "Main");
-            thread.Ptr.RefValue.threadParameters |= ThreadParameters.NoSavePoint;
+            thread.Ptr.RefValue.threadParameters |= VirtualMachineThreadParameters.NoSavePoint;
             while (ScriptEngine.ExecuteVirtualMachineNext())
                 Thread.Sleep(10);
             
             ScriptEngine.UnloadScript(scriptData);
             var result = thread.Ptr.value->StackPop();
             Assert.That(result.GetReferencePin<string>(), Is.EqualTo("Test VALUE"));
-            result.UnpinManagedPointer();
+            result.UnpinSafePointer();
             Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
         }
 
@@ -212,7 +212,7 @@ namespace DamnScriptTests
             var scriptData = ScriptEngine.LoadScript(stream, "Main");
             stream.Dispose();
         
-            ScriptEngine.RunThread(scriptData, "Main").Ptr.RefValue.threadParameters |= ThreadParameters.NoSavePoint;
+            ScriptEngine.RunThread(scriptData, "Main").Ptr.RefValue.threadParameters |= VirtualMachineThreadParameters.NoSavePoint;
             var asyncCount = 0;
         
             var exception = Assert.Throws<Exception>(() => 

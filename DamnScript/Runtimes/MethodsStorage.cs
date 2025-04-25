@@ -24,7 +24,7 @@ namespace DamnScript.Runtimes
     
         public static void RegisterNativeMethod(Delegate d, String32 name) => 
             RegisterNativeMethod(d.Method, name);
-        
+
         public static void RegisterNativeMethod(MethodInfo method, String32 name)
         {
 #if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS

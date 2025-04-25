@@ -26,7 +26,20 @@ namespace DamnScript.Runtimes.VirtualMachines
 
     public unsafe partial struct VirtualMachine : IDisposable
     {
+#if DAMN_SCRIPT_THREADS_CAPACITY_8
+        public const int DefaultThreadsCapacity = 8;
+#elif DAMN_SCRIPT_THREADS_CAPACITY_16
+        public const int DefaultThreadsCapacity = 16;
+#elif DAMN_SCRIPT_THREADS_CAPACITY_32
+        public const int DefaultThreadsCapacity = 32;
+#elif DAMN_SCRIPT_THREADS_CAPACITY_64
+        public const int DefaultThreadsCapacity = 64;
+#else
+        public const int DefaultThreadsCapacity = 4;
+#endif
+        
         public const int Version = 1;
+        
         public bool IsAlive => threads.Begin != null;
 
         public NativeArray<VirtualMachineThread> threads;
@@ -63,7 +76,7 @@ namespace DamnScript.Runtimes.VirtualMachines
                 offset = data->savePoint,
                 savePoint = data->savePoint,
                 stack = data->stack,
-                registers = data->registers
+                threadRegisters = data->threadRegisters
             };
             var slot = GetEmptySlotOrReAlloc();
             threads[slot] = thread;
@@ -72,7 +85,7 @@ namespace DamnScript.Runtimes.VirtualMachines
 
         public int GetEmptySlotOrReAlloc()
         {
-            static int Find(VirtualMachine vm)
+            static int FindEmptySlot(VirtualMachine vm)
             {
                 var begin = vm.threads.Begin;
                 var end = vm.threads.End;
@@ -91,18 +104,21 @@ namespace DamnScript.Runtimes.VirtualMachines
                 return -1;
             }
             
-            var index = Find(this);
+            var index = FindEmptySlot(this);
             if (index != -1)
                 return index;
-                
+            
             var newThreads = new NativeArray<VirtualMachineThread>(threads.Length * 2, true);
             UnsafeUtilities.Memcpy(threads.Begin, newThreads.Begin, sizeof(VirtualMachineThread) * threads.Length);
             threads.Dispose();
             threads = newThreads;
             
-            index = Find(this);
+            index = FindEmptySlot(this);
+            
+#if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
             if (index == -1)
                 throw new Exception($"Failed to find empty slot in threads array even after realloc!");
+#endif
             
             return index;
         }
@@ -126,7 +142,7 @@ namespace DamnScript.Runtimes.VirtualMachines
             this = default;
         }
         
-        public static VirtualMachine* Alloc(int capacity = 16)
+        public static VirtualMachine* Alloc(int capacity = DefaultThreadsCapacity)
         {
             var vm = UnsafeUtilities.Alloc<VirtualMachine>();
             *vm = new VirtualMachine(capacity);

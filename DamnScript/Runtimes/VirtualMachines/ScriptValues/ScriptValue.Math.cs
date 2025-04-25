@@ -80,13 +80,13 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static bool Equal(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return l.SafeDoubleValue == r.SafeDoubleValue;
+				return l.DoubleValue == r.DoubleValue;
 
 			return l.type switch
 			{
-				ValueType.Float32 => l.floatValue == r.floatValue,
-				ValueType.Float64 => l.doubleValue == r.doubleValue,
-				_ => l.longValue == r.longValue
+				ValueType.Float32 => l.rawFloat == r.rawFloat,
+				ValueType.Float64 => l.rawDouble == r.rawDouble,
+				_ => l.rawLong == r.rawLong
 			};
 		}
 
@@ -94,13 +94,13 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static bool Greater(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return l.SafeDoubleValue > r.SafeDoubleValue;
+				return l.DoubleValue > r.DoubleValue;
 
 			return l.type switch
 			{
-				ValueType.Float32 => l.floatValue > r.floatValue,
-				ValueType.Float64 => l.doubleValue > r.doubleValue,
-				_ => l.longValue > r.longValue
+				ValueType.Float32 => l.rawFloat > r.rawFloat,
+				ValueType.Float64 => l.rawDouble > r.rawDouble,
+				_ => l.rawLong > r.rawLong
 			};
 		}
 
@@ -108,13 +108,13 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static bool Less(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return l.SafeDoubleValue < r.SafeDoubleValue;
+				return l.DoubleValue < r.DoubleValue;
 
 			return l.type switch
 			{
-				ValueType.Float32 => l.floatValue < r.floatValue,
-				ValueType.Float64 => l.doubleValue < r.doubleValue,
-				_ => l.longValue < r.longValue
+				ValueType.Float32 => l.rawFloat < r.rawFloat,
+				ValueType.Float64 => l.rawDouble < r.rawDouble,
+				_ => l.rawLong < r.rawLong
 			};
 		}
 
@@ -122,13 +122,13 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static bool GreaterOrEqual(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return l.SafeDoubleValue >= r.SafeDoubleValue;
+				return l.DoubleValue >= r.DoubleValue;
 
 			return l.type switch
 			{
-				ValueType.Float32 => l.floatValue >= r.floatValue,
-				ValueType.Float64 => l.doubleValue >= r.doubleValue,
-				_ => l.longValue >= r.longValue
+				ValueType.Float32 => l.rawFloat >= r.rawFloat,
+				ValueType.Float64 => l.rawDouble >= r.rawDouble,
+				_ => l.rawLong >= r.rawLong
 			};
 		}
 
@@ -136,13 +136,13 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static bool LessOrEqual(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return l.SafeDoubleValue <= r.SafeDoubleValue;
+				return l.DoubleValue <= r.DoubleValue;
 
 			return l.type switch
 			{
-				ValueType.Float32 => l.floatValue <= r.floatValue,
-				ValueType.Float64 => l.doubleValue <= r.doubleValue,
-				_ => l.longValue <= r.longValue
+				ValueType.Float32 => l.rawFloat <= r.rawFloat,
+				ValueType.Float64 => l.rawDouble <= r.rawDouble,
+				_ => l.rawLong <= r.rawLong
 			};
 		}
 
@@ -150,15 +150,15 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static ScriptValue Add(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return new ScriptValue(l.SafeDoubleValue + r.SafeDoubleValue);
+				return new ScriptValue(l.DoubleValue + r.DoubleValue);
 
 			AssertIfBothAreRefOrPtr(l, r);
 
 			return l.type switch
 			{
-				ValueType.Float32 => new ScriptValue(l.floatValue + r.floatValue),
-				ValueType.Float64 => new ScriptValue(l.doubleValue + r.doubleValue),
-				_ => new ScriptValue(l.longValue + r.longValue)
+				ValueType.Float32 => new ScriptValue(l.rawFloat + r.rawFloat),
+				ValueType.Float64 => new ScriptValue(l.rawDouble + r.rawDouble),
+				_ => new ScriptValue(l.rawLong + r.rawLong)
 			};
 		}
 
@@ -166,15 +166,15 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static ScriptValue Subtract(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return new ScriptValue(l.SafeDoubleValue - r.SafeDoubleValue);
+				return new ScriptValue(l.DoubleValue - r.DoubleValue);
 
 			AssertIfBothAreRefOrPtr(l, r);
 
 			return l.type switch
 			{
-				ValueType.Float32 => new ScriptValue(l.floatValue - r.floatValue),
-				ValueType.Float64 => new ScriptValue(l.doubleValue - r.doubleValue),
-				_ => new ScriptValue(l.longValue - r.longValue)
+				ValueType.Float32 => new ScriptValue(l.rawFloat - r.rawFloat),
+				ValueType.Float64 => new ScriptValue(l.rawDouble - r.rawDouble),
+				_ => new ScriptValue(l.rawLong - r.rawLong)
 			};
 		}
 
@@ -182,15 +182,15 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static ScriptValue Multiply(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return new ScriptValue(l.SafeDoubleValue * r.SafeDoubleValue);
+				return new ScriptValue(l.DoubleValue * r.DoubleValue);
 
 			AssertIfBothAreRefOrPtr(l, r);
 
 			return l.type switch
 			{
-				ValueType.Float32 => new ScriptValue(l.floatValue * r.floatValue),
-				ValueType.Float64 => new ScriptValue(l.doubleValue * r.doubleValue),
-				_ => new ScriptValue(l.longValue * r.longValue)
+				ValueType.Float32 => new ScriptValue(l.rawFloat * r.rawFloat),
+				ValueType.Float64 => new ScriptValue(l.rawDouble * r.rawDouble),
+				_ => new ScriptValue(l.rawLong * r.rawLong)
 			};
 		}
 
@@ -198,15 +198,15 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static ScriptValue Divide(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return new ScriptValue(l.SafeDoubleValue / r.SafeDoubleValue);
+				return new ScriptValue(l.DoubleValue / r.DoubleValue);
 
 			AssertIfBothAreRefOrPtr(l, r);
 
 			return l.type switch
 			{
-				ValueType.Float32 => new ScriptValue(l.floatValue / r.floatValue),
-				ValueType.Float64 => new ScriptValue(l.doubleValue / r.doubleValue),
-				_ => new ScriptValue(l.longValue / r.longValue)
+				ValueType.Float32 => new ScriptValue(l.rawFloat / r.rawFloat),
+				ValueType.Float64 => new ScriptValue(l.rawDouble / r.rawDouble),
+				_ => new ScriptValue(l.rawLong / r.rawLong)
 			};
 		}
 
@@ -214,15 +214,15 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		private static ScriptValue Modulo(ScriptValue l, ScriptValue r)
 		{
 			if (l.type != r.type)
-				return new ScriptValue(l.SafeDoubleValue % r.SafeDoubleValue);
+				return new ScriptValue(l.DoubleValue % r.DoubleValue);
 
 			AssertIfBothAreRefOrPtr(l, r);
 
 			return l.type switch
 			{
-				ValueType.Float32 => new ScriptValue(l.floatValue % r.floatValue),
-				ValueType.Float64 => new ScriptValue(l.doubleValue % r.doubleValue),
-				_ => new ScriptValue(l.longValue % r.longValue)
+				ValueType.Float32 => new ScriptValue(l.rawFloat % r.rawFloat),
+				ValueType.Float64 => new ScriptValue(l.rawDouble % r.rawDouble),
+				_ => new ScriptValue(l.rawLong % r.rawLong)
 			};
 		}
 
@@ -233,9 +233,9 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 
 			return l.type switch
 			{
-				ValueType.Float32 => new ScriptValue(-l.floatValue),
-				ValueType.Float64 => new ScriptValue(-l.doubleValue),
-				_ => new ScriptValue(-l.longValue)
+				ValueType.Float32 => new ScriptValue(-l.rawFloat),
+				ValueType.Float64 => new ScriptValue(-l.rawDouble),
+				_ => new ScriptValue(-l.rawLong)
 			};
 		}
 
@@ -246,9 +246,9 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 
 			return l.type switch
 			{
-				ValueType.Float32 => new ScriptValue(+l.floatValue),
-				ValueType.Float64 => new ScriptValue(+l.doubleValue),
-				_ => new ScriptValue(+l.longValue)
+				ValueType.Float32 => new ScriptValue(+l.rawFloat),
+				ValueType.Float64 => new ScriptValue(+l.rawDouble),
+				_ => new ScriptValue(+l.rawLong)
 			};
 		}
 
@@ -257,7 +257,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		{
 			return l.type switch
 			{
-				ValueType.Integer => new ScriptValue(l.longValue & r.longValue),
+				ValueType.Integer => new ScriptValue(l.rawLong & r.rawLong),
 				_ => throw new Exception($"Cannot use AND operator on {l.type} and {r.type}.")
 			};
 		}
@@ -267,7 +267,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		{
 			return l.type switch
 			{
-				ValueType.Integer => new ScriptValue(l.longValue | r.longValue),
+				ValueType.Integer => new ScriptValue(l.rawLong | r.rawLong),
 				_ => throw new Exception($"Cannot use OR operator on {l.type} and {r.type}.")
 			};
 		}
@@ -277,7 +277,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		{
 			return l.type switch
 			{
-				ValueType.Integer => new ScriptValue(l.longValue ^ r.longValue),
+				ValueType.Integer => new ScriptValue(l.rawLong ^ r.rawLong),
 				_ => throw new Exception($"Cannot use XOR operator on {l.type} and {r.type}.")
 			};
 		}
@@ -287,7 +287,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		{
 			return l.type switch
 			{
-				ValueType.Integer => new ScriptValue(l.longValue << (int)r.longValue),
+				ValueType.Integer => new ScriptValue(l.rawLong << (int)r.rawLong),
 				_ => throw new Exception($"Cannot use Bitwise Left Shift operator on {l.type} and {r.type}.")
 			};
 		}
@@ -297,7 +297,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		{
 			return l.type switch
 			{
-				ValueType.Integer => new ScriptValue(l.longValue >> (int)r.longValue),
+				ValueType.Integer => new ScriptValue(l.rawLong >> (int)r.rawLong),
 				_ => throw new Exception($"Cannot use Bitwise Right Shift operator on {l.type} and {r.type}.")
 			};
 		}
@@ -307,7 +307,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		{
 			return l.type switch
 			{
-				ValueType.Integer => new ScriptValue(~l.longValue),
+				ValueType.Integer => new ScriptValue(~l.rawLong),
 				_ => throw new Exception($"Cannot use Bitwise Not operator on {l.type}.")
 			};
 		}
@@ -317,9 +317,9 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		{
 			return l.type switch
 			{
-				ValueType.Integer => new ScriptValue(l.longValue + 1),
-				ValueType.Float32 => new ScriptValue(l.floatValue + 1),
-				ValueType.Float64 => new ScriptValue(l.doubleValue + 1),
+				ValueType.Integer => new ScriptValue(l.rawLong + 1),
+				ValueType.Float32 => new ScriptValue(l.rawFloat + 1),
+				ValueType.Float64 => new ScriptValue(l.rawDouble + 1),
 				_ => throw new Exception($"Cannot use Increment operator on {l.type}.")
 			};
 		}
@@ -329,9 +329,9 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		{
 			return l.type switch
 			{
-				ValueType.Integer => new ScriptValue(l.longValue - 1),
-				ValueType.Float32 => new ScriptValue(l.floatValue - 1),
-				ValueType.Float64 => new ScriptValue(l.doubleValue - 1),
+				ValueType.Integer => new ScriptValue(l.rawLong - 1),
+				ValueType.Float32 => new ScriptValue(l.rawFloat - 1),
+				ValueType.Float64 => new ScriptValue(l.rawDouble - 1),
 				_ => throw new Exception($"Cannot use Decrement operator on {l.type}.")
 			};
 		}

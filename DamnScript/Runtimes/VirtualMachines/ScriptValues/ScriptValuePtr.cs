@@ -17,6 +17,24 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => value->IsRefOrPtr;
 		}
+		
+		public float SafeFloatValue
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => value->FloatValue;
+		}
+
+		public double SafeDoubleValue
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => value->DoubleValue;
+		}
+
+		public long SafeIntegerValue
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => value->IntegerValue;
+		}
 
 		public ScriptValue.ValueType Type
 		{
@@ -24,88 +42,88 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 			get => value->type;
 		}
 
-		public bool BoolValue
+		public bool RawBool
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->boolValue;
+			get => value->rawBool;
 		}
 
-		public byte ByteValue
+		public byte RawByte
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->byteValue;
+			get => value->rawByte;
 		}
 
-		public sbyte SByteValue
+		public sbyte RawSByte
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->sbyteValue;
+			get => value->rawSByte;
 		}
 
-		public short ShortValue
+		public short RawShort
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->shortValue;
+			get => value->rawShort;
 		}
 
-		public ushort UShortValue
+		public ushort RawUShort
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->ushortValue;
+			get => value->rawUShort;
 		}
 
-		public int IntValue
+		public int RawInt
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->intValue;
+			get => value->rawInt;
 		}
 
-		public uint UIntValue
+		public uint RawUInt
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->uintValue;
+			get => value->rawUInt;
 		}
 
-		public long LongValue
+		public long RawLong
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->longValue;
+			get => value->rawLong;
 		}
 
-		public ulong ULongValue
+		public ulong RawULong
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->ulongValue;
+			get => value->rawULong;
 		}
 
-		public float FloatValue
+		public float RawFloat
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->floatValue;
+			get => value->rawFloat;
 		}
 
-		public double DoubleValue
+		public double RawDouble
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->doubleValue;
+			get => value->rawDouble;
 		}
 
-		public char CharValue
+		public char RawChar
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->charValue;
+			get => value->rawChar;
 		}
 
-		public void* PointerValue
+		public void* RawPointerValue
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->pointerValue;
+			get => value->rawPointerValue;
 		}
 
-		public PinHandle SafeValue
+		public PinHandle RawSafeValue
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => value->safeValue;
+			get => value->rawSafeValue;
 		}
 
 		public ref ScriptValue RefValue
@@ -165,10 +183,10 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		public void* GetReferencePointer() => value->GetReferencePointer();
 
 		/// <summary>
-		/// <inheritdoc cref="ScriptValue.UnpinManagedPointer"/>
+		/// <inheritdoc cref="ScriptValue.UnpinSafePointer"/>
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UnpinManagedPointer() => value->UnpinManagedPointer();
+		public void UnpinManagedPointer() => value->UnpinSafePointer();
 
 		/// <summary>
 		/// <inheritdoc cref="ScriptValue.ToString"/>

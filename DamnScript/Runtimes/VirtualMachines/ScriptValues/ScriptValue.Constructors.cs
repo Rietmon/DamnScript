@@ -9,54 +9,55 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 		#region Constructors
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(bool value) : this() => (type, boolValue) = (ValueType.Integer, value);
+        public ScriptValue(bool value) : this() => (type, rawBool) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(byte value) : this() => (type, ulongValue) = (ValueType.Integer, value);
+        public ScriptValue(byte value) : this() => (type, rawULong) = (ValueType.Integer, value);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(sbyte value) : this() => (type, longValue) = (ValueType.Integer, value);
+        public ScriptValue(sbyte value) : this() => (type, rawLong) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(short value) : this() => (type, longValue) = (ValueType.Integer, value);
+        public ScriptValue(short value) : this() => (type, rawLong) = (ValueType.Integer, value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(ushort value) : this() => (type, ulongValue) = (ValueType.Integer, value);
+        public ScriptValue(ushort value) : this() => (type, rawULong) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(int value) : this() => (type, longValue) = (ValueType.Integer, value);
+        public ScriptValue(int value) : this() => (type, rawLong) = (ValueType.Integer, value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(uint value) : this() => (type, ulongValue) = (ValueType.Integer, value);
+        public ScriptValue(uint value) : this() => (type, rawULong) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(long value) : this() => (type, longValue) = (ValueType.Integer, value);
+        public ScriptValue(long value) : this() => (type, rawLong) = (ValueType.Integer, value);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(ulong value) : this() => (type, ulongValue) = (ValueType.Integer, value);
+        public ScriptValue(ulong value) : this() => (type, rawULong) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(float value) : this() => (type, floatValue) = (ValueType.Float32, value);
+        public ScriptValue(float value) : this() => (type, rawFloat) = (ValueType.Float32, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(double value) : this() => (type, doubleValue) = (ValueType.Float64, value);
+        public ScriptValue(double value) : this() => (type, rawDouble) = (ValueType.Float64, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(char value) : this() => (type, charValue) = (ValueType.Integer, value);
+        public ScriptValue(char value) : this() => (type, rawChar) = (ValueType.Integer, value);
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ScriptValue(void* value, ValueType type) : this()
         {
             this.type = type;
-            pointerValue = value;
+            rawPointerValue = value;
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(PinHandle value) : this() => (type, safeValue) = (ValueType.ReferenceSafePointer, value);
+        public ScriptValue(PinHandle value, bool isPersistent = false) : this() => 
+	        (type, rawSafeValue) = (isPersistent ? ValueType.ReferencePersistentSafePointer : ValueType.ReferenceSafePointer, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ScriptValue(NativeString* ptrValue) : this()
+        public ScriptValue(NativeString* pointerValue) : this()
         {
-            nativeStringPtrValue = ptrValue;
+            rawNativeStringPointerValue = pointerValue;
             type = ValueType.NativeStringPointer;
         }
 

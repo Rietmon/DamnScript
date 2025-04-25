@@ -48,6 +48,10 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
 			/// </summary>
 			ReferenceSafePointer,
 			/// <summary>
+			/// Safe persistent pointer to the reference type.
+			/// </summary>
+			ReferencePersistentSafePointer,
+			/// <summary>
 			/// Safe pointer to the reference type that is not pinned.
 			/// </summary>
 			ReferenceUnpinnedSafePointer,
