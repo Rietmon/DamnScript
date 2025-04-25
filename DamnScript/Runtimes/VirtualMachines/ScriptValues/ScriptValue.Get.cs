@@ -120,7 +120,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
                     
                     throw new NotSupportedException($"Attempt to get SafeString from non-string value! If you want to convert into string, use ToString() method.");
 #else
-                    var value = UnsafeUtilities.PointerToReference<string>(pointerValue);
+                    var value = UnsafeUtilities.PointerToReference<string>(rawPointerValue);
                     return value;
 #endif
                 }
@@ -132,7 +132,7 @@ namespace DamnScript.Runtimes.VirtualMachines.ScriptValues
                     
                     throw new NotSupportedException($"Attempt to get SafeString from non-string value! If you want to convert into string, use ToString() method.");
 #else
-                    return safeValue;
+                    return rawSafeValue;
 #endif
                 }
                 default:
