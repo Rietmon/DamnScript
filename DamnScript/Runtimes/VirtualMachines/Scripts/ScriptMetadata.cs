@@ -14,7 +14,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Scripts
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public NativeString* GetNativeString(int index) => 
+        public NativeString* GetConstString(int index) => 
             constants.strings[index].value;
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

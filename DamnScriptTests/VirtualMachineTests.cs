@@ -170,6 +170,9 @@ namespace DamnScriptTests
             
             ScriptEngine.UnloadScript(scriptData);
             var result = thread.Ptr.value->StackPop();
+            
+            Assert.That(thread.Ptr.RefValue.stack.stackOffset, Is.EqualTo(0));
+            
             Assert.That(result.GetReferencePin<string>(), Is.EqualTo("Test VALUE"));
             result.UnpinSafePointer();
             Assert.That(PinHelper.PinsCount, Is.EqualTo(0));

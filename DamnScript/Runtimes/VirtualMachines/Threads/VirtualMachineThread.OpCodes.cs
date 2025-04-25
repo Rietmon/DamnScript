@@ -237,7 +237,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 			Debugging.Log($"Push string to stack...");
 #endif
 			var index = pushStringToStack.index;
-			var str = metadata->GetNativeString(index);
+			var str = metadata->GetConstString(index);
 			if (str == null)
 				throw new Exception($"String not found by index: {index}");
 

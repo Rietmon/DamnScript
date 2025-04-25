@@ -35,7 +35,7 @@ public class SyntaxTests
 		_counter = 0;
 	}
 
-	public static ScriptValuePtr GetUntil() => 15.Return();
+	public static ScriptValuePtr GetUntil() => 8.Return();
 	
 	[Test]
 	public void ForTest()
@@ -47,10 +47,10 @@ public class SyntaxTests
 		
 		Assert.That(Run("for (i in 5) { PushToStack(i); } ", true).rawInt, Is.EqualTo(4));
 		Assert.That(Run("for (i in 10) { PushToStack(i); }", true).rawInt, Is.EqualTo(9));
-		Assert.That(Run("for (i in 20) { PushToStack(i); }", true).rawInt, Is.EqualTo(19));
-		Assert.That(Run("for (i in 20 + 1) { PushToStack(i); }", true).rawInt, Is.EqualTo(20));
-		Assert.That(Run("for (i in GetUntil()) { PushToStack(i); }", true).rawInt, Is.EqualTo(14));
-		Assert.That(Run("for (i in GetUntil() + 1) { PushToStack(i); }", true).rawInt, Is.EqualTo(15));
+		Assert.That(Run("for (i in 12) { PushToStack(i); }", true).rawInt, Is.EqualTo(11));
+		Assert.That(Run("for (i in 12 + 1) { PushToStack(i); }", true).rawInt, Is.EqualTo(12));
+		Assert.That(Run("for (i in GetUntil()) { PushToStack(i); }", true).rawInt, Is.EqualTo(7));
+		Assert.That(Run("for (i in GetUntil() + 1) { PushToStack(i); }", true).rawInt, Is.EqualTo(8));
 		const string code = @"
 for (i in 1) {
 	for (j in 1) {

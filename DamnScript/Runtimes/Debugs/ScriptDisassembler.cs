@@ -110,7 +110,7 @@ namespace DamnScript.Runtimes.Debugs
                     case PushStringToStack.OpCode:
                     {
                         var pushStringToStack = *(PushStringToStack*)byteCode;
-                        var str = noMetadata ? new String32("N/A") : metadata.GetNativeString(pushStringToStack.index)->ToString32();
+                        var str = noMetadata ? new String32("N/A") : metadata.GetConstString(pushStringToStack.index)->ToString32();
                         sb.AppendLine(
                             $"{offset.ToString()}: PUSHSTR {pushStringToStack.index.ToString()} ({str})");
                         offset += sizeof(JumpEquals);

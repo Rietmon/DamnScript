@@ -156,6 +156,20 @@ namespace DamnScript.Runtimes
             ScriptsStorage.UnloadScript(scriptData);
 
         /// <summary>
+        /// Unload ALL scripts. Can throw exception if some threads are running and references are not zero.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void UnloadAllScripts() => 
+            ScriptsStorage.UnloadAllScripts();
+
+        /// <summary>
+        /// Unload all unused scripts.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void UnloadAllUnusedScripts() => 
+            ScriptsStorage.UnloadAllUnusedScripts();
+
+        /// <summary>
         /// Serialize the Main virtual machine to bytes then return it.
         /// </summary>
         /// <returns>Serialization stream with bytes</returns>

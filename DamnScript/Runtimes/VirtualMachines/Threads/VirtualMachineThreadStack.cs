@@ -9,11 +9,11 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
     public unsafe struct VirtualMachineThreadStack
     {
 #if DAMN_SCRIPT_STACK_SIZE_32
-        private const int StackSize = 32 * ScriptValue.Size;
+        private const int StackSize = 32;
 #elif DAMN_SCRIPT_STACK_SIZE_64
-        private const int StackSize = 64 * ScriptValue.Size;
+        private const int StackSize = 64;
 #else
-        private const int StackSize = 16 * ScriptValue.Size;
+        private const int StackSize = 16;
 #endif
 
         public ScriptValue* Ptr => (ScriptValue*)UnsafeUtilities.AsPointer(ref stack);
