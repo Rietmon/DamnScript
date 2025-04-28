@@ -64,4 +64,57 @@ for (i in 1) {
 ";
 		Assert.That(Run(code, true).rawInt, Is.EqualTo(1));
 	}
+
+	public class TestClass
+	{
+		public ScriptValuePtr GetStr() => ScriptValue.FromReferencePin("Hello").Return();
+		public ScriptValuePtr This() => ScriptValue.FromReferencePin(this).Return();
+		
+		public ScriptValuePtr GetStrU() => ScriptValue.FromReferenceUnsafe("Hello").Return();
+		public ScriptValuePtr ThisU() => ScriptValue.FromReferenceUnsafe(this).Return();
+	}
+
+	public static ScriptValuePtr NewClass() => ScriptValue.FromReferencePin(new TestClass()).Return();
+	public static ScriptValuePtr NewClassU() => ScriptValue.FromReferenceUnsafe(new TestClass()).Return();
+
+	[Test]
+	public void TestObjectCalls()
+	{
+		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod("GetStr"));
+		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod("This"));
+		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod("GetStrU"));
+		ScriptEngine.RegisterNativeMethod(typeof(TestClass).GetMethod("ThisU"));
+		ScriptEngine.RegisterNativeMethod(NewClass);
+		ScriptEngine.RegisterNativeMethod(NewClassU);
+		
+		ScriptEngine.mainPtr.RefValue.Dispose();
+		ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+
+		var safeValue = Run("NewClass().GetStr();");
+		var value = safeValue.GetReference<string>();
+		safeValue.UnpinSafePointer();
+		Assert.That(value, Is.EqualTo("Hello"));
+		
+		safeValue = Run("NewClass().This().GetStr();");
+		value = safeValue.GetReference<string>();
+		safeValue.UnpinSafePointer();
+		Assert.That(value, Is.EqualTo("Hello"));
+		
+		safeValue = Run("NewClass().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().This().GetStr();");
+		value = safeValue.GetReference<string>();
+		safeValue.UnpinSafePointer();
+		Assert.That(value, Is.EqualTo("Hello"));
+
+		safeValue = Run("NewClassU().GetStrU();");
+		value = safeValue.GetReference<string>();
+		Assert.That(value, Is.EqualTo("Hello"));
+		
+		safeValue = Run("NewClassU().ThisU().GetStrU();");
+		value = safeValue.GetReference<string>();
+		Assert.That(value, Is.EqualTo("Hello"));
+		
+		safeValue = Run("NewClassU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().ThisU().GetStrU();");
+		value = safeValue.GetReference<string>();
+		Assert.That(value, Is.EqualTo("Hello"));
+	}
 }

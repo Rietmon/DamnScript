@@ -22,6 +22,7 @@ namespace DamnScript.Runtimes.VirtualMachines.OpCodes
 		Jump,
 		StoreToRegister,
 		LoadFromRegister,
-		DuplicateStack
+		DuplicateStack,
+		PushNullToStack
 	}
 }

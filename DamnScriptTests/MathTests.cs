@@ -41,5 +41,13 @@ namespace DamnScriptTests
 			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
 			Assert.That(Run("PushToStack(5 % 5);").rawInt, Is.EqualTo(0));
 		}
+	
+		[Test]
+		public void Diff1Test()
+		{
+			ScriptEngine.mainPtr.RefValue.Dispose();
+			ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+			Assert.That(Run("PushToStack(5 + 5 - 5 * (2 - 3 * 124) + 34 - 5);").rawInt, Is.EqualTo(1889));
+		}
 	}
 }

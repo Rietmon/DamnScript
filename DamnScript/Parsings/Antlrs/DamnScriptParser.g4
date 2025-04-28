@@ -2,51 +2,61 @@
 
 options { tokenVocab=DamnScriptLexer; }
 
-program: region+ (routine*?);
+entry: regionGroup+ (subroutineGroup*?);
 
-region: REGION name block;
+regionGroup: REGION name blockGroup;
 
-routine: ROUTINE name (LEFT_PAREN (var (COMMA var)*)* RIGHT_PAREN) block;
+subroutineGroup: ROUTINE name (LEFT_PAREN (var (COMMA var)*)* RIGHT_PAREN) blockGroup;
 
-block: LEFT_BRACKET statement* RIGHT_BRACKET;
+blockGroup: LEFT_BRACKET statementUnion* RIGHT_BRACKET;
 
-statement
-    : ifStatement
-    | forStatement
-    | whileStatement
-    | callStatement;
+statementUnion
+    : ifStatementGroup
+    | forStatementGroup
+    | whileStatementGroup
+    | callStatementGroup;
+
+ifStatementGroup: IF condition blockGroup (ELSEIF condition blockGroup)* (ELSE blockGroup)?;
+forStatementGroup: FOR LEFT_PAREN var IN expression RIGHT_PAREN blockGroup;
+whileStatementGroup: WHILE condition blockGroup;
+
+callStatementGroup: anyCall SEMICOLON;
+
+factorUnion
+    : num
+    | keywords
+    | parens
+    | anyCall
+    | str
+    | var
+    ;
+
+num: NUMBER;
+
+keywords
+    : TRUE
+    | FALSE
+    | NULL
+    ;
+
+parens: LEFT_PAREN expression RIGHT_PAREN;
 
 condition: LEFT_PAREN expression RIGHT_PAREN;
 
-ifStatement: IF condition block (ELSEIF condition block)* (ELSE block)?;
+anyCall: (funcCall | objectCall);
+objectCall: funcCall DOT anyCall;
+funcCall: name LEFT_PAREN arguments? RIGHT_PAREN;
 
-forStatement: FOR LEFT_PAREN var IN expression RIGHT_PAREN block;
+str: STRING;
 
-whileStatement: WHILE condition block;
-
-callStatement: funcCall SEMICOLON;
+var: name;
 
 arguments: argument (COMMA argument)*;
-
 argument: expression;
 
 expression: additiveExpression (logicalOp additiveExpression)*;
-
 additiveExpression: term (addOp term)*;
-
-term: factor (mulOp factor)*;
-
-factor
-    : NUMBER                  # Number
-    | LEFT_PAREN expression RIGHT_PAREN  # Parens
-    | funcCall                # MethodCall
-    | STRING                    # String
-    | var                  # Variable
-    ;
-
-funcCall: name LEFT_PAREN arguments? RIGHT_PAREN;
-
-var: name;
+term: factorUnion (mulOp factorUnion)*;
 
 logicalOp: (EQUAL | NOT_EQUAL | LESS | LESS_EQUAL | GREATER | GREATER_EQUAL | AND | OR);
 addOp: (ADD | SUBTRACT);

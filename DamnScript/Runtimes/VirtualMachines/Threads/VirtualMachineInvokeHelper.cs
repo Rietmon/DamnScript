@@ -10,7 +10,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 {
     public static unsafe class VirtualMachineInvokeHelper
     {
-        [MethodImpl(MethodImplOptions.NoOptimization)]
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
         public static SV Invoke(NativeMethod method, SV* arguments, out Task task)
         {
             task = null;
@@ -48,7 +48,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             return default;
         }
     
-        [MethodImpl(MethodImplOptions.NoOptimization)]
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
         public static void InvokeStaticVoid(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;
@@ -81,7 +81,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             }
         }
     
-        [MethodImpl(MethodImplOptions.NoOptimization)]
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
         public static void* InvokeStaticValue(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;
@@ -115,7 +115,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             return returnValue;
         }
     
-        [MethodImpl(MethodImplOptions.NoOptimization)]
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
         public static void InvokeVoid(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;
@@ -150,7 +150,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
             }
         }
     
-        [MethodImpl(MethodImplOptions.NoOptimization)]
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
         public static void* InvokeValue(NativeMethod method, SV* a)
         {
             var argumentsCount = method.argumentsCount;

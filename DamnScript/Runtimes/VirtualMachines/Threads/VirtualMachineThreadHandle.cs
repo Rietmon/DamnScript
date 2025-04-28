@@ -20,7 +20,7 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 #if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
 				virtualMachinePtr.value->IsAlive 
 					? new VirtualMachineThreadPtr(virtualMachinePtr.value->threads.Begin + threadId) 
-					: throw new InvalidOperationException("Virtual machine is not alive!");
+					: throw new InvalidOperationException("Virtual machine is disposed!");
 #else
 				new(virtualMachinePtr.value->threads.Begin + threadId);
 #endif

@@ -153,6 +153,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
                     offset += DuplicateStack.size;
                     break;
                 }
+                case PushNullToStack.OpCode:
+                {
+                    ExecutePushNullToStack(*(PushNullToStack*)opCode);
+                    offset += PushNullToStack.size;
+                    break;
+                }
                 case OpCodeType.Invalid:
                 default:
                     throw new NotSupportedException($"Invalid OpCode: {type}");

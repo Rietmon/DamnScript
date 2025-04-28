@@ -136,6 +136,12 @@ namespace DamnScript.Runtimes.Debugs
                         offset += sizeof(DuplicateStack);
                         break;
                     }
+                    case PushNullToStack.OpCode:
+                    {
+                        sb.AppendLine($"{offset.ToString()}: PUSHNULL");
+                        offset += sizeof(PushNullToStack);
+                        break;
+                    }
                     default:
                         throw new NotSupportedException($"Invalid OpCode: {opCode}");
                 }

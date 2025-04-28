@@ -27,13 +27,13 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
             currentHash = 0;
         }
     
-        public ScriptAssembler PushToStack(ScriptValue value) =>
+        public void PushToStack(ScriptValue value) =>
             Add(new PushToStack(value.rawLong));
     
-        public ScriptAssembler NativeCall(int methodIndex, int argumentsCount) =>
+        public void NativeCall(int methodIndex, int argumentsCount) =>
             Add(new NativeCall(methodIndex, argumentsCount));
     
-        public ScriptAssembler ExpressionCall(ExpressionCall.ExpressionCallType type) =>
+        public void ExpressionCall(ExpressionCall.ExpressionCallType type) =>
             Add(new ExpressionCall(type));
 
         public ScriptAssembler SetSavePoint()
@@ -43,28 +43,31 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
             return this;
         }
     
-        public ScriptAssembler JumpNotEquals(int jumpOffset) =>
+        public void JumpNotEquals(int jumpOffset) =>
             Add(new JumpNotEquals(jumpOffset));
     
-        public ScriptAssembler JumpIfEquals(int jumpOffset) =>
+        public void JumpIfEquals(int jumpOffset) =>
             Add(new JumpEquals(jumpOffset));
     
-        public ScriptAssembler Jump(int jumpOffset) =>
+        public void Jump(int jumpOffset) =>
             Add(new Jump(jumpOffset));
     
-        public ScriptAssembler PushStringToStack(int index) =>
+        public void PushStringToStack(int index) =>
             Add(new PushStringToStack(index));
         
-        public ScriptAssembler StoreToRegister(int register) =>
+        public void StoreToRegister(int register) =>
             Add(new StoreToRegister(register));
         
-        public ScriptAssembler LoadFromRegister(int register) =>
+        public void LoadFromRegister(int register) =>
             Add(new LoadFromRegister(register));
         
-        public ScriptAssembler DuplicateStack() =>
+        public void DuplicateStack() =>
             Add(new DuplicateStack(0));
+        
+        public void PushNullToStack() =>
+            Add(new PushNullToStack(0));
 
-        public ScriptAssembler Add<T>(T value) where T : unmanaged, IOpCode
+        public void Add<T>(T value) where T : unmanaged, IOpCode
         {
             var length = sizeof(T);
             if (offset + length > size)
@@ -90,7 +93,6 @@ namespace DamnScript.Runtimes.VirtualMachines.Assemblers
             var ptr = byteCode + offset;
             *(T*)ptr = value;
             offset += length;
-            return this;
         }
     
         public ByteCodeData FinishAlloc()

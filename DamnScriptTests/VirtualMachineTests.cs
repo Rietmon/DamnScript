@@ -17,7 +17,7 @@ namespace DamnScriptTests
         public unsafe void ReuseScriptData()
         {
             ScriptEngine.mainPtr.RefValue.Dispose();
-            ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+            ScriptEngine.mainPtr.RefValue = new VirtualMachine(1);
             ScriptEngine.RegisterNativeMethod(Empty);
 
             var code = @"
@@ -47,7 +47,7 @@ namespace DamnScriptTests
                 Assert.That(thread.Ptr.RefValue.isAlive, Is.False);
             }
         
-            Assert.That(ScriptEngine.mainPtr.RefValue.threads.Length, Is.EqualTo(16));
+            Assert.That(ScriptEngine.mainPtr.RefValue.threads.Length, Is.EqualTo(1));
             ScriptEngine.UnloadScript(scriptDataPtr);
             Assert.That(scriptDataPtr.RefValue, Is.Not.EqualTo(scriptData));
             Assert.That(PinHelper.PinsCount, Is.EqualTo(0));
@@ -57,7 +57,7 @@ namespace DamnScriptTests
         public void ReAllocThreadsTest()
         {
             ScriptEngine.mainPtr.RefValue.Dispose();
-            ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+            ScriptEngine.mainPtr.RefValue = new VirtualMachine(1);
             ScriptEngine.RegisterNativeMethod(Empty);
 
             var code = @"
@@ -120,12 +120,12 @@ namespace DamnScriptTests
         private static async Task<ScriptValuePtr> PrintTestClassAndAlloc(ScriptValuePtr value)
         {
             var handle = ScriptEngine.CurrentThreadHandle;
-            await Task.Delay(10);
+            await Task.Delay(1);
             for (var i = 0; i < 8; i++)
             {
                 ScriptValue ret = 0;
                 BigAlloc(new ScriptValuePtr(ref ret));
-                await Task.Delay(10);
+                await Task.Delay(1);
             }
         
             var test = value.GetReferencePin<TestClass>();
@@ -137,7 +137,7 @@ namespace DamnScriptTests
         public unsafe void AllocWhenExecutingTest()
         {
             ScriptEngine.mainPtr.RefValue.Dispose();
-            ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+            ScriptEngine.mainPtr.RefValue = new VirtualMachine(1);
             ScriptEngine.RegisterNativeMethod(CreateTestClass);
             ScriptEngine.RegisterNativeMethod(BigAlloc);
             ScriptEngine.RegisterNativeMethod(PrintTestClassAndAlloc);
@@ -147,14 +147,14 @@ namespace DamnScriptTests
             {
                 CreateTestClass();
                 BigAlloc(0);
-                Delay(10);
+                Delay(1);
                 BigAlloc(1);
-                Delay(10);
+                Delay(1);
                 BigAlloc(2);
                 for (i in 20)
                 {
                     BigAlloc(i);
-                    Delay(10);
+                    Delay(1);
                 }
                 PrintTestClassAndAlloc(PopFromStack());
             }";
@@ -200,7 +200,7 @@ namespace DamnScriptTests
         public void UseAsyncWithoutPinTest()
         {
             ScriptEngine.mainPtr.RefValue.Dispose();
-            ScriptEngine.mainPtr.RefValue = new VirtualMachine(16);
+            ScriptEngine.mainPtr.RefValue = new VirtualMachine(1);
             ScriptEngine.RegisterNativeMethod(UseAsyncPrimitive);
             ScriptEngine.RegisterNativeMethod(UseAsyncRef);
     

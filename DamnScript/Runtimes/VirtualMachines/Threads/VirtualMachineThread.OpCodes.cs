@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using DamnScript.Runtimes.Cores;
+using DamnScript.Runtimes.Cores.Pins;
 using DamnScript.Runtimes.Debugs;
 using DamnScript.Runtimes.VirtualMachines.OpCodes;
 using DamnScript.Runtimes.VirtualMachines.ScriptValues;
@@ -277,6 +278,14 @@ namespace DamnScript.Runtimes.VirtualMachines.Threads
 			Debugging.Log("Begin duplicate stack...");
 #endif
 			StackPush(StackPeek());
+		}
+
+		private void ExecutePushNullToStack(PushNullToStack _)
+		{
+#if DAMN_SCRIPT_ENABLE_EXECUTION_LOG
+			Debugging.Log("Begin push null to stack...");
+#endif
+			StackPush(new ScriptValue(null, ScriptValue.ValueType.ReferenceSafePointer));
 		}
 	}
 }

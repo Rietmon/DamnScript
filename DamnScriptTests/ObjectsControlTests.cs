@@ -28,7 +28,7 @@ namespace DamnScriptTests
 				ScriptValuePtr value5, ScriptValuePtr value6, ScriptValuePtr value7, ScriptValuePtr value8, ScriptValuePtr value9)
 			{
 				var handle = ScriptEngine.CurrentThreadHandle;
-				await Task.Delay(100);
+				await Task.Delay(1);
 				Value += value1.RawInt + value2.RawInt + value3.RawInt + value4.RawInt +
 				         value5.RawInt + value6.RawInt + value7.RawInt + value8.RawInt + value9.RawInt;
 				return ScriptValue.FromReferencePin(this).ReturnAsync(handle);

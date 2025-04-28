@@ -41,4 +41,8 @@ GREATER: '>';
 LESS_EQUAL: '<=';
 GREATER_EQUAL: '>=';
 
+TRUE  : 'true';
+FALSE : 'false';
+NULL  : 'null';
+
 WS: [ \t\r\n]+ -> skip;

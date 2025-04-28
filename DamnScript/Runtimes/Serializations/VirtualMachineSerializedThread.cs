@@ -27,7 +27,7 @@ namespace DamnScript.Runtimes.Serializations
         
         public int savePoint;
         
-        public VirtualMachineThreadStack stack;
+        public VirtualMachineThreadStack stack; // Rietmon: TODO: REMOVE
         public VirtualMachineThreadRegisters threadRegisters;
     }
 }

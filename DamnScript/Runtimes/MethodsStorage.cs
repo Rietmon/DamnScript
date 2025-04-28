@@ -84,5 +84,8 @@ namespace DamnScript.Runtimes
         
             throw new Exception($"Method with the name \"{methodName}\" and with {argumentsCount.ToString()} not found!");
         }
+        
+        public static void RemoveAllNativeMethods() =>
+            methods.Clear();
     }
 }

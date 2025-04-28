@@ -23,6 +23,8 @@ namespace DamnScript.Parsings.Antlrs
 
 		public RegistersNamesBuffer registersNames;
 
+		public bool isObjectCall;
+		
 		public bool isError;
 
 		public int ReserveIdentifier(String32 identifier)
