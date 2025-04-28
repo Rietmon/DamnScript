@@ -1,7 +1,5 @@
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.Arm;
 
 namespace DamnScript.Runtimes.Cores.Pins
 {
@@ -18,7 +16,7 @@ namespace DamnScript.Runtimes.Cores.Pins
 			pinnedObjects = new ObjectPin[DefaultPinsBucketSize];
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public short FastFindFreeSlot()
 		{
 			const int hashStride = ObjectPin.HashOffsetAsIntPtr + 1;

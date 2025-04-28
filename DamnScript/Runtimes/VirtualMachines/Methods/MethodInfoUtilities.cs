@@ -41,18 +41,18 @@ namespace DamnScript.Runtimes.VirtualMachines.Methods
 			method.GetParameters();
 #endif
 
-#if DAMN_SCRIPT_ENABLE_IL2CPP
+#if DAMN_SCRIPT_ENABLE_IL2CPP && !UNITY_EDITOR
 		[StructLayout(LayoutKind.Sequential)]
 		private struct UnmanagedMonoMethodInfo
 		{
-			public UnsafeUtilities.UnmanagedClassHeader header;
+			public UnsafeUtilities.ClassHeader header;
 			public void* methodPointer;
 		}
 #endif
 
 		public static void* GetFunctionPointer(MethodInfo method)
 		{
-#if DAMN_SCRIPT_ENABLE_IL2CPP
+#if DAMN_SCRIPT_ENABLE_IL2CPP && !UNITY_EDITOR
 			var info = (UnmanagedMonoMethodInfo*)UnsafeUtilities.ReferenceToPointer(method);
 			return info->methodPointer;
 #else
