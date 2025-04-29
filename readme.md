@@ -7,6 +7,20 @@ It is designed for writing game behavior logic with deep integration into C# and
 
 ---
 
+### 📊 DamnScript vs Lua/.NET — Benchmarks
+
+| Test                                        | Lua           | DamnScript     | Compiled DS    | .NET       |
+|---------------------------------------------|---------------|----------------|----------------|------------|
+| 🔁 Call C# from script                      | **861.3 µs**  | **8.9 µs**     | —              | —          |
+| 📦 Load large script                        | **794.2 µs**  | **235.1 µs**   | **13.8 µs**    | —          |
+| 📌 Object pinning                           | —             | **2.2 µs**     | —              | **1.8 µs** |
+
+> ⚖️ DamnScript is ~96× faster than Lua when calling C#, and ~57× faster when loading large scripts.
+
+<sub>👉 [See full details in benchmarks](https://github.com/Rietmon/DamnScript/blob/main/benchmarks.md)</sub>
+
+---
+
 ## 🚀 Features
 
 - ⚡ Lightning-fast execution and loading speed

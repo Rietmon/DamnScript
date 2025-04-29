@@ -28,13 +28,17 @@ namespace DamnScript.Runtimes.Serializations
                     threadsBegin++;
                     continue;
                 }
+
+#if DAMN_SCRIPT_ENABLE_ADDITIONAL_CHECKS
+                if (threadsBegin->stack.stackOffset != 0)
+                    throw new Exception("Thread has non empty stack!");    
+#endif
                 
                 var serializedThread = new VirtualMachineSerializedThread
                 {
                     scriptName = threadsBegin->scriptData->name,
                     regionName = threadsBegin->regionData->name,
                     savePoint = threadsBegin->savePoint,
-                    stack = threadsBegin->stack,
                     threadRegisters = threadsBegin->threadRegisters
                 };
                 stream.Write(serializedThread);

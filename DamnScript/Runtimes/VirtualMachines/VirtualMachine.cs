@@ -75,7 +75,6 @@ namespace DamnScript.Runtimes.VirtualMachines
             {
                 offset = data->savePoint,
                 savePoint = data->savePoint,
-                stack = data->stack,
                 threadRegisters = data->threadRegisters
             };
             var slot = GetEmptySlotOrReAlloc();
