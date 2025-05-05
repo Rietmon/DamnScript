@@ -40,7 +40,7 @@ namespace DamnScript.Runtimes.Cores.Collections
             }
         }
     
-        public NativeArray(int length, bool clear = false)
+        public NativeArray(int length, bool clear = true)
         {
             Length = length;
             Begin = (T*)UnsafeUtilities.Alloc(sizeof(T) * length);
@@ -78,7 +78,15 @@ namespace DamnScript.Runtimes.Cores.Collections
                 begin++;
             }
         }
-    
+
+        public T[] ToArray()
+        {
+            var array = new T[Length];
+            fixed (T* ptr = array)
+                UnsafeUtilities.Memcpy(Begin, ptr, Length * sizeof(T));
+            return array;
+        }
+
         public void Dispose()
         {
             AssertIfNotInitialized();
@@ -94,11 +102,14 @@ namespace DamnScript.Runtimes.Cores.Collections
                 throw new NullReferenceException("NativeArray is not initialized.");
         }
 
-        public static void ReAlloc(NativeArray<T>* ptr, int newSize)
+        public static void ReAlloc(NativeArray<T>* ptr, int newSize, bool clear = true)
         {
             ptr->AssertIfNotInitialized();
             
             var newBegin = (T*)UnsafeUtilities.ReAlloc(ptr->Begin, sizeof(T) * newSize);
+            if (clear)
+                UnsafeUtilities.Memset(newBegin + ptr->Length, 0, sizeof(T) * (newSize - ptr->Length));
+            
             *ptr = new NativeArray<T>(newSize, newBegin);
         }
     }

@@ -4,6 +4,7 @@ using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Collections;
 using DamnScript.Runtimes.Cores.Strings;
 using DamnScript.Runtimes.Debugs;
+using DamnScript.Runtimes.VirtualMachines;
 using DamnScript.Runtimes.VirtualMachines.Scripts;
 
 namespace DamnScript.Parsings.Compilings
@@ -20,8 +21,8 @@ namespace DamnScript.Parsings.Compilings
             var stream = new SerializationStream(scriptCode, length);
 
             var version = stream.Read<int>();
-            if (version != ScriptCompiler.Version)
-                throw new Exception($"Invalid script version: {version}. Expected: {ScriptCompiler.Version}");
+            if (version != VirtualMachine.Version)
+                throw new Exception($"Invalid script version: {version}. Expected: {VirtualMachine.Version}");
 
             var regionsCount = stream.Read<int>();
             for (var i = 0; i < regionsCount; i++)

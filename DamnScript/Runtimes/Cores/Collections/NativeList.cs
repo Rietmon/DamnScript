@@ -5,9 +5,9 @@ namespace DamnScript.Runtimes.Cores.Collections
 {
     public unsafe struct NativeList<T> where T : unmanaged
     {
+        public T* Begin { get; private set; }
         public int Count { get; private set; }
         public int Capacity { get; private set; }
-        public T* Begin { get; private set; }
 
         public T* Last
         {
@@ -42,7 +42,7 @@ namespace DamnScript.Runtimes.Cores.Collections
             }
         }
 
-        public NativeList(int capacity)
+        public NativeList(int capacity, bool clear = true)
         {
             if (capacity <= 0)
                 throw new ArgumentOutOfRangeException(nameof(capacity), "Capacity must be greater than 0.");
@@ -50,6 +50,9 @@ namespace DamnScript.Runtimes.Cores.Collections
             Begin = (T*)UnsafeUtilities.Alloc(sizeof(T) * capacity);
             Count = 0;
             Capacity = capacity;
+        
+            if (clear)
+                UnsafeUtilities.Memset(Begin, 0, sizeof(T) * capacity);
         }
 
         public void Add(T value)
@@ -58,8 +61,10 @@ namespace DamnScript.Runtimes.Cores.Collections
         
             if (Count == Capacity)
             {
+                var oldCapacity = Capacity;
                 Capacity *= 2;
                 Begin = (T*)UnsafeUtilities.ReAlloc(Begin, Capacity * sizeof(T));
+                UnsafeUtilities.Memset(Begin + oldCapacity, 0, (Capacity - oldCapacity) * sizeof(T));
             }
             Begin[Count++] = value;
         }
@@ -70,8 +75,10 @@ namespace DamnScript.Runtimes.Cores.Collections
         
             if (Count + length > Capacity)
             {
+                var oldCapacity = Capacity;
                 Capacity = Count + length;
                 Begin = (T*)UnsafeUtilities.ReAlloc(Begin, Capacity * sizeof(T));
+                UnsafeUtilities.Memset(Begin + oldCapacity, 0, (Capacity - oldCapacity) * sizeof(T));
             }
             UnsafeUtilities.Memcpy(values, Begin + Count, length * sizeof(T));
             Count += length;
@@ -80,13 +87,14 @@ namespace DamnScript.Runtimes.Cores.Collections
         public bool Remove(T value)
         {
             AssertIfNotInitialized();
-        
+
+            var ptr = &value;
             var begin = Begin;
             var end = End;
             var i = 0;
             while (begin < end)
             {
-                if (UnsafeUtilities.Memcmp(begin, &value))
+                if (UnsafeUtilities.Memcmp(begin, ptr))
                 {
                     RemoveAt(i);
                     return true;

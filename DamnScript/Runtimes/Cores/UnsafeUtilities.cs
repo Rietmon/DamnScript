@@ -180,6 +180,17 @@ namespace DamnScript.Runtimes.Cores
 		        _ => Memcmp8((byte*)left, (byte*)right, size)
 	        };
         }
+        
+        public static bool Cmp(byte* ptr, byte value, int size)
+		{
+	        for (var i = 0; i < size; i++)
+	        {
+		        if (ptr[i] != value)
+			        return false;
+	        }
+
+	        return true;
+		}
 
 #if UNITY_5_3_OR_NEWER
         [StructLayout(LayoutKind.Sequential)]

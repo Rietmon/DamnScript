@@ -1,26 +1,28 @@
 ﻿using System;
 using System.IO;
+using DamnScript.Parsings.Antlrs;
 using DamnScript.Parsings.Serializations;
 using DamnScript.Runtimes;
+using DamnScript.Runtimes.Cores;
 using DamnScript.Runtimes.Cores.Strings;
+using DamnScript.Runtimes.VirtualMachines;
+using DamnScript.Runtimes.VirtualMachines.Scripts;
 
 namespace DamnScript.Parsings.Compilings
 {
     public static unsafe class ScriptCompiler
     {
-        public const int Version = 1;
-        
         public static void Compile(Stream input, String32 name, Stream output)
         {
-            var scriptData = ScriptsStorage.LoadScript(input, name);
-        
+            var scriptData = new ScriptData();
+            ScriptParser.ParseScript(input, name, &scriptData);
+            
             var stream = new SerializationStream(1024);
-        
-            stream.Write(Version);
-            stream.Write(scriptData.value->regions.Length);
+            stream.Write(VirtualMachine.Version);
+            stream.Write(scriptData.regions.Length);
             {
-                var begin = scriptData.value->regions.Begin;
-                var end = scriptData.value->regions.End;
+                var begin = scriptData.regions.Begin;
+                var end = scriptData.regions.End;
                 while (begin < end)
                 {
                     stream.Write(begin->name);
@@ -31,7 +33,7 @@ namespace DamnScript.Parsings.Compilings
                 }
             }
             
-            var constants = scriptData.value->metadata.constants;
+            var constants = scriptData.metadata.constants;
             
             stream.WriteNativeStringArray(constants.strings);
             
@@ -42,6 +44,8 @@ namespace DamnScript.Parsings.Compilings
             output.Flush();
             output.Dispose();
             stream.Dispose();
+            
+            scriptData.Dispose();
         }
     }
 }

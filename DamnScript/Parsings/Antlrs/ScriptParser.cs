@@ -26,7 +26,7 @@ namespace DamnScript.Parsings.Antlrs
 
             scriptData->name = name;
 
-            var regions = new NativeList<RegionData>(16);
+            var regions = new NativeList<RegionData>(2);
             var strings = new NativeList<NativeStringPtr>(16);
             var methods = new NativeList<NativeStringPtr>(16);
             var context = new ScriptParserContext();
