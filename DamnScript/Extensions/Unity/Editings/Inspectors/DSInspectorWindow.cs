@@ -10,6 +10,7 @@ namespace DamnScript.Extensions.Unity.Editings.Inspectors
 	public unsafe partial class DSInspectorWindow : EditorWindow
 	{
 		private static GUIStyle _listButtonStyle;
+		private static GUIStyle _richTextStyle;
 
 		private Tabs _currentTab;
 
@@ -47,6 +48,17 @@ namespace DamnScript.Extensions.Unity.Editings.Inspectors
 						case Tabs.Threads:
 							OnGUIThreads();
 							break;
+						case Tabs.Scripts:
+							OnGUIScripts();
+							break;
+						case Tabs.Methods:
+							OnGUIMethods();
+							break;
+						case Tabs.Pins:
+							OnGUIPins();
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
 					}
 				}
 				GUILayout.EndHorizontal();
@@ -63,24 +75,41 @@ namespace DamnScript.Extensions.Unity.Editings.Inspectors
 			GUI.color = previousColor;
 			return button;
 		}
+		
+		private void DrawInfo(string name, string value)
+		{
+			GUILayout.Label($"<b>{name}</b>: {value}", _richTextStyle);
+		}
 
 		private void DrawScriptValues(string name, ScriptValue* values, int size, ref bool foldout)
 		{
-			foldout = EditorGUILayout.Foldout(foldout, name);
-			if (foldout)
+			if (BeginDrawAsFoldout(name, ref foldout))
 			{
-				GUILayout.BeginHorizontal();
-				{
-					GUILayout.Space(25);
-					GUILayout.BeginVertical();
-					{
-						for (var i = 0; i < size; i++)
-							DrawScriptValue(values + i);
-					}
-					GUILayout.EndVertical();
-				}
-				GUILayout.EndHorizontal();
+				for (var i = 0; i < size; i++)
+					DrawScriptValue(values + i);
 			}
+			EndDrawAsFoldout(ref foldout);
+		}
+
+		private bool BeginDrawAsFoldout(string name, ref bool foldout)
+		{
+			foldout = EditorGUILayout.Foldout(foldout, name);
+			if (!foldout)
+				return foldout;
+
+			GUILayout.BeginHorizontal();
+			GUILayout.Space(25);
+			GUILayout.BeginVertical();
+			return foldout;
+		}
+
+		private void EndDrawAsFoldout(ref bool foldout)
+		{
+			if (!foldout)
+				return;
+			
+			GUILayout.EndVertical();
+			GUILayout.EndHorizontal();
 		}
 
 		private void DrawScriptValue(ScriptValue* ptr)
@@ -132,6 +161,10 @@ namespace DamnScript.Extensions.Unity.Editings.Inspectors
 			{
 				alignment = TextAnchor.MiddleLeft,
 				fixedHeight = 25
+			};
+			_richTextStyle ??= new GUIStyle(EditorStyles.label)
+			{
+				richText = true,
 			};
 		}
 

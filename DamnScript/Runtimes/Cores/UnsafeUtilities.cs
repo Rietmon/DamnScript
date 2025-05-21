@@ -232,7 +232,7 @@ namespace DamnScript.Runtimes.Cores
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref T AsRef<T>(void* ptr) where T : unmanaged => 
+        public static ref T AsRef<T>(void* ptr) where T : struct => 
 #if UNITY_5_3_OR_NEWER
 	        ref UnsafeUtility.AsRef<T>(ptr);
 #else

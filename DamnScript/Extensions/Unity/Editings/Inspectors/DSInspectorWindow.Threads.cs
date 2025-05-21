@@ -16,7 +16,7 @@ namespace DamnScript.Extensions.Unity.Editings.Inspectors
 		private bool[] _paramsFoldout = new bool[VirtualMachine.DefaultThreadsCapacity];
 		private bool[] _registersFoldout = new bool[VirtualMachine.DefaultThreadsCapacity];
 
-		private Vector2 _scrollPosition;
+		private Vector2 _threadsScrollPosition;
 
 		private void OnGUIThreads()
 		{
@@ -31,8 +31,8 @@ namespace DamnScript.Extensions.Unity.Editings.Inspectors
 			if (_registersFoldout.Length != vm->threads.Length)
 				Array.Resize(ref _registersFoldout, vm->threads.Length);
 
-			_scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
-			GUILayout.Label($"Threads allocated: {vm->ThreadsAllocated.ToString()}/{vm->threads.Length.ToString()}");
+			_threadsScrollPosition = GUILayout.BeginScrollView(_threadsScrollPosition);
+			GUILayout.Label($"Threads allocated: {vm->ThreadsAllocated.ToString()}/{vm->threads.Length.ToString()}", EditorStyles.boldLabel);
 			
 			GUILayout.BeginVertical();
 			{
@@ -62,11 +62,11 @@ namespace DamnScript.Extensions.Unity.Editings.Inspectors
 		{
 			GUILayout.BeginVertical();
 			{
-				GUILayout.Label($"Address: 0x{new IntPtr(ptr).ToString("X")}");
-				GUILayout.Label($"Is in await: {(ptr->awaitTaskPin != default).ToString()}");
-				GUILayout.Label($"Script/Region: {ptr->scriptData->name.ToString()}/{ptr->regionData->name.ToString()}");
-				GUILayout.Label($"Current offset: {ptr->offset.ToString()}");
-				GUILayout.Label($"Save point offset: {ptr->savePoint.ToString()}");
+				DrawInfo("Address", $"0x{new IntPtr(ptr).ToString("X")}");
+				DrawInfo("Is in await", (ptr->awaitTaskPin != default).ToString());
+				DrawInfo("Script/Region", $"{ptr->scriptData->name.ToString()}/{ptr->regionData->name.ToString()}");
+				DrawInfo("Current offset", ptr->offset.ToString());
+				DrawInfo("Save point offset", ptr->savePoint.ToString());
 				ptr->isFreezed = EditorGUILayout.Toggle("Is freezed", ptr->isFreezed);
 				if (ptr->stack.stackOffset > 0)
 				{
@@ -85,7 +85,7 @@ namespace DamnScript.Extensions.Unity.Editings.Inspectors
 				}
 				DrawScriptValues($"Parameters ({paramsCount.ToString()})", ptr->parametersStack.BeginPtr, paramsCount, ref _paramsFoldout[id]);
 				
-				_registersFoldout[id] = EditorGUILayout.Foldout(_registersFoldout[id], "Registers");
+				_registersFoldout[id] = EditorGUILayout.Foldout(_registersFoldout[id], "Registers (4)");
 				if (_registersFoldout[id])
 				{
 					GUILayout.BeginHorizontal();
