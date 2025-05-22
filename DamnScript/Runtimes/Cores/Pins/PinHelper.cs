@@ -16,18 +16,31 @@ namespace DamnScript.Runtimes.Cores.Pins
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
-				var count = 0;
-				for (var i = 0; i < _buckets.Length; i++)
-					count += (int)(DefaultPinsBucketSize - _buckets[i].freeSlots);
+#if NETCOREAPP
+				lock (_buckets)
+#endif
+				{
+					var count = 0;
+					for (var i = 0; i < _buckets.Length; i++)
+						count += (int)(DefaultPinsBucketSize - _buckets[i].freeSlots);
 
-				return count;
+					return count;
+				}
 			}
 		}
 		
 		public static PinsBucket[] Buckets
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => _buckets;
+			get
+			{
+#if NETCOREAPP
+				lock (_buckets)
+#endif
+				{
+					return _buckets;
+				}
+			}
 		}
 
 		private static PinsBucket[] _buckets =
@@ -40,91 +53,128 @@ namespace DamnScript.Runtimes.Cores.Pins
 
 		public static PinHandle Pin(object obj)
 		{
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj), "Cannot pin a null object.");
-            
-			var (bucketIndex, slotIndex) = FindEmptySlotOrResize();
+#if NETCOREAPP
+			lock (_buckets)
+#endif
+			{
+				if (obj == null)
+					throw new ArgumentNullException(nameof(obj), "Cannot pin a null object.");
 
-			var objHash = obj.GetHashCode();
-			var hash = objHash + slotIndex;
+				var (bucketIndex, slotIndex) = FindEmptySlotOrResize();
 
-			var handle = new ObjectPin(hash, obj);
+				var objHash = obj.GetHashCode();
+				var hash = objHash + slotIndex;
 
-			ref var bucket = ref _buckets[bucketIndex];
-			bucket.pinnedObjects[slotIndex] = handle;
-			bucket.freeSlots--;
+				var handle = new ObjectPin(hash, obj);
 
-			return new PinHandle(hash, bucketIndex, slotIndex);
+				ref var bucket = ref _buckets[bucketIndex];
+				bucket.pinnedObjects[slotIndex] = handle;
+				bucket.freeSlots--;
+
+				return new PinHandle(hash, bucketIndex, slotIndex);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void* GetAddress(PinHandle pin)
 		{
-			ref var handle = ref GetRefPin(pin);
-			return UnsafeUtilities.ReferenceToPointer(handle.target);
+#if NETCOREAPP
+			lock (_buckets)
+#endif
+			{
+				ref var handle = ref GetRefPin(pin);
+				return UnsafeUtilities.ReferenceToPointer(handle.target);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static object GetTarget(PinHandle pin)
 		{
-			ref var handle = ref GetRefPin(pin);
-			return handle.target;
+#if NETCOREAPP
+			lock (_buckets)
+#endif
+			{
+				ref var handle = ref GetRefPin(pin);
+				return handle.target;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Free(PinHandle pin)
 		{
-			ref var handle = ref GetRefPin(pin);
-			handle = default;
-			_buckets[pin.bucketIndex].freeSlots++;
+#if NETCOREAPP
+			lock (_buckets)
+#endif
+			{
+				ref var handle = ref GetRefPin(pin);
+				handle = default;
+				_buckets[pin.bucketIndex].freeSlots++;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static ref ObjectPin GetRefPin(PinHandle pin)
 		{
-			ref var h = ref _buckets[pin.bucketIndex].pinnedObjects[pin.slotIndex];
-			if (h.hash == pin.hash)
-				return ref h;
+#if NETCOREAPP
+			lock (_buckets)
+#endif
+			{
+				ref var h = ref _buckets[pin.bucketIndex].pinnedObjects[pin.slotIndex];
+				if (h.hash == pin.hash)
+					return ref h;
 
-			throw new Exception($"Failed to find handle with hash {pin.hash} in pinned objects array!");
+				throw new Exception($"Failed to find handle with hash {pin.hash} in pinned objects array!");
+			}
 		}
 
 		private static (short bucket, short index) FindEmptySlotOrResize()
 		{
-			for (short i = 0; i < _buckets.Length; i++)
+#if NETCOREAPP
+			lock (_buckets)
+#endif
 			{
-				ref var bucket = ref _buckets[i];
-				if (bucket.freeSlots > 0)
+				for (short i = 0; i < _buckets.Length; i++)
 				{
-					var index = bucket.FastFindFreeSlot();
-					if (index == -1)
-						throw new Exception($"Failed to find empty slot in bucket {i}! Mismatched free slots count!");
-					
-					return (i, index);
+					ref var bucket = ref _buckets[i];
+					if (bucket.freeSlots > 0)
+					{
+						var index = bucket.FastFindFreeSlot();
+						if (index == -1)
+							throw new Exception(
+								$"Failed to find empty slot in bucket {i}! Mismatched free slots count!");
+
+						return (i, index);
+					}
 				}
+
+				var oldLength = _buckets.Length;
+				var newSize = oldLength * 2;
+				if (newSize > short.MaxValue)
+					throw new Exception(
+						$"Failed to resize buckets! New size {newSize} is greater than max value {short.MaxValue}!");
+
+				Array.Resize(ref _buckets, newSize);
+				for (var i = oldLength; i < newSize; i++)
+					_buckets[i] = new PinsBucket(DefaultPinsBucketSize);
+
+				return ((short)oldLength, 0);
 			}
-
-			var oldLength = _buckets.Length;
-			var newSize = oldLength * 2;
-			if (newSize > short.MaxValue)
-				throw new Exception($"Failed to resize buckets! New size {newSize} is greater than max value {short.MaxValue}!");
-			
-			Array.Resize(ref _buckets, newSize);
-			for (var i = oldLength; i < newSize; i++)
-				_buckets[i] = new PinsBucket(DefaultPinsBucketSize);
-
-			return ((short)oldLength, 0);
 		}
 
 		public static void FreeAllPins()
 		{
-			for (var i = 0; i < _buckets.Length; i++)
+#if NETCOREAPP
+			lock (_buckets)
+#endif
 			{
-				ref var bucket = ref _buckets[i];
-				for (var j = 0; j < DefaultPinsBucketSize; j++)
-					bucket.pinnedObjects[j] = default;
+				for (var i = 0; i < _buckets.Length; i++)
+				{
+					ref var bucket = ref _buckets[i];
+					for (var j = 0; j < DefaultPinsBucketSize; j++)
+						bucket.pinnedObjects[j] = default;
 
-				bucket.freeSlots = DefaultPinsBucketSize;
+					bucket.freeSlots = DefaultPinsBucketSize;
+				}
 			}
 		}
 	}
