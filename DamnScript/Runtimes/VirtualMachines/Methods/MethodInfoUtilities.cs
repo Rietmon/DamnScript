@@ -8,6 +8,12 @@ namespace DamnScript.Runtimes.VirtualMachines.Methods
 	public static unsafe class MethodInfoUtilities
 	{
 #if !DAMN_SCRIPT_DISABLE_RAW_METHOD_INFO
+#if NET9_0_OR_GREATER
+		private const string NoCopyMethodName = "FetchNonReturnParameters";
+#else
+		private const string NoCopyMethodName = "GetParametersNoCopy";
+#endif
+		
 		private static readonly MethodInfo getParametersNoCopyMethodInfo;
 		
 		static MethodInfoUtilities()
@@ -16,9 +22,9 @@ namespace DamnScript.Runtimes.VirtualMachines.Methods
 			if (runtimeMethodInfoType == null)
 				throw new Exception("Type \"System.Reflection.RuntimeMethodInfo\" not found!");
             
-			getParametersNoCopyMethodInfo = runtimeMethodInfoType.GetMethod("GetParametersNoCopy", BindingFlags.NonPublic | BindingFlags.Instance);
+			getParametersNoCopyMethodInfo = runtimeMethodInfoType.GetMethod(NoCopyMethodName, BindingFlags.NonPublic | BindingFlags.Instance);
 			if (getParametersNoCopyMethodInfo == null)
-				throw new Exception("Method \"GetParametersNoCopy\" not found!");
+				throw new Exception($"Method {NoCopyMethodName} not found!");
 		}
 #endif
 
