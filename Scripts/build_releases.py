@@ -8,7 +8,7 @@ from datetime import datetime
 
 OUTPUT_DIR = "./Scripts/Releases"
 
-NET_RELEASE_SOURCE_DIR = "./_Binaries/Release/net7.0/"
+NET_RELEASE_SOURCE_DIR = "./_Binaries/Release/net9.0/"
 NET_RELEASE_FILES = [
     "Antlr4.Runtime.dll",
     "DamnScript.dll",
@@ -16,7 +16,7 @@ NET_RELEASE_FILES = [
     "DamnScript.deps.json",
 ]
 
-NET_DEBUG_SOURCE_DIR = "./_Binaries/Debug/net7.0/"
+NET_DEBUG_SOURCE_DIR = "./_Binaries/Debug/net9.0/"
 NET_DEBUG_FILES = [
     "Antlr4.Runtime.dll",
     "DamnScript.dll",
@@ -28,30 +28,30 @@ UNITY_RELEASE_SOURCE_DIR = "./DamnScript/"
 UNITY_RELEASE_FILES = [
     "Runtimes/",
     "Parsings/",
-    "obj/Release/net7.0/DamnScriptLexer.cs",
-    "obj/Release/net7.0/DamnScriptLexer.tokens",
-    "obj/Release/net7.0/DamnScriptParser.cs",
-    "obj/Release/net7.0/DamnScriptParser.tokens",
-    "obj/Release/net7.0/DamnScriptParserBaseListener.cs",
-    "obj/Release/net7.0/DamnScriptParserBaseVisitor.cs",
-    "obj/Release/net7.0/DamnScriptParserListener.cs",
-    "obj/Release/net7.0/DamnScriptParserVisitor.cs",
-    "../_Binaries/Release/net7.0/Antlr4.Runtime.dll"
+    "obj/Release/net9.0/DamnScriptLexer.cs",
+    "obj/Release/net9.0/DamnScriptLexer.tokens",
+    "obj/Release/net9.0/DamnScriptParser.cs",
+    "obj/Release/net9.0/DamnScriptParser.tokens",
+    "obj/Release/net9.0/DamnScriptParserBaseListener.cs",
+    "obj/Release/net9.0/DamnScriptParserBaseVisitor.cs",
+    "obj/Release/net9.0/DamnScriptParserListener.cs",
+    "obj/Release/net9.0/DamnScriptParserVisitor.cs",
+    "../_Binaries/Release/net9.0/Antlr4.Runtime.dll"
 ]
 
 UNITY_DEBUG_SOURCE_DIR = "./DamnScript/"
 UNITY_DEBUG_FILES = [
     "Runtimes/",
     "Parsings/",
-    "obj/Debug/net7.0/DamnScriptLexer.cs",
-    "obj/Debug/net7.0/DamnScriptLexer.tokens",
-    "obj/Debug/net7.0/DamnScriptParser.cs",
-    "obj/Debug/net7.0/DamnScriptParser.tokens",
-    "obj/Debug/net7.0/DamnScriptParserBaseListener.cs",
-    "obj/Debug/net7.0/DamnScriptParserBaseVisitor.cs",
-    "obj/Debug/net7.0/DamnScriptParserListener.cs",
-    "obj/Debug/net7.0/DamnScriptParserVisitor.cs",
-    "../_Binaries/Debug/net7.0/Antlr4.Runtime.dll"
+    "obj/Debug/net9.0/DamnScriptLexer.cs",
+    "obj/Debug/net9.0/DamnScriptLexer.tokens",
+    "obj/Debug/net9.0/DamnScriptParser.cs",
+    "obj/Debug/net9.0/DamnScriptParser.tokens",
+    "obj/Debug/net9.0/DamnScriptParserBaseListener.cs",
+    "obj/Debug/net9.0/DamnScriptParserBaseVisitor.cs",
+    "obj/Debug/net9.0/DamnScriptParserListener.cs",
+    "obj/Debug/net9.0/DamnScriptParserVisitor.cs",
+    "../_Binaries/Debug/net9.0/Antlr4.Runtime.dll"
 ]
 
 def create_zip_package(source_dir, files_to_include, output_filename):
